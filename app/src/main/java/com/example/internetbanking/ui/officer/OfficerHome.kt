@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.GradientBackground
 import com.example.internetbanking.ui.theme.GradientColors
@@ -62,7 +63,7 @@ fun OfficerHome(
             TopAppBar(
                 title = {
                     Image(
-                        painter = painterResource(R.drawable.logo_2),
+                        painter = painterResource(R.drawable.logo_2_mint_green),
                         contentDescription = "LB Digital",
                         modifier = Modifier.width(100.dp)
                     )
@@ -99,7 +100,7 @@ fun OfficerHome(
             GradientBackground(
                 modifier = Modifier
                     .padding(vertical = 16.dp, horizontal = 36.dp)
-                    .fillMaxHeight(0.15f)
+                    .fillMaxHeight(0.125f)
                     .clip(
                         shape = RoundedCornerShape(16.dp)
                     )
@@ -121,15 +122,14 @@ fun OfficerHome(
                             modifier = Modifier.width(100.dp)
                         )
                         Text(
-                            // text = officerUiState.officer.fullName,
-                            text = "Nguyễn Văn A",
+                            text = officerUiState.officer.fullName,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start
@@ -141,8 +141,7 @@ fun OfficerHome(
                             modifier = Modifier.width(100.dp)
                         )
                         Text(
-                            // text = officerUiState.officer.userId,
-                            text = "0123456789",
+                            text = officerUiState.officer.userId,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -192,8 +191,8 @@ fun OfficerHome(
                             contentDescription = "Create customer",
                             modifier = Modifier
                                 .clip(RoundedCornerShape(16.dp))
-                                .clickable {    // TODO: CREATE CUSTOMER EVENT
-
+                                .clickable {
+                                    navController.navigate(route = AppScreen.CreateCustomer.name)
                                 }
                         )
                         Spacer(modifier = Modifier.height(5.dp))
@@ -215,8 +214,8 @@ fun OfficerHome(
                             contentDescription = "Edit customer",
                             modifier = Modifier
                                 .clip(RoundedCornerShape(16.dp))
-                                .clickable {    // TODO: EDIT CUSTOMER EVENT
-
+                                .clickable {
+                                    navController.navigate(route = AppScreen.EditCustomerProfile.name)
                                 }
                         )
                         Spacer(modifier = Modifier.height(5.dp))
@@ -241,8 +240,8 @@ fun OfficerHome(
                         contentDescription = "Edit Profitable rates",
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .clickable {    // TODO: EDIT PROFITABLE RATES
-
+                            .clickable {
+                                navController.navigate(route = AppScreen.ModifyProfitableRates)
                             }
                     )
                     Spacer(modifier = Modifier.height(5.dp))

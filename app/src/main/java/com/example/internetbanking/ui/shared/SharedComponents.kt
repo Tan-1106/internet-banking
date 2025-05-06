@@ -1,5 +1,7 @@
 package com.example.internetbanking.ui.shared
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,8 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
+import java.time.format.DateTimeFormatter
 
-// Gradient Background
 @Composable
 fun GradientBackground(
     modifier: Modifier = Modifier,
@@ -183,5 +185,12 @@ fun InformationLine(label: String, placeholder: String, suffix: @Composable () -
             suffix()
         }
     }
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DatePicker(
+
+) {
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
 }
 

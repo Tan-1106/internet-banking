@@ -9,11 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -22,11 +21,17 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +40,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.BalanceInformation
+import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_mint_green
@@ -46,6 +52,18 @@ fun TransferScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
+    val banks = listOf<String>("Vietcombank", "Sacombank", "Techcombank")
+    val categories = listOf<String>(
+        "Supermarket", "Dining", "Billing payment",
+        "House rental", "Traffic spending", "Home helper", "Others"
+    )
+
+    var beneficiaryBank by remember { mutableStateOf("") }
+    var beneficiaryAccount by remember { mutableStateOf("") }
+    var amount by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
+
     Scaffold(
         containerColor = custom_mint_green,
         topBar = {
@@ -97,6 +115,8 @@ fun TransferScreen(
                 InformationSelect(
                     label = "Beneficiary bank",
                     placeholder = "Select beneficiary bank",
+                    options = banks,
+                    onOptionSelected = { beneficiaryBank = it },
                     suffix = {
                         VerticalDivider(
                             modifier = Modifier
@@ -107,17 +127,15 @@ fun TransferScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
-                InformationSelect(
+                InformationLine(
                     label = "Beneficiary account/card",
                     placeholder = "Account/card number",
-                    suffix = {
-                        VerticalDivider(
-                            modifier = Modifier
-                                .fillMaxHeight(0.8f),
-                            color = Color.Gray
-                        )
-                        Icon(Icons.Default.Bookmark, contentDescription = "Beneficiary account/card")
-                    },
+                    value = beneficiaryAccount,
+                    onValueChange = { beneficiaryAccount = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text(
@@ -126,9 +144,11 @@ fun TransferScreen(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(vertical = 10.dp)
                 )
-                InformationSelect(
+                InformationLine(
                     label = "Amount",
                     placeholder = "Enter amount",
+                    value = amount,
+                    onValueChange = { amount = it },
                     suffix = {
                         VerticalDivider(
                             modifier = Modifier
@@ -141,16 +161,27 @@ fun TransferScreen(
                             color = Color.Gray
                         )
                     },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
-                InformationSelect(
+                InformationLine(
+                    value = content,
+                    onValueChange = { content = it },
                     label = "Content",
                     placeholder = "Enter transaction content",
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 InformationSelect(
                     label = "Transaction category",
                     placeholder = "Select by purpose",
+                    options = categories,
+                    onOptionSelected = { category = it },
                     suffix = {
                         VerticalDivider(
                             modifier = Modifier

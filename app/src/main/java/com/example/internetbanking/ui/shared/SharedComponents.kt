@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
@@ -162,9 +164,13 @@ fun InformationSelect(
     label: String,
     placeholder: String,
     modifier: Modifier = Modifier,
+    options: List<String>,
+    onOptionSelected: (String) -> Unit,
     suffix: @Composable () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("") }
+
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -180,7 +186,7 @@ fun InformationSelect(
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(10.dp)
-            .height(50.dp)
+            .height(60.dp)
             .clickable {
                 expanded = true
             }
@@ -189,17 +195,27 @@ fun InformationSelect(
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
+                .padding(start = 10.dp)
         ) {
             Text(
                 text = label,
                 fontWeight = FontWeight.Bold
             )
-            TextButton(
-                onClick = { expanded = true }
-            ) {
+            if (selectedOption != "") {
                 Text(
-                    text = placeholder,
-                    color = Color.Gray
+                    text =  selectedOption,
+                    color = Color.Black,
+                    modifier = Modifier.clickable {
+                        expanded = true
+                    }
+                )
+            } else {
+                Text(
+                    text =  placeholder,
+                    color = Color.Gray,
+                    modifier = Modifier.clickable {
+                        expanded = true
+                    }
                 )
             }
             DropdownMenu(
@@ -209,20 +225,78 @@ fun InformationSelect(
                 },
                 modifier = Modifier.fillMaxWidth(0.7f)
             ) {
-                DropdownMenuItem(
-                    text =
-                        { Text("Vietcombank") },
-                    onClick = { expanded = false }
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            selectedOption = option
+                            expanded = false
+                            onOptionSelected(selectedOption)
+                        }
+                    )
+                }
+            }
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            suffix()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InformationLine(
+    label: String,
+    placeholder: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    suffix: @Composable () -> Unit = {},
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .padding(vertical = 10.dp)
+            .border(
+                width = 1.dp,
+                color = Color.Gray,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(10.dp)
+            .height(60.dp)
+
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(start = 10.dp)
+        ) {
+            Text(
+                text = label,
+                fontWeight = FontWeight.Bold
+            )
+            Box {
+                Text(
+                    text = if (value == "") placeholder else "",
+                    color = Color.Gray
                 )
-                DropdownMenuItem(
-                    text =
-                        { Text("Sacombank") },
-                    onClick = { expanded = false }
-                )
-                DropdownMenuItem(
-                    text =
-                        { Text("Techcombank") },
-                    onClick = { expanded = false }
+                BasicTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    singleLine = true,
+                    keyboardOptions = keyboardOptions,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
@@ -282,24 +356,25 @@ fun DatePicker(
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(10.dp)
-            .height(50.dp)
+            .height(60.dp)
             .clickable {
-               openSheet = true
+                openSheet = true
             }
 
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
+                .padding(start = 10.dp)
         ) {
             Text(label, fontWeight = FontWeight.Bold)
-            TextButton(
-                onClick = { openSheet = true }
-            ) {
-                Text(
-                    text = if (date == "") placeholder else date,
-                    color = Color.Gray)
-            }
+            Text(
+                text = if (date == "") placeholder else date,
+                color = Color.Gray,
+                modifier = Modifier.clickable {
+                    openSheet = true
+                }
+            )
             if (openSheet) {
                 ModalBottomSheet(
                     onDismissRequest = { openSheet = false },

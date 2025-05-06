@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +37,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.ui.shared.DatePicker
+import com.example.internetbanking.ui.shared.InformationLine
+import com.example.internetbanking.ui.shared.InformationSelect
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.OfficerViewModel
@@ -42,7 +49,6 @@ fun CreateCustomerScreen(
     officerViewModel: OfficerViewModel,
     navController: NavHostController
 ) {
-    var userId by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
     var identificationNumber by remember { mutableStateOf("") }
@@ -97,16 +103,101 @@ fun CreateCustomerScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = 10.dp)
             )
-
-            DatePicker(
-                label = "Birthday",
-                placeholder = "Select birthday",
-                onDatePick = { birthday = it },
-                suffix = {
-                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select birthday")
+            LazyColumn {
+                item {
+                    InformationLine(
+                        label = "Full name",
+                        placeholder = "Enter full name",
+                        value = fullName,
+                        onValueChange = { fullName = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next
+                        )
+                    )
                 }
-            )
+                item{
+                    InformationSelect(
+                        label = "Gender",
+                        placeholder = "Select gender",
+                        options = listOf("Male", "Female"),
+                        onOptionSelected = { gender = it },
+                        suffix = {
+                            VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                            Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select gender")
+                        }
+                    )
+                }
+                item {
+                    InformationLine(
+                        label = "Identification number",
+                        placeholder = "Enter ID",
+                        value = identificationNumber,
+                        onValueChange = { identificationNumber = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                }
+                item {
+                    InformationLine(
+                        label = "Phone number",
+                        placeholder = "Enter phone number",
+                        value = phoneNumber,
+                        onValueChange = { phoneNumber = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                }
+                item {
+                    InformationLine(
+                        label = "Email",
+                        placeholder = "Enter email",
+                        value = email,
+                        onValueChange = { email = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                }
+                item {
+                    DatePicker(
+                        label = "Birthday",
+                        placeholder = "Select birthday",
+                        onDatePick = { birthday = it },
+                        suffix = {
+                            VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                            Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
+                        }
+                    )
+                }
+                item {
+                    InformationLine(
+                        label = "Address",
+                        placeholder = "Enter address",
+                        value = address,
+                        onValueChange = { address = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                }
+                item {
+                    InformationSelect(
+                        label = "Role",
+                        placeholder = "Select role",
+                        options = listOf("Checking", "Saving", "Mortgage"),
+                        onOptionSelected = { role = it },
+                        suffix = {
+                            VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                            Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select role")
+                        }
+                    )
+                }
+            }
         }
     }
 }

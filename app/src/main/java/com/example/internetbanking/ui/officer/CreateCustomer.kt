@@ -2,15 +2,12 @@ package com.example.internetbanking.ui.officer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,7 +32,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.ui.shared.DatePicker
-import com.example.internetbanking.ui.shared.InformationSelect
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.OfficerViewModel
@@ -55,7 +51,7 @@ fun CreateCustomerScreen(
     var birthday by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("") }
-    
+
     Scaffold(
         containerColor = custom_mint_green,
         topBar = {

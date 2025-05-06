@@ -40,12 +40,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.internetbanking.ui.theme.GradientColors
-import com.example.internetbanking.ui.theme.custom_dark_green
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+// Gradient Background
 @Composable
 fun GradientBackground(
     modifier: Modifier = Modifier,

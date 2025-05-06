@@ -1,13 +1,16 @@
 package com.example.internetbanking.ui.customer
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Bookmark
@@ -16,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +35,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.BalanceInformation
-import com.example.internetbanking.ui.shared.InformationLine
+import com.example.internetbanking.ui.shared.InformationSelect
+import com.example.internetbanking.ui.theme.GradientColors
+import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,18 +47,40 @@ fun TransferScreen(
     navController: NavHostController
 ) {
     Scaffold(
+        containerColor = custom_mint_green,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.transfer_title)) },
-                navigationIcon = { Icon(Icons.Default.ArrowBack, contentDescription = null) })
-        }, modifier = Modifier
-            .systemBarsPadding()
-            .fillMaxSize()
+                title = {
+                    Text(
+                        text = stringResource(R.string.transfer_title),
+                        fontWeight = FontWeight.Bold,
+                        color = custom_mint_green
+                    )
+                },
+                navigationIcon = {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Navigate Back",
+                        tint = custom_mint_green,
+                        modifier = Modifier.size(30.dp)
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                ),
+                modifier = Modifier
+                    .background(
+                        brush = GradientColors.GreenRipple
+                    )
+            )
+        },
+        modifier = Modifier.systemBarsPadding()
     ) { paddingValue ->
         Box(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier
                 .padding(paddingValue)
+                .padding(vertical = 20.dp)
                 .fillMaxSize()
 
         ) {
@@ -61,52 +89,85 @@ fun TransferScreen(
             ) {
                 BalanceInformation()
                 Text(
-                    "Thông tin người nhận",
+                    "Beneficiary Information",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(vertical = 10.dp)
                 )
-                InformationLine(
-                    label = "Ngân hàng nhận",
-                    placeholder = "Chọn ngân hàng nhận",
+                InformationSelect(
+                    label = "Beneficiary bank",
+                    placeholder = "Select beneficiary bank",
                     suffix = {
-                        VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                    })
-                InformationLine(
-                    label = "Tài khoản/thẻ nhận",
-                    placeholder = "Chọn hoặc nhập số tài khoản/số thẻ nhận",
+                        VerticalDivider(
+                            modifier = Modifier
+                                .fillMaxHeight(0.8f),
+                            color = Color.Gray
+                        )
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Beneficiary Bank")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                InformationSelect(
+                    label = "Beneficiary account/card",
+                    placeholder = "Account/card number",
                     suffix = {
-                        VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                        Icon(Icons.Default.Bookmark, contentDescription = null)
-                    })
+                        VerticalDivider(
+                            modifier = Modifier
+                                .fillMaxHeight(0.8f),
+                            color = Color.Gray
+                        )
+                        Icon(Icons.Default.Bookmark, contentDescription = "Beneficiary account/card")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Text(
-                    "Thông tin giao dịch",
+                    "Transaction Information",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(vertical = 10.dp)
                 )
-                InformationLine(label = "Số tiền", placeholder = "Nhập số tiền", suffix = {
-                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                    Text("VND", fontSize = 10.sp, color = Color.Gray)
-                })
-                InformationLine(label = "Nội dung", placeholder = "Nhập nội dung chuyển khoản")
-                InformationLine(
-                    label = "Phân loại giao dịch",
-                    placeholder = "Chọn giao dịch theo mục đích",
+                InformationSelect(
+                    label = "Amount",
+                    placeholder = "Enter amount",
                     suffix = {
-                        VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                    })
-
+                        VerticalDivider(
+                            modifier = Modifier
+                                .fillMaxHeight(0.8f),
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "VND",
+                            fontSize = 10.sp,
+                            color = Color.Gray
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                InformationSelect(
+                    label = "Content",
+                    placeholder = "Enter transaction content",
+                    modifier = Modifier.fillMaxWidth()
+                )
+                InformationSelect(
+                    label = "Transaction category",
+                    placeholder = "Select by purpose",
+                    suffix = {
+                        VerticalDivider(
+                            modifier = Modifier
+                                .fillMaxHeight(0.8f),
+                            color = Color.Gray
+                        )
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Transaction Category")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
 }
 
 @Preview(
-    showBackground = true,
-    showSystemUi = true
+    showBackground = true
 )
 @Composable
 fun TransferScreenPreview() {

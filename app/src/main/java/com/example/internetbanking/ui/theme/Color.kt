@@ -30,7 +30,9 @@ object GradientColors {
     val GreenDarkToLight = Brush.linearGradient(
         colors = listOf(custom_dark_green, custom_light_green1, custom_light_green2)
     )
-
+    val GreenLightToDark = Brush.linearGradient(
+        colors = listOf(custom_light_green2, custom_light_green1, custom_dark_green)
+    )
     val GreenRipple = Brush.linearGradient(
         colors = listOf(
             custom_dark_green, custom_dark_green, custom_light_green1,

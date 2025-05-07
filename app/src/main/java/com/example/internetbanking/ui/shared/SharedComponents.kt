@@ -166,84 +166,96 @@ fun InformationSelect(
     modifier: Modifier = Modifier,
     options: List<String>,
     onOptionSelected: (String) -> Unit,
-    suffix: @Composable () -> Unit = {}
+    suffix: @Composable () -> Unit = {},
+    errorMessage: String = ""
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
 
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .padding(vertical = 10.dp)
-            .border(
-                width = 1.dp,
-                color = Color.Gray,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .padding(10.dp)
-            .height(60.dp)
-            .clickable {
-                expanded = true
-            }
-
+    Column(
+        modifier = Modifier.padding(vertical = 10.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(start = 10.dp)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .border(
+                    width = if (errorMessage == "") 1.dp else 3.dp,
+                    color = if (errorMessage == "") Color.Gray else Color.Red,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .padding(10.dp)
+                .height(60.dp)
+                .clickable {
+                    expanded = true
+                }
+
         ) {
-            Text(
-                text = label,
-                fontWeight = FontWeight.Bold
-            )
-            if (selectedOption != "") {
-                Text(
-                    text =  selectedOption,
-                    color = Color.Black,
-                    modifier = Modifier.clickable {
-                        expanded = true
-                    }
-                )
-            } else {
-                Text(
-                    text =  placeholder,
-                    color = Color.Gray,
-                    modifier = Modifier.clickable {
-                        expanded = true
-                    }
-                )
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                },
-                modifier = Modifier.fillMaxWidth(0.7f)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .padding(start = 10.dp)
             ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            selectedOption = option
-                            expanded = false
-                            onOptionSelected(selectedOption)
+                Text(
+                    text = label,
+                    fontWeight = FontWeight.Bold
+                )
+                if (selectedOption != "") {
+                    Text(
+                        text =  selectedOption,
+                        color = Color.Black,
+                        modifier = Modifier.clickable {
+                            expanded = true
+                        }
+                    )
+                } else {
+                    Text(
+                        text =  placeholder,
+                        color = Color.Gray,
+                        modifier = Modifier.clickable {
+                            expanded = true
                         }
                     )
                 }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        expanded = false
+                    },
+                    modifier = Modifier.fillMaxWidth(0.7f)
+                ) {
+                    options.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                selectedOption = option
+                                expanded = false
+                                onOptionSelected(selectedOption)
+                            }
+                        )
+                    }
+                }
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                suffix()
             }
         }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            suffix()
+        if (errorMessage != "") {
+            Text(
+                text = errorMessage,
+                fontSize = 14.sp,
+                color = Color.Red,
+                fontWeight = FontWeight.Bold,
+            )
         }
     }
 }
@@ -257,56 +269,68 @@ fun InformationLine(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     suffix: @Composable () -> Unit = {},
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    errorMessage: String = ""
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .padding(vertical = 10.dp)
-            .border(
-                width = 1.dp,
-                color = Color.Gray,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .padding(10.dp)
-            .height(60.dp)
-
+    Column(
+        modifier = Modifier.padding(vertical = 10.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(start = 10.dp)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .border(
+                    width = if (errorMessage == "") 1.dp else 3.dp,
+                    color = if (errorMessage == "") Color.Gray else Color.Red,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .padding(10.dp)
+                .height(60.dp)
+
         ) {
-            Text(
-                text = label,
-                fontWeight = FontWeight.Bold
-            )
-            Box {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .padding(start = 10.dp)
+            ) {
                 Text(
-                    text = if (value == "") placeholder else "",
-                    color = Color.Gray
+                    text = label,
+                    fontWeight = FontWeight.Bold
                 )
-                BasicTextField(
-                    value = value,
-                    onValueChange = onValueChange,
-                    singleLine = true,
-                    keyboardOptions = keyboardOptions,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box {
+                    Text(
+                        text = if (value == "") placeholder else "",
+                        color = Color.Gray
+                    )
+                    BasicTextField(
+                        value = value,
+                        onValueChange = onValueChange,
+                        singleLine = true,
+                        keyboardOptions = keyboardOptions,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                suffix()
             }
         }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            suffix()
+        if (errorMessage != "") {
+            Text(
+                text = errorMessage,
+                fontSize = 14.sp,
+                color = Color.Red,
+                fontWeight = FontWeight.Bold,
+            )
         }
     }
 }
@@ -321,7 +345,8 @@ fun DatePicker(
     onDatePick: (String) -> Unit,
     modifier: Modifier = Modifier,
     canSelectFuture: Boolean = false,
-    suffix: @Composable () -> Unit = {}
+    suffix: @Composable () -> Unit = {},
+    errorMessage: String = ""
 ) {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     val selectableDates = if (canSelectFuture) {
@@ -341,81 +366,92 @@ fun DatePicker(
     var openSheet by remember { mutableStateOf(false) }
     var date by remember { mutableStateOf("") }
 
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .padding(vertical = 10.dp)
-            .border(
-                width = 1.dp,
-                color = Color.Gray,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .padding(10.dp)
-            .height(60.dp)
-            .clickable {
-                openSheet = true
-            }
-
+    Column(
+        modifier = Modifier.padding(vertical = 10.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(start = 10.dp)
-        ) {
-            Text(label, fontWeight = FontWeight.Bold)
-            Text(
-                text = if (date == "") placeholder else date,
-                color = Color.Gray,
-                modifier = Modifier.clickable {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+                .border(
+                    width = if (errorMessage == "") 1.dp else 3.dp,
+                    color = if (errorMessage == "") Color.Gray else Color.Red,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .padding(10.dp)
+                .height(60.dp)
+                .clickable {
                     openSheet = true
                 }
-            )
-            if (openSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { openSheet = false },
-                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-                ) {
-                    Column(modifier = Modifier.systemBarsPadding()) {
 
-                        DatePicker(state = datePickerState)
-                        Spacer(Modifier.height(10.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            TextButton(onClick = {
-                                openSheet = false
-                            }) {
-                                Text("Cancel")
-                            }
-                            TextButton(onClick = {
-                                date = datePickerState.selectedDateMillis?.let {
-                                    Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())
-                                        .toLocalDate()
-                                }?.format(formatter) ?: ""
-                                openSheet = false
-                                onDatePick(date)
-                            }) {
-                                Text("Select")
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .padding(start = 10.dp)
+            ) {
+                Text(label, fontWeight = FontWeight.Bold)
+                Text(
+                    text = if (date == "") placeholder else date,
+                    color = Color.Gray,
+                    modifier = Modifier.clickable {
+                        openSheet = true
+                    }
+                )
+                if (openSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { openSheet = false },
+                        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                    ) {
+                        Column(modifier = Modifier.systemBarsPadding()) {
+
+                            DatePicker(state = datePickerState)
+                            Spacer(Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                TextButton(onClick = {
+                                    openSheet = false
+                                }) {
+                                    Text("Cancel")
+                                }
+                                TextButton(onClick = {
+                                    date = datePickerState.selectedDateMillis?.let {
+                                        Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())
+                                            .toLocalDate()
+                                    }?.format(formatter) ?: ""
+                                    openSheet = false
+                                    onDatePick(date)
+                                }) {
+                                    Text("Select")
+                                }
                             }
                         }
                     }
                 }
             }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                suffix()
+            }
         }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            suffix()
+        if (errorMessage != "") {
+            Text(
+                text = errorMessage,
+                fontSize = 14.sp,
+                color = Color.Red,
+                fontWeight = FontWeight.Bold,
+            )
         }
     }
 }

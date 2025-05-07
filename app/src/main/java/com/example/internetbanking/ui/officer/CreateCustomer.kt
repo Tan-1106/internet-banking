@@ -2,7 +2,10 @@ package com.example.internetbanking.ui.officer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -37,6 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.ui.shared.DatePicker
+import com.example.internetbanking.ui.shared.GreenGradientButton
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
 import com.example.internetbanking.ui.theme.GradientColors
@@ -71,7 +75,10 @@ fun CreateCustomerScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { navController.navigateUp() }
+                        onClick = {
+                            navController.navigateUp()
+                            officerViewModel.clearErrorMessage()
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -112,7 +119,8 @@ fun CreateCustomerScreen(
                         onValueChange = { fullName = it },
                         keyboardOptions = KeyboardOptions.Default.copy(
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        errorMessage = officerViewModel.nameErrorMessage
                     )
                 }
                 item{
@@ -124,7 +132,8 @@ fun CreateCustomerScreen(
                         suffix = {
                             VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
                             Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select gender")
-                        }
+                        },
+                        errorMessage = officerViewModel.genderErrorMessage
                     )
                 }
                 item {
@@ -136,7 +145,8 @@ fun CreateCustomerScreen(
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        errorMessage = officerViewModel.idErrorMessage
                     )
                 }
                 item {
@@ -148,7 +158,8 @@ fun CreateCustomerScreen(
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        errorMessage = officerViewModel.phoneNumberErrorMessage
                     )
                 }
                 item {
@@ -160,7 +171,8 @@ fun CreateCustomerScreen(
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Email,
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        errorMessage = officerViewModel.emailErrorMessage
                     )
                 }
                 item {
@@ -171,7 +183,8 @@ fun CreateCustomerScreen(
                         suffix = {
                             VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
                             Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
-                        }
+                        },
+                        errorMessage = officerViewModel.birthdayErrorMessage
                     )
                 }
                 item {
@@ -182,7 +195,8 @@ fun CreateCustomerScreen(
                         onValueChange = { address = it },
                         keyboardOptions = KeyboardOptions.Default.copy(
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        errorMessage = officerViewModel.addressErrorMessage
                     )
                 }
                 item {
@@ -194,7 +208,31 @@ fun CreateCustomerScreen(
                         suffix = {
                             VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
                             Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select role")
-                        }
+                        },
+                        errorMessage = officerViewModel.roleErrorMessage
+                    )
+                }
+                item {
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+                item {
+                    GreenGradientButton(
+                        onButtonClick = {
+                            officerViewModel.onCreateCustomerButtonClick(
+                                fullName = fullName,
+                                gender = gender,
+                                idNumber = identificationNumber,
+                                phoneNumber = phoneNumber,
+                                email = email,
+                                birthday = birthday,
+                                address = address,
+                                role = role
+                            )
+                        },
+                        buttonText = "Create",
+                        modifier = Modifier
+                            .height(50.dp)
+                            .fillMaxWidth()
                     )
                 }
             }

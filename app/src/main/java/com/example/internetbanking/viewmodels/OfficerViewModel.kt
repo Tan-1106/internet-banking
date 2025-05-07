@@ -1,9 +1,12 @@
 package com.example.internetbanking.viewmodels
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 import com.example.internetbanking.data.OfficerUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -128,5 +131,28 @@ class OfficerViewModel : ViewModel() {
         if (validateInputs(fullName, gender, idNumber, phoneNumber, email, birthday, address, role)) {
             // TODO: CREATE CUSTOMER EVENT
         }
+    }
+
+    // Change Profitable Rates
+
+
+    fun onValidateNewRateInput(newRate: String, context: Context): Boolean {
+        if(newRate.isEmpty()) {
+            Toast.makeText(context, "Please enter new profitable rates to change", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
+    }
+
+    fun onChangeRatesConfirm(newRate: String) {
+        // TODO: CHANGE PROFITABLE RATES
+    }
+
+    // Edit Customer
+    fun onSearchClick(cardNumber: String, context: Context, navController: NavHostController) {
+        if (cardNumber.isEmpty()) {
+            Toast.makeText(context, "Please enter customer's card number to search", Toast.LENGTH_SHORT).show()
+        }
+        // TODO: VERIFY CARD NUMBER AND NAVIGATE TO EDIT
     }
 }

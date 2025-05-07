@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
@@ -42,6 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.internetbanking.ui.theme.GradientColors
+import com.example.internetbanking.ui.theme.custom_dark_red
+import com.example.internetbanking.ui.theme.custom_light_green1
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -253,8 +256,7 @@ fun InformationSelect(
             Text(
                 text = errorMessage,
                 fontSize = 14.sp,
-                color = Color.Red,
-                fontWeight = FontWeight.Bold,
+                color = Color.Red
             )
         }
     }
@@ -328,8 +330,7 @@ fun InformationLine(
             Text(
                 text = errorMessage,
                 fontSize = 14.sp,
-                color = Color.Red,
-                fontWeight = FontWeight.Bold,
+                color = Color.Red
             )
         }
     }
@@ -449,11 +450,57 @@ fun DatePicker(
             Text(
                 text = errorMessage,
                 fontSize = 14.sp,
-                color = Color.Red,
-                fontWeight = FontWeight.Bold,
+                color = Color.Red
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppAlertDialog(
+    isShow: Boolean = false,
+    title: String,
+    content: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    if (isShow) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Text(
+                    text = title
+                )
+            },
+            text = {
+                Text(
+                    text = content
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = onConfirm
+                ) {
+                    Text(
+                        text = "Change",
+                        color = custom_light_green1
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onDismiss
+                ) {
+                    Text(
+                        text = "Cancel",
+                        color = custom_dark_red
+                    )
+                }
+            }
+        )
+    }
+
 }
 
 

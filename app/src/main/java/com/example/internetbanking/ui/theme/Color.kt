@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.theme
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
@@ -39,4 +40,10 @@ object GradientColors {
             custom_dark_green, custom_dark_green, custom_light_green1
         )
     )
+    val VerticalGreenDarkToLight = Brush.linearGradient(
+        colors = listOf(custom_dark_green, custom_light_green1, custom_light_green2, custom_mint_green, custom_light_green2),
+        start = Offset(0f, 0f),
+        end = Offset(0f, 1000f)
+    )
+
 }

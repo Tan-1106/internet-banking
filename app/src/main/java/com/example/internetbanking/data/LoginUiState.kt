@@ -16,3 +16,8 @@ data class User(
     val address: String = "",
     val role: String = ""
 )
+
+data class Customer(
+    val cardNumber: String = "",
+    val account: User = User()
+)

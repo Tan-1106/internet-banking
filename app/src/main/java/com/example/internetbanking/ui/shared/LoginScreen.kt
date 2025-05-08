@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.shared
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -43,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.R
 import com.example.internetbanking.ui.theme.custom_dark_green
 import com.example.internetbanking.viewmodels.LoginViewModel
 
@@ -55,30 +59,41 @@ fun LoginScreen(
     var passwordInput by remember { mutableStateOf("") }
     var isPasswordShowing by remember { mutableStateOf(false) }
 
-    AppBackground {
+    AppBackground(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         Scaffold(
-            topBar = {
-                Text(
-                    text = "VerdiBank"
-                )
-            },
             containerColor = Color.Transparent,
             modifier = Modifier
                 .systemBarsPadding()
                 .padding(horizontal = 40.dp)
         ) { innerPadding ->
             Column(
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
             ) {
+                Image(
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = null,
+                    modifier = Modifier.padding(top = 100.dp)
+                )
                 Text(
-                    text = "Welcome! Please log in",
-                    fontSize = 20.sp,
+                    text = "Welcome to GreenVault",
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = custom_dark_green,
+                    modifier = Modifier.padding(top = 20.dp, bottom = 10.dp)
+                )
+                Text(
+                    text = "\"Grow Safe, Go Green\"",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Italic,
+                    color = custom_dark_green
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 LoginTextField(

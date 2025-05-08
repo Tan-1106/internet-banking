@@ -63,13 +63,12 @@ fun AppBackground(
 ) {
     Box(
         modifier = modifier
-            .fillMaxSize()
     ) {
         Image(
             painter = painterResource(R.drawable.app_background),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize()
         )
         content()
     }

@@ -28,20 +28,20 @@ val custom_dark_red = Color(0xFF841C26)
 
 // Custom Gradient Color
 object GradientColors {
-    val GreenDarkToLight = Brush.linearGradient(
+    val Green_DarkToLight = Brush.linearGradient(
         colors = listOf(custom_dark_green, custom_light_green1, custom_light_green2)
     )
-    val GreenLightToDark = Brush.linearGradient(
+    val Green_LightToDark = Brush.linearGradient(
         colors = listOf(custom_light_green2, custom_light_green1, custom_dark_green)
     )
-    val GreenRipple = Brush.linearGradient(
+    val Green_Ripple = Brush.linearGradient(
         colors = listOf(
             custom_dark_green, custom_dark_green, custom_light_green1,
             custom_dark_green, custom_dark_green, custom_light_green1
         )
     )
-    val VerticalGreenDarkToLight = Brush.linearGradient(
-        colors = listOf(custom_dark_green, custom_light_green1, custom_light_green2, custom_mint_green, custom_light_green2),
+    val Green_VerticalDarkToLight = Brush.linearGradient(
+        colors = listOf(custom_dark_green, custom_light_green1, custom_light_green2),
         start = Offset(0f, 0f),
         end = Offset(0f, 1000f)
     )

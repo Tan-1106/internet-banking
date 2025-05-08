@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.shared
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,9 +41,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.internetbanking.R
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_red
 import com.example.internetbanking.ui.theme.custom_light_green1
@@ -52,16 +57,20 @@ import java.time.format.DateTimeFormatter
 
 // Gradient Background
 @Composable
-fun GradientBackground(
+fun AppBackground(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
         modifier = modifier
-            .background(
-                brush = GradientColors.GreenDarkToLight
-            )
+            .fillMaxSize()
     ) {
+        Image(
+            painter = painterResource(R.drawable.app_background),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
         content()
     }
 }
@@ -81,7 +90,7 @@ fun GreenGradientButton(
         modifier = modifier
             .background(
                 shape = RoundedCornerShape(12.dp),
-                brush = GradientColors.GreenDarkToLight
+                brush = GradientColors.Green_DarkToLight
             )
     ) {
         Text(
@@ -97,7 +106,7 @@ fun BalanceInformation() {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                brush = GradientColors.GreenLightToDark,
+                brush = GradientColors.Green_LightToDark,
                 shape = RoundedCornerShape(
                     topStart = CornerSize(40),
                     bottomEnd = CornerSize(40),

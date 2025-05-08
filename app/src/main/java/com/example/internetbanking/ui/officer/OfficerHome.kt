@@ -54,7 +54,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.AppAlertDialog
-import com.example.internetbanking.ui.shared.GradientBackground
+import com.example.internetbanking.ui.shared.AppBackground
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
@@ -104,7 +104,7 @@ fun OfficerHome(
                 ),
                 modifier = Modifier
                     .background(
-                        brush = GradientColors.GreenRipple
+                        brush = GradientColors.Green_Ripple
                     )
             )
         },
@@ -115,7 +115,7 @@ fun OfficerHome(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            GradientBackground(
+            AppBackground(
                 modifier = Modifier
                     .padding(vertical = 16.dp, horizontal = 20.dp)
                     .fillMaxHeight(0.125f)
@@ -174,7 +174,7 @@ fun OfficerHome(
                     .fillMaxWidth()
                     .height(50.dp)
                     .background(
-                        brush = GradientColors.GreenDarkToLight
+                        brush = GradientColors.Green_DarkToLight
                     )
             ) {
                 Text(
@@ -198,7 +198,7 @@ fun OfficerHome(
                         )
                         .fillMaxWidth()
                         .background(
-                            brush = GradientColors.VerticalGreenDarkToLight
+                            brush = GradientColors.Green_VerticalDarkToLight
                         )
                 ) {
                     Column(
@@ -318,7 +318,7 @@ fun OfficerHome(
                             )
                             .fillMaxSize()
                             .background(
-                                brush = GradientColors.VerticalGreenDarkToLight
+                                brush = GradientColors.Green_VerticalDarkToLight
                             )
                     ) {
                         Column(

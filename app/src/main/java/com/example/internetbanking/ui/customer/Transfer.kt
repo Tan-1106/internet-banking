@@ -88,7 +88,7 @@ fun TransferScreen(
                 ),
                 modifier = Modifier
                     .background(
-                        brush = GradientColors.GreenRipple
+                        brush = GradientColors.Green_Ripple
                     )
             )
         },

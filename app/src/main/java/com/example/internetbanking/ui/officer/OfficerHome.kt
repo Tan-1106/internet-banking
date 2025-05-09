@@ -4,28 +4,26 @@ import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -58,13 +56,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.AppAlertDialog
-import com.example.internetbanking.ui.shared.AppBackground
 import com.example.internetbanking.ui.shared.InformationLine
+import com.example.internetbanking.ui.shared.toReadableDateTime
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
-import com.example.internetbanking.ui.theme.custom_dark_red
 import com.example.internetbanking.ui.theme.custom_light_green2
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.OfficerViewModel
@@ -98,7 +96,7 @@ fun OfficerHome(
                     title = {
                         Text(
                             text = "Green Vault Digibank",
-                            fontSize = 16.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = custom_mint_green
                         )
@@ -135,96 +133,314 @@ fun OfficerHome(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .padding(20.dp)
             ) {
+                Box(
+                    modifier = Modifier
+                        .height(100.dp)
+                        .fillMaxWidth()
+                        .clip(
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.app_background),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Officer:",
+                                color = Color.White,
+                                fontSize = 18.sp
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = officerUiState.officer.fullName,
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.width(240.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "ID:",
+                                color = Color.White,
+                                fontSize = 18.sp
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = officerUiState.officer.userId,
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.width(240.dp)
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(40.dp))
+                Text(
+                    text = "Function:",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = custom_dark_green
+                )
 
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color.White
+                        )
+                ) {
+                    Box (
+                        modifier = Modifier
+                            .height(100.dp)
+                            .fillMaxWidth(0.5f)
+                            .background(
+                                shape = RoundedCornerShape(12.dp),
+                                brush = GradientColors.Green_VerticalLightToDark
+                            )
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 20.dp, vertical = 10.dp)
+                        ) {
+                            Text(
+                                text = "Profitable Rates:",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = officerUiState.profitableRates.toString(),
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 50.sp,
+                                    modifier = Modifier.padding(end = 5.dp)
+                                )
+                                Text(
+                                    text = "%",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp
+                                )
+                            }
+                        }
+                    }
+                    Box (
+                        modifier = Modifier
+                            .height(100.dp)
+                            .fillMaxWidth()
+
+                    ){
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 10.dp)
+                                .padding(top = 10.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .height(40.dp)
+                                        .fillMaxWidth(0.8f)
+                                        .border(
+                                            width = 1.dp,
+                                            color = Color.Black,
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                        .padding(horizontal = 5.dp)
+                                ) {
+                                    BasicTextField(
+                                        value = newProfitableRatesValue,
+                                        onValueChange = { newProfitableRatesValue = it },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions.Default.copy(
+                                            keyboardType = KeyboardType.Number,
+                                            imeAction = ImeAction.Done
+                                        ),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Icon(
+                                    imageVector = Icons.Filled.Percent,
+                                    contentDescription = "Profitable Rates",
+                                    tint = custom_dark_green
+                                )
+                            }
+                            Button(
+                                onClick = {
+                                    if(officerViewModel.onValidateNewRateInput(newProfitableRatesValue, context)) {
+                                        isShowAlertDialog = true
+                                    }
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = custom_light_green2
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Change",
+                                    fontSize = 16.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                    AppAlertDialog(
+                        isShow = isShowAlertDialog,
+                        title = "Confirm Profitable Rates Change",
+                        content = "Are you sure you want to change profitable rates to ${newProfitableRatesValue}%",
+                        onConfirm = {
+                            officerViewModel.onChangeRatesConfirm(newProfitableRatesValue)
+                        },
+                        onDismiss = {
+                            newProfitableRatesValue = ""
+                            officerViewModel.clearErrorMessage()
+                            isShowAlertDialog = false
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+                Box(
+                    contentAlignment = Alignment.CenterEnd,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Updated: ${officerUiState.ratesChangeTimestamp.toReadableDateTime()}",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Light,
+                        modifier = Modifier
+                            .padding(bottom = 5.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier
+                        .height(100.dp)
+                        .fillMaxWidth()
+                        .background(
+                            shape = RoundedCornerShape(12.dp),
+                            brush = GradientColors.Green_DarkToLight
+                        )
+                        .clickable {
+                            navController.navigate(AppScreen.CreateCustomer.name)
+                        }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .fillMaxSize()
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = "Create customer",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(30.dp)
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = "Create customer",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp
+                            )
+                        }
+                        Image(
+                            painter = painterResource(R.drawable.create_customer),
+                            contentDescription = "Create Customer"
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(30.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            shape = RoundedCornerShape(12.dp),
+                            brush = GradientColors.Green_DarkToLight
+                        )
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                    ) {
+                        Text(
+                            text = "Edit Customer's Information",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        InformationLine(
+                            label = "Customer's card number",
+                            placeholder = "Enter card number",
+                            value = customerCardNumber,
+                            onValueChange = { customerCardNumber = it },
+                            suffix = {
+                                IconButton(
+                                    onClick = {
+                                        officerViewModel.onSearchClick(customerCardNumber, context, navController)
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Search,
+                                        contentDescription = "Search Customer's Information",
+                                        tint = custom_dark_green
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
             }
         }
-
     }
 }
-
-//Box(
-//modifier = Modifier.height(120.dp)
-//) {
-//    InformationLine(
-//        label = "Change profitable rates",
-//        value = newProfitableRatesValue,
-//        placeholder = "Enter new profitable rates",
-//        onValueChange = { newProfitableRatesValue = it },
-//        keyboardOptions = KeyboardOptions.Default.copy(
-//            keyboardType = KeyboardType.Number,
-//            imeAction = ImeAction.Done
-//        )
-//    )
-//}
-//Button(
-//onClick = {
-//    if(officerViewModel.onValidateNewRateInput(newProfitableRatesValue, context)) {
-//        isShowAlertDialog = true
-//    }
-//},
-//shape = RoundedCornerShape(12.dp),
-//colors = ButtonDefaults.buttonColors(
-//containerColor = custom_dark_green
-//),
-//modifier = Modifier
-//.fillMaxWidth()
-//) {
-//    Text(
-//        text = "Change",
-//        fontSize = 16.sp,
-//        color = Color.White,
-//        fontWeight = FontWeight.Bold
-//    )
-//}
-//AppAlertDialog(
-//isShow = isShowAlertDialog,
-//title = "Confirm Profitable Rates Change",
-//content = "Are you sure you want to change profitable rates to ${newProfitableRatesValue}%",
-//onConfirm = {
-//    officerViewModel.onChangeRatesConfirm(newProfitableRatesValue)
-//},
-//onDismiss = {
-//    newProfitableRatesValue = ""
-//    officerViewModel.clearErrorMessage()
-//    isShowAlertDialog = false
-//}
-//)
-
-
-//Column(
-//verticalArrangement = Arrangement.Top,
-//horizontalAlignment = Alignment.Start,
-//modifier = Modifier
-//.fillMaxSize()
-//.padding(20.dp)
-//) {
-//    Text(
-//        text = "Edit customer's information",
-//        fontSize = 20.sp,
-//        fontWeight = FontWeight.Bold,
-//        color = Color.White
-//    )
-//    InformationLine(
-//        label = "Customer's card number",
-//        placeholder = "Enter card number",
-//        value = customerCardNumber,
-//        onValueChange = { customerCardNumber = it },
-//        suffix = {
-//            IconButton(
-//                onClick = {
-//                    officerViewModel.onSearchClick(customerCardNumber, context, navController)
-//                }
-//            ) {
-//                Icon(
-//                    imageVector = Icons.Filled.Search,
-//                    contentDescription = "Search Customer's Information",
-//                    tint = custom_dark_green
-//                )
-//            }
-//        }
-//    )
-//}
 
 @Preview(
     showBackground = true

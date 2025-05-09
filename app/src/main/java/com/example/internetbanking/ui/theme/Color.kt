@@ -45,5 +45,9 @@ object GradientColors {
         start = Offset(0f, 0f),
         end = Offset(0f, 1000f)
     )
-
+    val Green_VerticalLightToDark = Brush.linearGradient(
+        colors = listOf(custom_light_green2, custom_light_green1, custom_dark_green),
+        start = Offset(0f, 0f),
+        end = Offset(0f, 1000f)
+    )
 }

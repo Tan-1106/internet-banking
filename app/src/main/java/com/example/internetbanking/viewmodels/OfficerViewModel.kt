@@ -138,7 +138,7 @@ class OfficerViewModel : ViewModel() {
 
     fun onValidateNewRateInput(newRate: String, context: Context): Boolean {
         if(newRate.isEmpty()) {
-            Toast.makeText(context, "Please enter new profitable rates to change", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Enter new profitable rates to change", Toast.LENGTH_SHORT).show()
             return false
         }
         return true
@@ -151,7 +151,7 @@ class OfficerViewModel : ViewModel() {
     // Edit Customer
     fun onSearchClick(cardNumber: String, context: Context, navController: NavHostController) {
         if (cardNumber.isEmpty()) {
-            Toast.makeText(context, "Please enter customer's card number to search", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Enter card number to search", Toast.LENGTH_SHORT).show()
         }
         // TODO: VERIFY CARD NUMBER AND NAVIGATE TO EDIT
     }

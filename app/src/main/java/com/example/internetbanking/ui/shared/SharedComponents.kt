@@ -278,6 +278,7 @@ fun InformationLine(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    isEnable: Boolean = true,
     suffix: @Composable () -> Unit = {},
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     errorMessage: String = ""
@@ -319,6 +320,7 @@ fun InformationLine(
                     BasicTextField(
                         value = value,
                         onValueChange = onValueChange,
+                        enabled = isEnable,
                         singleLine = true,
                         keyboardOptions = keyboardOptions,
                         modifier = Modifier.fillMaxWidth()
@@ -508,7 +510,14 @@ fun AppAlertDialog(
             }
         )
     }
+}
 
+fun Long.toReadableDateTime(pattern: String = "HH:mm - dd/MM/yyyy"): String {
+    val instant = Instant.ofEpochMilli(this)
+    val formatter = DateTimeFormatter
+        .ofPattern(pattern)
+        .withZone(ZoneId.systemDefault())
+    return formatter.format(instant)
 }
 
 

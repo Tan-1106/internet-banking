@@ -1,9 +1,12 @@
 package com.example.internetbanking.ui.officer
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,11 +44,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.DatePicker
 import com.example.internetbanking.ui.shared.GreenGradientButton
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
 import com.example.internetbanking.ui.theme.GradientColors
+import com.example.internetbanking.ui.theme.custom_dark_green
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.OfficerViewModel
 
@@ -62,178 +69,192 @@ fun CreateCustomerScreen(
     var address by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("") }
 
-    Scaffold(
-        containerColor = custom_mint_green,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Create customer",
-                        fontWeight = FontWeight.Bold,
-                        color = custom_mint_green
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navController.navigateUp()
-                            officerViewModel.clearErrorMessage()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Image(
+            painter = painterResource(R.drawable.sub_background1),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = "Create customer",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = custom_mint_green
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                navController.navigateUp()
+                                officerViewModel.clearErrorMessage()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Navigate Back",
+                                tint = custom_mint_green,
+                                modifier = Modifier.size(30.dp)
+                            )
                         }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Navigate Back",
-                            tint = custom_mint_green,
-                            modifier = Modifier.size(30.dp)
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent
+                    ),
+                    modifier = Modifier
+                        .background(
+                            brush = GradientColors.Green_DarkToLight
+                        )
+                )
+            },
+            modifier = Modifier.systemBarsPadding()
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(20.dp)
+            ) {
+                Text(
+                    "Customer Information",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = custom_dark_green,
+                    modifier = Modifier.padding(vertical = 10.dp)
+                )
+                LazyColumn {
+                    item {
+                        InformationLine(
+                            label = "Full name",
+                            placeholder = "Enter full name",
+                            value = fullName,
+                            onValueChange = { fullName = it },
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Next
+                            ),
+                            errorMessage = officerViewModel.nameErrorMessage
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                ),
-                modifier = Modifier
-                    .background(
-                        brush = GradientColors.Green_Ripple
-                    )
-            )
-        },
-        modifier = Modifier.systemBarsPadding()
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(20.dp)
-        ) {
-            Text(
-                "Customer Information",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 10.dp)
-            )
-            LazyColumn {
-                item {
-                    InformationLine(
-                        label = "Full name",
-                        placeholder = "Enter full name",
-                        value = fullName,
-                        onValueChange = { fullName = it },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next
-                        ),
-                        errorMessage = officerViewModel.nameErrorMessage
-                    )
-                }
-                item{
-                    InformationSelect(
-                        label = "Gender",
-                        placeholder = "Select gender",
-                        options = listOf("Male", "Female"),
-                        onOptionSelected = { gender = it },
-                        suffix = {
-                            VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                            Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select gender")
-                        },
-                        errorMessage = officerViewModel.genderErrorMessage
-                    )
-                }
-                item {
-                    InformationLine(
-                        label = "Identification number",
-                        placeholder = "Enter ID",
-                        value = identificationNumber,
-                        onValueChange = { identificationNumber = it },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        errorMessage = officerViewModel.idErrorMessage
-                    )
-                }
-                item {
-                    InformationLine(
-                        label = "Phone number",
-                        placeholder = "Enter phone number",
-                        value = phoneNumber,
-                        onValueChange = { phoneNumber = it },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        errorMessage = officerViewModel.phoneNumberErrorMessage
-                    )
-                }
-                item {
-                    InformationLine(
-                        label = "Email",
-                        placeholder = "Enter email",
-                        value = email,
-                        onValueChange = { email = it },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next
-                        ),
-                        errorMessage = officerViewModel.emailErrorMessage
-                    )
-                }
-                item {
-                    DatePicker(
-                        label = "Birthday",
-                        placeholder = "Select birthday",
-                        onDatePick = { birthday = it },
-                        suffix = {
-                            VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                            Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
-                        },
-                        errorMessage = officerViewModel.birthdayErrorMessage
-                    )
-                }
-                item {
-                    InformationLine(
-                        label = "Address",
-                        placeholder = "Enter address",
-                        value = address,
-                        onValueChange = { address = it },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next
-                        ),
-                        errorMessage = officerViewModel.addressErrorMessage
-                    )
-                }
-                item {
-                    InformationSelect(
-                        label = "Role",
-                        placeholder = "Select role",
-                        options = listOf("Checking", "Saving", "Mortgage"),
-                        onOptionSelected = { role = it },
-                        suffix = {
-                            VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                            Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select role")
-                        },
-                        errorMessage = officerViewModel.roleErrorMessage
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-                item {
-                    GreenGradientButton(
-                        onButtonClick = {
-                            officerViewModel.onCreateCustomerButtonClick(
-                                fullName = fullName,
-                                gender = gender,
-                                idNumber = identificationNumber,
-                                phoneNumber = phoneNumber,
-                                email = email,
-                                birthday = birthday,
-                                address = address,
-                                role = role
-                            )
-                        },
-                        buttonText = "Create",
-                        modifier = Modifier
-                            .height(50.dp)
-                            .fillMaxWidth()
-                    )
+                    item{
+                        InformationSelect(
+                            label = "Gender",
+                            placeholder = "Select gender",
+                            options = listOf("Male", "Female"),
+                            onOptionSelected = { gender = it },
+                            suffix = {
+                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select gender")
+                            },
+                            errorMessage = officerViewModel.genderErrorMessage
+                        )
+                    }
+                    item {
+                        InformationLine(
+                            label = "Identification number",
+                            placeholder = "Enter ID",
+                            value = identificationNumber,
+                            onValueChange = { identificationNumber = it },
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next
+                            ),
+                            errorMessage = officerViewModel.idErrorMessage
+                        )
+                    }
+                    item {
+                        InformationLine(
+                            label = "Phone number",
+                            placeholder = "Enter phone number",
+                            value = phoneNumber,
+                            onValueChange = { phoneNumber = it },
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next
+                            ),
+                            errorMessage = officerViewModel.phoneNumberErrorMessage
+                        )
+                    }
+                    item {
+                        InformationLine(
+                            label = "Email",
+                            placeholder = "Enter email",
+                            value = email,
+                            onValueChange = { email = it },
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next
+                            ),
+                            errorMessage = officerViewModel.emailErrorMessage
+                        )
+                    }
+                    item {
+                        DatePicker(
+                            label = "Birthday",
+                            placeholder = "Select birthday",
+                            onDatePick = { birthday = it },
+                            suffix = {
+                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                                Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
+                            },
+                            errorMessage = officerViewModel.birthdayErrorMessage
+                        )
+                    }
+                    item {
+                        InformationLine(
+                            label = "Address",
+                            placeholder = "Enter address",
+                            value = address,
+                            onValueChange = { address = it },
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Next
+                            ),
+                            errorMessage = officerViewModel.addressErrorMessage
+                        )
+                    }
+                    item {
+                        InformationSelect(
+                            label = "Role",
+                            placeholder = "Select role",
+                            options = listOf("Checking", "Saving", "Mortgage"),
+                            onOptionSelected = { role = it },
+                            suffix = {
+                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select role")
+                            },
+                            errorMessage = officerViewModel.roleErrorMessage
+                        )
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
+                    item {
+                        GreenGradientButton(
+                            onButtonClick = {
+                                officerViewModel.onCreateCustomerButtonClick(
+                                    fullName = fullName,
+                                    gender = gender,
+                                    idNumber = identificationNumber,
+                                    phoneNumber = phoneNumber,
+                                    email = email,
+                                    birthday = birthday,
+                                    address = address,
+                                    role = role
+                                )
+                            },
+                            buttonText = "Create",
+                            modifier = Modifier
+                                .height(50.dp)
+                                .fillMaxWidth()
+                        )
+                    }
                 }
             }
         }

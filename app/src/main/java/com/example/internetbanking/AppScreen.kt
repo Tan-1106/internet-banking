@@ -26,7 +26,6 @@ import com.example.internetbanking.ui.customer.mortgage.ViewMortgageMoneyScreen
 import com.example.internetbanking.ui.customer.saving.ViewProfitsAndRatesScreen
 import com.example.internetbanking.ui.officer.CreateCustomerScreen
 import com.example.internetbanking.ui.officer.EditCustomerProfile
-import com.example.internetbanking.ui.officer.ModifyProfitableRatesScreen
 import com.example.internetbanking.ui.officer.OfficerHome
 import com.example.internetbanking.ui.shared.LoginScreen
 import com.example.internetbanking.viewmodels.CustomerViewModel
@@ -41,7 +40,7 @@ enum class AppScreen() {
     Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, Ecommerce,
     LocateUserAndBank, LocateShortestPath,
     ViewMortgageMoney,
-    ViewProfitsAndRates, ModifyProfitableRates,
+    ViewProfitsAndRates
 
 }
 
@@ -54,7 +53,7 @@ fun AppScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppScreen.Login.name                     // TODO: CHANGE TO login.name when done
+        startDestination = AppScreen.OfficerHome.name                     // TODO: CHANGE TO login.name when done
     ) {
         // Login
         composable(route = AppScreen.Login.name) {
@@ -88,12 +87,6 @@ fun AppScreen(
         }
         composable(route = AppScreen.EditCustomerProfile.name) {
             EditCustomerProfile(
-                officerViewModel = officerViewModel,
-                navController = navController
-            )
-        }
-        composable(route = AppScreen.ModifyProfitableRates.name) {
-            ModifyProfitableRatesScreen(
                 officerViewModel = officerViewModel,
                 navController = navController
             )

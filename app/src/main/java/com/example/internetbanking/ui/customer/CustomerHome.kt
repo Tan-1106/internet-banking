@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.customer
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,11 +13,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -36,10 +38,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -69,6 +72,7 @@ fun CustomerHome(
     navController: NavHostController
 ) {
     val customerUiState by customerViewModel.uiState.collectAsState()
+    val customerRole = customerUiState.customer.account.role
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -100,7 +104,7 @@ fun CustomerHome(
                     actions = {
                         IconButton(
                             onClick = {
-                                // TODO: Logout Event
+                                // TODO: LOG OUT EVENT
                             }
                         ) {
                             Icon(
@@ -132,9 +136,15 @@ fun CustomerHome(
                     .padding(innerPadding)
                     .padding(20.dp)
             ) {
+                // VIEW BALANCE FOR CHECKING & SAVING
+                val boxHeight = if (customerRole == "Checking" || customerRole == "Saving") {
+                    Modifier.fillMaxHeight(0.2f)
+                } else {
+                    Modifier.fillMaxHeight(0.15f)
+                }
                 Box(
                     modifier = Modifier
-                        .fillMaxHeight(0.2f)
+                        .then(boxHeight)
                         .fillMaxWidth()
                         .clip(
                             shape = RoundedCornerShape(
@@ -165,8 +175,7 @@ fun CustomerHome(
                                 fontSize = 18.sp
                             )
                             Text(
-                                // text = customerUiState.customer.account.fullName,
-                                text = "Nguyen Van An",
+                                text = customerUiState.customer.account.fullName,
                                 color = Color.White,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -175,6 +184,7 @@ fun CustomerHome(
                             )
                         }
                         Spacer(modifier = Modifier.height(10.dp))
+                        // ACCOUNT NUMBER:
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start,
@@ -191,8 +201,7 @@ fun CustomerHome(
                                 modifier = Modifier.width(240.dp)
                             ) {
                                 Text(
-                                    // text = customerUiState.customer.cardNumber,
-                                    text = "0123456789",
+                                    text = customerUiState.customer.cardNumber,
                                     color = Color.White,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
@@ -214,39 +223,42 @@ fun CustomerHome(
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "Balance:",
-                                color = Color.White,
-                                fontSize = 16.sp
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
+                        // VIEW BALANCE FOR CHECKING & SAVING
+                        if (customerRole == "Checking" || customerRole == "Saving") {
+                            Spacer(modifier = Modifier.height(10.dp))
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.width(240.dp)
+                                horizontalArrangement = Arrangement.Start,
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = if (isHiddenBalance) "**********" else customerUiState.balance.toString(),
+                                    text = "Balance:",
                                     color = Color.White,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 16.sp
                                 )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Icon(
-                                    imageVector = if (isHiddenBalance) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                    contentDescription = "Balance Showing",
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(20.dp)
-                                        .clickable {
-                                            isHiddenBalance = !isHiddenBalance
-                                        }
-                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.width(240.dp)
+                                ) {
+                                    Text(
+                                        text = if (isHiddenBalance) "**********" else customerUiState.balance.toString(),
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Icon(
+                                        imageVector = if (isHiddenBalance) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                        contentDescription = "Balance Showing",
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .clickable {
+                                                isHiddenBalance = !isHiddenBalance
+                                            }
+                                    )
+                                }
                             }
                         }
                     }
@@ -283,8 +295,56 @@ fun CustomerHome(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(30.dp))
+                Text(
+                    text = "Function:",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = custom_dark_green
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)
+                ) {
+
+                }
             }
         }
+    }
+}
+
+@Composable
+fun FunctionComponent(
+    @DrawableRes functionIcon: Int,
+    functionName: String,
+    onFunctionClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxSize()
+    ) {
+        Icon(
+            painter = painterResource(functionIcon),
+            contentDescription = functionName,
+            modifier = Modifier
+                .size(40.dp)
+                .clickable {
+                    onFunctionClick
+                }
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(
+            text = functionName,
+            fontSize = 12.sp
+        )
     }
 }
 

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
@@ -158,6 +160,22 @@ fun CustomerHome(
                         contentDescription = null,
                         contentScale = ContentScale.Crop
                     )
+                    Box(
+                        contentAlignment = Alignment.TopEnd,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .fillMaxSize()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "View Profile",
+                            tint = Color.White,
+                            modifier = Modifier.clickable {
+                                // View Customer Profile
+                                navController.navigate(AppScreen.Profile.name)
+                            }
+                        )
+                    }
                     Column(
                         verticalArrangement = Arrangement.Center,
                         modifier = Modifier
@@ -175,7 +193,11 @@ fun CustomerHome(
                                 fontSize = 18.sp
                             )
                             Text(
-                                text = customerUiState.customer.account.fullName,
+                                text = if (customerUiState.customer.account.fullName == "") {
+                                    "XXXX XXXX XXX"
+                                } else {
+                                    customerUiState.customer.account.fullName
+                                },
                                 color = Color.White,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -201,7 +223,11 @@ fun CustomerHome(
                                 modifier = Modifier.width(240.dp)
                             ) {
                                 Text(
-                                    text = customerUiState.customer.cardNumber,
+                                    text = if (customerUiState.customer.cardNumber == "") {
+                                        "0000000000"
+                                    } else {
+                                        customerUiState.customer.cardNumber
+                                    },
                                     color = Color.White,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
@@ -276,6 +302,10 @@ fun CustomerHome(
                         .background(
                             brush = GradientColors.Green_LightToDark
                         )
+                        .clickable {
+                            // Transaction History
+                            navController.navigate(AppScreen.TransactionHistory.name)
+                        }
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -298,7 +328,7 @@ fun CustomerHome(
 
                 Spacer(modifier = Modifier.height(30.dp))
                 Text(
-                    text = "Function:",
+                    text = "Functions:",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = custom_dark_green
@@ -306,13 +336,136 @@ fun CustomerHome(
                 Spacer(modifier = Modifier.height(10.dp))
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(10.dp)
                 ) {
-
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.deposit,
+                            functionName = "Deposit",
+                            onFunctionClick = {
+                                // Deposit Money
+                                navController.navigate(AppScreen.Deposit.name)
+                            }
+                        )
+                    }
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.withdraw,
+                            functionName = "Withdraw",
+                            onFunctionClick = {
+                                // Withdraw Money
+                                navController.navigate(AppScreen.Withdraw.name)
+                            }
+                        )
+                    }
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.domestic_transfer,
+                            functionName = "Transfer",
+                            onFunctionClick = {
+                                // Transfer Money
+                                navController.navigate(AppScreen.Transfer.name)
+                            }
+                        )
+                    }
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.pay_bill,
+                            functionName = "Pay bills",
+                            onFunctionClick = {
+                                // Pay Bill
+                                navController.navigate(AppScreen.PayBills.name)
+                            }
+                        )
+                    }
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.deposit_phone,
+                            functionName = "Mobile topup",
+                            onFunctionClick = {
+                                // Mobile TopUp
+                                navController.navigate(AppScreen.DepositPhoneMoney.name)
+                            }
+                        )
+                    }
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.plane_ticket,
+                            functionName = "Book flight",
+                            onFunctionClick = {
+                                // Book Flight
+                                navController.navigate(AppScreen.BuyFlightTickets.name)
+                            }
+                        )
+                    }
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.movie_ticket,
+                            functionName = "Movie ticket",
+                            onFunctionClick = {
+                                // Movie Ticket
+                                navController.navigate(AppScreen.BuyMovieTickets.name)
+                            }
+                        )
+                    }
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.hotel_room,
+                            functionName = "Book hotel",
+                            onFunctionClick = {
+                                // Hotel Room
+                                navController.navigate(AppScreen.BookHotelRooms.name)
+                            }
+                        )
+                    }
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.ecommerce,
+                            functionName = "Ecommerce",
+                            onFunctionClick = {
+                                // Ecommerce
+                                navController.navigate(AppScreen.Ecommerce.name)
+                            }
+                        )
+                    }
+                    item {
+                        FunctionComponent(
+                            functionIcon = R.drawable.bank_location,
+                            functionName = "Bank offices",
+                            onFunctionClick = {
+                                // Ecommerce
+                                navController.navigate(AppScreen.LocateUserAndBank.name)
+                            }
+                        )
+                    }
+                    if (customerRole == "Mortgage") {
+                        item {
+                            FunctionComponent(
+                                functionIcon = R.drawable.mortgage_money,
+                                functionName = "Installment",
+                                onFunctionClick = {
+                                    // Ecommerce
+                                    navController.navigate(AppScreen.LocateUserAndBank.name)
+                                }
+                            )
+                        }
+                    }
+                    if (customerRole == "Saving") {
+                        item {
+                            FunctionComponent(
+                                functionIcon = R.drawable.profits,
+                                functionName = "Rates & profits",
+                                onFunctionClick = {
+                                    // Ecommerce
+                                    navController.navigate(AppScreen.ViewProfitsAndRates.name)
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -331,16 +484,18 @@ fun FunctionComponent(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
     ) {
-        Icon(
+        Image(
             painter = painterResource(functionIcon),
             contentDescription = functionName,
             modifier = Modifier
-                .size(40.dp)
+                .size(50.dp)
+                .clip(
+                    shape = RoundedCornerShape(12.dp)
+                )
                 .clickable {
                     onFunctionClick
                 }
         )
-        Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = functionName,
             fontSize = 12.sp

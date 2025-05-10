@@ -492,9 +492,9 @@ fun FunctionComponent(
                 .clip(
                     shape = RoundedCornerShape(12.dp)
                 )
-                .clickable {
-                    onFunctionClick
-                }
+                .clickable (
+                    onClick = onFunctionClick
+                )
         )
         Text(
             text = functionName,

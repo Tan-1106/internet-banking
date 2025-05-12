@@ -52,7 +52,7 @@ fun AppScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppScreen.CustomerHome.name                     // TODO: CHANGE TO login.name when done
+        startDestination = AppScreen.Deposit.name                     // TODO: CHANGE TO login.name when done
     ) {
         // Login
         composable(route = AppScreen.Login.name) {

@@ -16,8 +16,7 @@ fun PayBillsScreen(
 }
 
 @Preview(
-    showBackground = true,
-    showSystemUi = true
+    showBackground = true
 )
 @Composable
 fun PayBillsScreenPreview(){

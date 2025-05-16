@@ -16,8 +16,7 @@ fun EditProfileScreen(
 }
 
 @Preview(
-    showBackground = true,
-    showSystemUi = true
+    showBackground = true
 )
 @Composable
 fun EditProfileScreenPreview(){

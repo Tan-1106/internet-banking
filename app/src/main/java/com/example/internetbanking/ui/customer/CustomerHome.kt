@@ -504,7 +504,7 @@ fun FunctionComponent(
 }
 
 @Preview(
-    showBackground = true, showSystemUi = true
+    showBackground = true
 )
 @Composable
 fun CustomerHomePreview(){

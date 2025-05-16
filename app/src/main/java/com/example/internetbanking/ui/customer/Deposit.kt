@@ -307,8 +307,7 @@ fun TabScreen(label: String, modifier: Modifier = Modifier) {
 
 
 @Preview(
-    showBackground = true,
-//    showSystemUi = true
+    showBackground = true
 )
 @Composable
 fun DepositScreenPreview() {

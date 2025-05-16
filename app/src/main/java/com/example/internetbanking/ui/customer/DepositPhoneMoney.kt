@@ -16,8 +16,7 @@ fun DepositPhoneMoneyScreen(
 }
 
 @Preview(
-    showBackground = true,
-    showSystemUi = true
+    showBackground = true
 )
 @Composable
 fun DepositPhoneMoneyScreenPreview(){

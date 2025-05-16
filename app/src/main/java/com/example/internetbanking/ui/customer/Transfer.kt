@@ -1,6 +1,8 @@
 package com.example.internetbanking.ui.customer
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,6 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -64,134 +68,150 @@ fun TransferScreen(
     var content by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
 
-    Scaffold(
-        containerColor = custom_mint_green,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.transfer_title),
-                        fontWeight = FontWeight.Bold,
-                        color = custom_mint_green
-                    )
-                },
-                navigationIcon = {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Navigate Back",
-                        tint = custom_mint_green,
-                        modifier = Modifier.size(30.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                ),
-                modifier = Modifier
-                    .background(
-                        brush = GradientColors.Green_Ripple
-                    )
-            )
-        },
-        modifier = Modifier.systemBarsPadding()
-    ) { paddingValue ->
-        Box(
-            contentAlignment = Alignment.TopCenter,
-            modifier = Modifier
-                .padding(paddingValue)
-                .padding(vertical = 20.dp)
-                .fillMaxSize()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Image(
+            painter = painterResource(R.drawable.sub_background1),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
 
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(0.8f)
-            ) {
-                BalanceInformation()
-                Text(
-                    "Beneficiary Information",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 10.dp)
-                )
-                InformationSelect(
-                    label = "Beneficiary bank",
-                    placeholder = "Select beneficiary bank",
-                    options = banks,
-                    onOptionSelected = { beneficiaryBank = it },
-                    suffix = {
-                        VerticalDivider(
-                            modifier = Modifier
-                                .fillMaxHeight(0.8f),
-                            color = Color.Gray
-                        )
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Beneficiary Bank")
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                InformationLine(
-                    label = "Beneficiary account/card",
-                    placeholder = "Account/card number",
-                    value = beneficiaryAccount,
-                    onValueChange = { beneficiaryAccount = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(
-                    "Transaction Information",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 10.dp)
-                )
-                InformationLine(
-                    label = "Amount",
-                    placeholder = "Enter amount",
-                    value = amount,
-                    onValueChange = { amount = it },
-                    suffix = {
-                        VerticalDivider(
-                            modifier = Modifier
-                                .fillMaxHeight(0.8f),
-                            color = Color.Gray
-                        )
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = {
                         Text(
-                            text = "VND",
-                            fontSize = 10.sp,
-                            color = Color.Gray
+                            text = stringResource(R.string.transfer_title),
+                            fontWeight = FontWeight.Bold,
+                            color = custom_mint_green
                         )
                     },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                InformationLine(
-                    value = content,
-                    onValueChange = { content = it },
-                    label = "Content",
-                    placeholder = "Enter transaction content",
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                InformationSelect(
-                    label = "Transaction category",
-                    placeholder = "Select by purpose",
-                    options = categories,
-                    onOptionSelected = { category = it },
-                    suffix = {
-                        VerticalDivider(
+                    navigationIcon = {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Navigate Back",
+                            tint = custom_mint_green,
                             modifier = Modifier
-                                .fillMaxHeight(0.8f),
-                            color = Color.Gray
+                                .size(30.dp)
+                                .clickable {
+
+                                }
                         )
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Transaction Category")
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent
+                    ),
+                    modifier = Modifier
+                        .background(
+                            brush = GradientColors.Green_Ripple
+                        )
                 )
+            },
+            modifier = Modifier.systemBarsPadding()
+        ) { paddingValue ->
+            Box(
+                contentAlignment = Alignment.TopCenter,
+                modifier = Modifier
+                    .padding(paddingValue)
+                    .padding(vertical = 20.dp)
+                    .fillMaxSize()
+
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.8f)
+                ) {
+                    BalanceInformation()
+                    Text(
+                        "Beneficiary Information",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(vertical = 10.dp)
+                    )
+                    InformationSelect(
+                        label = "Beneficiary bank",
+                        placeholder = "Select beneficiary bank",
+                        options = banks,
+                        onOptionSelected = { beneficiaryBank = it },
+                        suffix = {
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight(0.8f),
+                                color = Color.Gray
+                            )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Beneficiary Bank")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    InformationLine(
+                        label = "Beneficiary account/card",
+                        placeholder = "Account/card number",
+                        value = beneficiaryAccount,
+                        onValueChange = { beneficiaryAccount = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        "Transaction Information",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(vertical = 10.dp)
+                    )
+                    InformationLine(
+                        label = "Amount",
+                        placeholder = "Enter amount",
+                        value = amount,
+                        onValueChange = { amount = it },
+                        suffix = {
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight(0.8f),
+                                color = Color.Gray
+                            )
+                            Text(
+                                text = "VND",
+                                fontSize = 10.sp,
+                                color = Color.Gray
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    InformationLine(
+                        value = content,
+                        onValueChange = { content = it },
+                        label = "Content",
+                        placeholder = "Enter transaction content",
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    InformationSelect(
+                        label = "Transaction category",
+                        placeholder = "Select by purpose",
+                        options = categories,
+                        onOptionSelected = { category = it },
+                        suffix = {
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight(0.8f),
+                                color = Color.Gray
+                            )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Transaction Category")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }

@@ -20,7 +20,6 @@ import com.example.internetbanking.ui.customer.PayBillsScreen
 import com.example.internetbanking.ui.customer.ProfileScreen
 import com.example.internetbanking.ui.customer.TransactionHistoryScreen
 import com.example.internetbanking.ui.customer.TransferScreen
-import com.example.internetbanking.ui.customer.WithdrawScreen
 import com.example.internetbanking.ui.customer.mortgage.ViewMortgageMoneyScreen
 import com.example.internetbanking.ui.customer.saving.ViewProfitsAndRatesScreen
 import com.example.internetbanking.ui.officer.CreateCustomerScreen
@@ -52,7 +51,7 @@ fun AppScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppScreen.Deposit.name                     // TODO: CHANGE TO login.name when done
+        startDestination = AppScreen.Profile.name                     // TODO: CHANGE TO login.name when done
     ) {
         // Login
         composable(route = AppScreen.Login.name) {
@@ -109,12 +108,6 @@ fun AppScreen(
         // Customer - Bank Account
         composable(route = AppScreen.Deposit.name) {
             DepositScreen(
-                customerViewModel = customerViewModel,
-                navController = navController
-            )
-        }
-        composable(route = AppScreen.Withdraw.name) {
-            WithdrawScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )

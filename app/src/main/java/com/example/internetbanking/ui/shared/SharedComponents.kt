@@ -520,5 +520,3 @@ fun Long.toReadableDateTime(pattern: String = "HH:mm - dd/MM/yyyy"): String {
     return formatter.format(instant)
 }
 
-
-

@@ -16,8 +16,7 @@ fun BookHotelRoomsScreen(
 }
 
 @Preview(
-    showBackground = true,
-    showSystemUi = true
+    showBackground = true
 )
 @Composable
 fun BookHotelRoomsScreenPreview(){

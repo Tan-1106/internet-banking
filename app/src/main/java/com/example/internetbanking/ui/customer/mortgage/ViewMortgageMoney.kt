@@ -16,8 +16,7 @@ fun ViewMortgageMoneyScreen(
 }
 
 @Preview(
-    showBackground = true,
-    showSystemUi = true
+    showBackground = true
 )
 @Composable
 fun ViewMortgageMoneyScreenPreview(){

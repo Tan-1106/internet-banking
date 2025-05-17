@@ -3,6 +3,7 @@ package com.example.internetbanking.ui.customer
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -149,6 +150,14 @@ fun CustomerHome(
                         .then(boxHeight)
                         .fillMaxWidth()
                         .clip(
+                            shape = RoundedCornerShape(
+                                topStart = 12.dp,
+                                topEnd = 12.dp
+                            )
+                        )
+                        .border(
+                            color = custom_dark_green,
+                            width = 1.dp,
                             shape = RoundedCornerShape(
                                 topStart = 12.dp,
                                 topEnd = 12.dp
@@ -301,6 +310,14 @@ fun CustomerHome(
                         )
                         .background(
                             brush = GradientColors.Green_LightToDark
+                        )
+                        .border(
+                            color = custom_dark_green,
+                            width = 1.dp,
+                            shape = RoundedCornerShape(
+                                bottomStart = 12.dp,
+                                bottomEnd = 12.dp
+                            )
                         )
                         .clickable {
                             // Transaction History

@@ -13,7 +13,6 @@ import com.example.internetbanking.ui.customer.CustomerHome
 import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
 import com.example.internetbanking.ui.customer.DepositScreen
 import com.example.internetbanking.ui.customer.EcommerceScreen
-import com.example.internetbanking.ui.customer.EditProfileScreen
 import com.example.internetbanking.ui.customer.LocateShortestPathScreen
 import com.example.internetbanking.ui.customer.LocateUserAndBankScreen
 import com.example.internetbanking.ui.customer.PayBillsScreen
@@ -98,12 +97,7 @@ fun AppScreen(
                 navController = navController
             )
         }
-        composable(route = AppScreen.EditProfile.name) {
-            EditProfileScreen(
-                customerViewModel = customerViewModel,
-                navController = navController
-            )
-        }
+
 
         // Customer - Bank Account
         composable(route = AppScreen.Deposit.name) {

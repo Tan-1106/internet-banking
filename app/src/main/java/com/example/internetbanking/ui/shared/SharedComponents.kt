@@ -310,6 +310,7 @@ fun InformationLine(
             ) {
                 Text(
                     text = label,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Box {

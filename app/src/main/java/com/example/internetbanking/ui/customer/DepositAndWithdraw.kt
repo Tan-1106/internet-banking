@@ -42,7 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -66,11 +66,12 @@ import com.example.internetbanking.viewmodels.CustomerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DepositScreen(
+fun DepositAndWithdrawScreen(
     customerViewModel: CustomerViewModel,
+    userSelect: Int = 0,
     navController: NavHostController
 ) {
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(userSelect) }
     val tabs = listOf("Deposit", "Withdraw")
 
     Box(
@@ -314,5 +315,5 @@ fun DepositScreenPreview() {
     val fakeViewModel: CustomerViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()
 
-    DepositScreen(fakeViewModel, fakeNavController)
+    DepositAndWithdrawScreen(fakeViewModel, 0, fakeNavController)
 }

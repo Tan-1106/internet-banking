@@ -466,7 +466,7 @@ fun CustomerHome(
                                 functionName = "Installment",
                                 onFunctionClick = {
                                     // Ecommerce
-                                    navController.navigate(AppScreen.LocateUserAndBank.name)
+                                    navController.navigate(AppScreen.ViewMortgageMoney.name)
                                 }
                             )
                         }

@@ -11,7 +11,7 @@ import com.example.internetbanking.ui.customer.BuyFlightTicketsScreen
 import com.example.internetbanking.ui.customer.BuyMovieTicketsScreen
 import com.example.internetbanking.ui.customer.CustomerHome
 import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
-import com.example.internetbanking.ui.customer.DepositScreen
+import com.example.internetbanking.ui.customer.DepositAndWithdrawScreen
 import com.example.internetbanking.ui.customer.EcommerceScreen
 import com.example.internetbanking.ui.customer.LocateShortestPathScreen
 import com.example.internetbanking.ui.customer.LocateUserAndBankScreen
@@ -32,7 +32,7 @@ import com.example.internetbanking.viewmodels.OfficerViewModel
 enum class AppScreen() {
     Login,
     OfficerHome, CreateCustomer, EditCustomerProfile,
-    CustomerHome, Profile, EditProfile,
+    CustomerHome, Profile,
     Deposit, Withdraw, TransactionHistory,
     Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, Ecommerce,
     LocateUserAndBank, LocateShortestPath,
@@ -50,7 +50,7 @@ fun AppScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppScreen.Profile.name                     // TODO: CHANGE TO login.name when done
+        startDestination = AppScreen.CustomerHome.name                     // TODO: CHANGE TO login.name when done
     ) {
         // Login
         composable(route = AppScreen.Login.name) {
@@ -101,8 +101,16 @@ fun AppScreen(
 
         // Customer - Bank Account
         composable(route = AppScreen.Deposit.name) {
-            DepositScreen(
+            DepositAndWithdrawScreen(
                 customerViewModel = customerViewModel,
+                userSelect = 0,
+                navController = navController
+            )
+        }
+        composable(route = AppScreen.Withdraw.name) {
+            DepositAndWithdrawScreen(
+                customerViewModel = customerViewModel,
+                userSelect = 1,
                 navController = navController
             )
         }

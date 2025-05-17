@@ -104,7 +104,7 @@ fun OfficerHome(
                     actions = {
                         IconButton(
                             onClick = {
-
+                                // TODO: LOGOUT EVENT
                             }
                         ) {
                             Icon(
@@ -329,6 +329,7 @@ fun OfficerHome(
                         content = "Are you sure you want to change profitable rates to ${newProfitableRatesValue}%",
                         onConfirm = {
                             officerViewModel.onChangeRatesConfirm(newProfitableRatesValue)
+                            isShowAlertDialog = false
                         },
                         onDismiss = {
                             newProfitableRatesValue = ""
@@ -421,6 +422,10 @@ fun OfficerHome(
                             placeholder = "Enter card number",
                             value = customerCardNumber,
                             onValueChange = { customerCardNumber = it },
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
                             suffix = {
                                 IconButton(
                                     onClick = {

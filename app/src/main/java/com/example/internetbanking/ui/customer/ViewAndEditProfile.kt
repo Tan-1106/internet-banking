@@ -95,7 +95,7 @@ fun ProfileScreen(
                             modifier = Modifier
                                 .size(30.dp)
                                 .clickable {
-
+                                    navController.navigateUp()
                                 }
                         )
                     },
@@ -242,7 +242,7 @@ fun ProfileScreen(
                     item {
                         GreenGradientButton(
                             onButtonClick = {
-                                // TODO: EDIT EVENT
+                                // TODO: SAVE EVENT
                             },
                             buttonText = "Save",
                             modifier = Modifier

@@ -26,19 +26,19 @@ class LoginViewModel : ViewModel() {
     private val db: FirebaseFirestore = Firebase.firestore
 
     fun login(
-        userId: String,
+        accountId: String,
         password: String,
         navController: NavHostController
     ) {
-        if (userId.isEmpty() || password.isEmpty()) {
-            _uiState.update { it.copy(loginFailedMessage = "Please enter username and password") }
+        if (accountId.isEmpty() || password.isEmpty()) {
+            _uiState.update { it.copy(loginFailedMessage = "Please enter account ID and password") }
             return
         }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, loginFailedMessage = "") }
             try {
-                val document = db.collection("users").document(userId).get().await()
+                val document = db.collection("users").document(accountId).get().await()
                 if (!document.exists()) {
                     _uiState.update { it.copy(isLoading = false, loginFailedMessage = "User's ID doesn't exist") }
                     return@launch
@@ -52,7 +52,7 @@ class LoginViewModel : ViewModel() {
                 // Success login
                 auth.signInWithEmailAndPassword(email, password).await()
 
-                val userId = document.getString("userId") ?: ""
+                val accountId = document.getString("accountId") ?: ""
                 val fullName = document.getString("fullName") ?: ""
                 val gender = document.getString("gender") ?: ""
                 val idNumber = document.getString("identificationNumber") ?: ""
@@ -62,7 +62,7 @@ class LoginViewModel : ViewModel() {
                 val role = document.getString("role") ?: ""
 
                 val currentUser = User(
-                    userId = userId,
+                    accountId = accountId,
                     fullName = fullName,
                     gender = gender,
                     identificationNumber = idNumber,

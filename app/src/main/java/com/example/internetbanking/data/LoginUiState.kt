@@ -8,7 +8,7 @@ data class LoginUiState(
 )
 
 data class User(
-    val userId: String = "",
+    val accountId: String = "",
     val fullName: String = "",
     val gender: String = "",
     val identificationNumber: String = "",

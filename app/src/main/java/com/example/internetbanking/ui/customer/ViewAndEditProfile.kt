@@ -133,8 +133,8 @@ fun ProfileScreen(
                     }
                     item {
                         InformationLine(
-                            label = "User ID",
-                            placeholder = customerUiState.account.userId,
+                            label = "Account ID",
+                            placeholder = customerUiState.account.accountId,
                             value = "",
                             onValueChange = {},
                             isEnable = false

@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.shared
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,6 +51,8 @@ import com.example.internetbanking.R
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_red
 import com.example.internetbanking.ui.theme.custom_light_green1
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -519,5 +522,47 @@ fun Long.toReadableDateTime(pattern: String = "HH:mm - dd/MM/yyyy"): String {
         .ofPattern(pattern)
         .withZone(ZoneId.systemDefault())
     return formatter.format(instant)
+}
+
+// Check Exist Data
+fun checkExistData(
+    collectionName: String,
+    fieldName: String,
+    value: String,
+    onResult: (Boolean) -> Unit
+) {
+    val db = Firebase.firestore
+    db.collection(collectionName)
+        .whereEqualTo(fieldName, value)
+        .limit(1)
+        .get()
+        .addOnSuccessListener { result ->
+            onResult(!result.isEmpty)
+        }
+        .addOnFailureListener { e ->
+            Log.e("FirestoreCheck", "Error checking $fieldName in $collectionName", e)
+            onResult(false)
+        }
+}
+
+// Add Document To Collection
+fun addDocumentToCollection(
+    collectionName: String,
+    data: Map<String, Any>,
+    documentId: String? = null,
+    onSuccess: () -> Unit,
+    onFailure: (Exception) -> Unit = {}
+) {
+    val db = Firebase.firestore
+
+    val docRef = if (documentId != null) {
+        db.collection(collectionName).document(documentId)
+    } else {
+        db.collection(collectionName).document()
+    }
+
+    docRef.set(data)
+        .addOnSuccessListener { onSuccess() }
+        .addOnFailureListener { e -> onFailure(e) }
 }
 

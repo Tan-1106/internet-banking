@@ -60,6 +60,7 @@ fun CreateCustomerScreen(
     officerViewModel: OfficerViewModel,
     navController: NavHostController
 ) {
+    var accountId by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
     var identificationNumber by remember { mutableStateOf("") }
@@ -131,6 +132,18 @@ fun CreateCustomerScreen(
                     modifier = Modifier.padding(vertical = 10.dp)
                 )
                 LazyColumn {
+                    item {
+                        InformationLine(
+                            label = "User account ID",
+                            placeholder = "Enter account ID",
+                            value = accountId,
+                            onValueChange = { accountId = it },
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Next
+                            ),
+                            errorMessage = officerViewModel.nameErrorMessage
+                        )
+                    }
                     item {
                         InformationLine(
                             label = "Full name",
@@ -239,6 +252,7 @@ fun CreateCustomerScreen(
                         GreenGradientButton(
                             onButtonClick = {
                                 officerViewModel.onCreateCustomerButtonClick(
+                                    accountId = accountId,
                                     fullName = fullName,
                                     gender = gender,
                                     idNumber = identificationNumber,

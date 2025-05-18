@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.internetbanking.data.OfficerUiState
+import com.example.internetbanking.ui.shared.checkExistData
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -28,6 +29,7 @@ class OfficerViewModel : ViewModel() {
 
     private val db: FirebaseFirestore = Firebase.firestore
 
+    // Fetch Newest Profitable Rate
     fun loadLatestRates() {
         viewModelScope.launch {
             val snapshot = db.collection("profitRates")
@@ -51,7 +53,13 @@ class OfficerViewModel : ViewModel() {
         }
     }
 
-    // Create Customer
+
+
+
+
+    // Error Messages
+    var accountIdErrorMessage by mutableStateOf("")
+        private set
     var nameErrorMessage by mutableStateOf("")
         private set
     var genderErrorMessage by mutableStateOf("")
@@ -69,6 +77,7 @@ class OfficerViewModel : ViewModel() {
     var roleErrorMessage by mutableStateOf("")
         private set
     fun clearErrorMessage() {
+        accountIdErrorMessage = ""
         nameErrorMessage = ""
         genderErrorMessage = ""
         idErrorMessage = ""
@@ -79,7 +88,9 @@ class OfficerViewModel : ViewModel() {
         roleErrorMessage = ""
     }
 
+    // Validate Input Field
     fun validateInputs(
+        accountId: String,
         fullName: String,
         gender: String,
         idNumber: String,
@@ -91,6 +102,17 @@ class OfficerViewModel : ViewModel() {
     ): Boolean {
         var isValid = true
 
+        if (accountId.isEmpty()) {
+            accountIdErrorMessage = "User ID is required"
+            isValid = false
+        } else if (accountId.contains(Regex("\\s"))) {
+            accountIdErrorMessage = "User ID cannot have spaces"
+            isValid = false
+        }
+
+        else {
+            accountIdErrorMessage = ""
+        }
         if (fullName.isEmpty()) {
             nameErrorMessage = "Full name is required"
             isValid = false
@@ -153,7 +175,9 @@ class OfficerViewModel : ViewModel() {
         return isValid
     }
 
+    // Create Customer
     fun onCreateCustomerButtonClick(
+        accountId: String,
         fullName: String,
         gender: String,
         idNumber: String,
@@ -163,14 +187,32 @@ class OfficerViewModel : ViewModel() {
         address: String,
         role: String
     ) {
-        if (validateInputs(fullName, gender, idNumber, phoneNumber, email, birthday, address, role)) {
+        if (validateInputs(accountId, fullName, gender, idNumber, phoneNumber, email, birthday, address, role)) {
             // TODO: CREATE CUSTOMER EVENT
+            checkExistData("users", "identificationNumber", "idNumber") { exists ->
+                if (exists) {
+                    checkExistData("users", "role", "role") { exists ->
+                        if (exists) {
+
+                        }
+                    }
+                } else {
+                    val customerData = mapOf(
+                        "fullName" to fullName,
+                        "gender" to gender,
+                        "identificationNumber" to idNumber,
+                        "phoneNumber" to phoneNumber,
+                        "email" to email,
+                        "birthday" to birthday,
+                        "address" to address,
+                        "role" to role
+                    )
+                }
+            }
         }
     }
 
     // Change Profitable Rates
-
-
     fun onValidateNewRateInput(newRate: String, context: Context): Boolean {
         if(newRate.isEmpty()) {
             Toast.makeText(context, "Enter new profitable rates to change", Toast.LENGTH_SHORT).show()

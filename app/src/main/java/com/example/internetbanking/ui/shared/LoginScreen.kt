@@ -105,7 +105,7 @@ fun LoginScreen(
                     label = "Account ID",
                     leadingIcon = Icons.Filled.Person,
                     onTrailingIconClick = { idInput = "" },
-                    contentDesc = "User's ID",
+                    contentDesc = "Account ID",
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Next
                     )
@@ -141,7 +141,7 @@ fun LoginScreen(
                 GreenGradientButton(
                     onButtonClick = {
                         loginViewModel.login(
-                            userId = idInput,
+                            accountId = idInput,
                             password = passwordInput,
                             navController = navController
                         )

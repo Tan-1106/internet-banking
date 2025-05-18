@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.officer
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -60,6 +62,8 @@ fun CreateCustomerScreen(
     officerViewModel: OfficerViewModel,
     navController: NavHostController
 ) {
+    val context: Context = LocalContext.current
+
     var accountId by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
@@ -141,7 +145,7 @@ fun CreateCustomerScreen(
                             keyboardOptions = KeyboardOptions.Default.copy(
                                 imeAction = ImeAction.Next
                             ),
-                            errorMessage = officerViewModel.nameErrorMessage
+                            errorMessage = officerViewModel.accountIdErrorMessage
                         )
                     }
                     item {
@@ -252,6 +256,8 @@ fun CreateCustomerScreen(
                         GreenGradientButton(
                             onButtonClick = {
                                 officerViewModel.onCreateCustomerButtonClick(
+                                    context = context,
+                                    navController = navController,
                                     accountId = accountId,
                                     fullName = fullName,
                                     gender = gender,

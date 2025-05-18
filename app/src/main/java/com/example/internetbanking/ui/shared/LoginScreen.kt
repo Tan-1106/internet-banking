@@ -1,6 +1,7 @@
 package com.example.internetbanking.ui.shared
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -173,7 +174,11 @@ fun LoginTextField(
         value = value,
         onValueChange = onValueChange,
         label = {
-            Text(text = label)
+            Text(
+                text = label,
+                modifier = Modifier
+                    .background(color = Color.White)
+            )
         },
         leadingIcon = {
             Icon(

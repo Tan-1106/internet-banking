@@ -84,7 +84,7 @@ fun OfficerHome(
 
     var newProfitableRatesValue by remember { mutableStateOf("") }
     var isShowAlertDialog by remember { mutableStateOf(false) }
-    var customerCardNumber by remember { mutableStateOf("") }
+    var customerAccountID by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         officerViewModel.loadLatestRates()
@@ -150,6 +150,11 @@ fun OfficerHome(
                         .height(100.dp)
                         .fillMaxWidth()
                         .clip(
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = custom_dark_green,
                             shape = RoundedCornerShape(12.dp)
                         )
                 ) {
@@ -221,6 +226,11 @@ fun OfficerHome(
                         .background(
                             shape = RoundedCornerShape(12.dp),
                             color = Color.White
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = custom_dark_green,
+                            shape = RoundedCornerShape(12.dp)
                         )
                 ) {
                     Box (
@@ -374,6 +384,11 @@ fun OfficerHome(
                         .clickable {
                             navController.navigate(AppScreen.CreateCustomer.name)
                         }
+                        .border(
+                            width = 1.dp,
+                            color = custom_dark_green,
+                            shape = RoundedCornerShape(12.dp)
+                        )
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -414,6 +429,11 @@ fun OfficerHome(
                             shape = RoundedCornerShape(12.dp),
                             brush = GradientColors.Green_DarkToLight
                         )
+                        .border(
+                            width = 1.dp,
+                            color = custom_dark_green,
+                            shape = RoundedCornerShape(12.dp)
+                        )
                 ) {
                     Column(
                         verticalArrangement = Arrangement.Top,
@@ -429,18 +449,14 @@ fun OfficerHome(
                             color = Color.White
                         )
                         InformationLine(
-                            label = "Customer's card number",
-                            placeholder = "Enter card number",
-                            value = customerCardNumber,
-                            onValueChange = { customerCardNumber = it },
-                            keyboardOptions = KeyboardOptions.Default.copy(
-                                keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Done
-                            ),
+                            label = "Customer's account ID",
+                            placeholder = "Enter account ID",
+                            value = customerAccountID,
+                            onValueChange = { customerAccountID = it },
                             suffix = {
                                 IconButton(
                                     onClick = {
-                                        officerViewModel.onSearchClick(customerCardNumber, context, navController)
+                                        officerViewModel.onSearchClick(customerAccountID, context, navController)
                                     }
                                 ) {
                                     Icon(

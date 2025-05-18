@@ -53,6 +53,7 @@ import com.example.internetbanking.ui.theme.custom_dark_red
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.tasks.await
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -525,24 +526,23 @@ fun Long.toReadableDateTime(pattern: String = "HH:mm - dd/MM/yyyy"): String {
 }
 
 // Check Exist Data
-fun checkExistData(
+suspend fun checkExistData(
     collectionName: String,
     fieldName: String,
-    value: String,
-    onResult: (Boolean) -> Unit
-) {
-    val db = Firebase.firestore
-    db.collection(collectionName)
-        .whereEqualTo(fieldName, value)
-        .limit(1)
-        .get()
-        .addOnSuccessListener { result ->
-            onResult(!result.isEmpty)
-        }
-        .addOnFailureListener { e ->
-            Log.e("FirestoreCheck", "Error checking $fieldName in $collectionName", e)
-            onResult(false)
-        }
+    value: String
+): Boolean {
+    return try {
+        val snapshot = Firebase.firestore
+            .collection(collectionName)
+            .whereEqualTo(fieldName, value)
+            .limit(1)
+            .get()
+            .await()
+        !snapshot.isEmpty
+    } catch (e: Exception) {
+        Log.e("FirestoreCheck", "Error checking $fieldName in $collectionName", e)
+        false
+    }
 }
 
 // Add Document To Collection

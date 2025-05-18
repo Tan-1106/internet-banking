@@ -67,7 +67,7 @@ fun EditCustomerProfile(
 
     var fullName by remember { mutableStateOf(customer.fullName) }
     var gender by remember { mutableStateOf(customer.gender) }
-    var identificationNumber by remember { mutableStateOf(customer.gender) }
+    var identificationNumber by remember { mutableStateOf(customer.identificationNumber) }
     var phoneNumber by remember { mutableStateOf(customer.phoneNumber) }
     var email by remember { mutableStateOf(customer.email) }
     var birthday by remember { mutableStateOf(customer.birthday) }
@@ -151,7 +151,7 @@ fun EditCustomerProfile(
                     item{
                         InformationSelect(
                             label = "Gender",
-                            placeholder = "Select gender",
+                            placeholder = gender,
                             options = listOf("Male", "Female"),
                             onOptionSelected = { gender = it },
                             suffix = {
@@ -203,7 +203,7 @@ fun EditCustomerProfile(
                     item {
                         DatePicker(
                             label = "Birthday",
-                            placeholder = "Select birthday",
+                            placeholder = birthday,
                             onDatePick = { birthday = it },
                             suffix = {
                                 VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)

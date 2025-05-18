@@ -2,7 +2,9 @@ package com.example.internetbanking.data
 
 data class LoginUiState(
     val currentUser: User = User(),
-    val loginFailedMessage: String = ""
+    val loginFailedMessage: String = "",
+    val isLoading: Boolean = false,
+    val isLoggedIn: Boolean = false
 )
 
 data class User(
@@ -15,9 +17,4 @@ data class User(
     val birthday: String = "",
     val address: String = "",
     val role: String = ""
-)
-
-data class Customer(
-    val cardNumber: String = "",
-    val account: User = User()
 )

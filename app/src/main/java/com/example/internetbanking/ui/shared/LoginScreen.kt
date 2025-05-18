@@ -2,6 +2,7 @@ package com.example.internetbanking.ui.shared
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,8 +57,9 @@ fun LoginScreen(
     loginViewModel: LoginViewModel,
     navController: NavHostController
 ) {
-    var idInput by remember { mutableStateOf("") }
-    var passwordInput by remember { mutableStateOf("") }
+    val loginUiState by loginViewModel.uiState.collectAsState()
+    var idInput by remember { mutableStateOf("nnt0406") }
+    var passwordInput by remember { mutableStateOf("test123") }
     var isPasswordShowing by remember { mutableStateOf(false) }
 
     AppBackground(
@@ -122,10 +125,26 @@ fun LoginScreen(
                     ),
                     isContentShowing = isPasswordShowing
                 )
+                Spacer(modifier = Modifier.height(5.dp))
+                Box(
+                    contentAlignment = Alignment.CenterEnd,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = loginUiState.loginFailedMessage,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Red
+                    )
+                }
                 Spacer(modifier = Modifier.height(20.dp))
                 GreenGradientButton(
                     onButtonClick = {
-
+                        loginViewModel.login(
+                            userId = idInput,
+                            password = passwordInput,
+                            navController = navController
+                        )
                     },
                     buttonText = "Sign In",
                     modifier = Modifier

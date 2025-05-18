@@ -50,7 +50,7 @@ fun AppScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppScreen.CustomerHome.name                     // TODO: CHANGE TO login.name when done
+        startDestination = AppScreen.Login.name                     // TODO: CHANGE TO login.name when done
     ) {
         // Login
         composable(route = AppScreen.Login.name) {
@@ -64,6 +64,7 @@ fun AppScreen(
         composable(route = AppScreen.OfficerHome.name) {
             OfficerHome(
                 officerViewModel = officerViewModel,
+                loginViewModel = loginViewModel,
                 navController = navController
             )
         }
@@ -179,6 +180,7 @@ fun AppScreen(
                 navController = navController
             )
         }
+
 
         // Mortgage Account Only
         composable(route = AppScreen.ViewMortgageMoney.name) {

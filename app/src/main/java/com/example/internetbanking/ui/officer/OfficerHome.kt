@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,6 +66,7 @@ import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
 import com.example.internetbanking.ui.theme.custom_light_green2
 import com.example.internetbanking.ui.theme.custom_mint_green
+import com.example.internetbanking.viewmodels.LoginViewModel
 import com.example.internetbanking.viewmodels.OfficerViewModel
 
 
@@ -72,13 +74,21 @@ import com.example.internetbanking.viewmodels.OfficerViewModel
 @Composable
 fun OfficerHome(
     officerViewModel: OfficerViewModel,
+    loginViewModel: LoginViewModel,
     navController: NavHostController,
 ) {
     val context: Context = LocalContext.current
+
     val officerUiState by officerViewModel.uiState.collectAsState()
+    val loginUiState by loginViewModel.uiState.collectAsState()
+
     var newProfitableRatesValue by remember { mutableStateOf("") }
     var isShowAlertDialog by remember { mutableStateOf(false) }
     var customerCardNumber by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        officerViewModel.loadLatestRates()
+    }
 
     Box(
         modifier = Modifier
@@ -166,7 +176,7 @@ fun OfficerHome(
                             )
                             Spacer(modifier = Modifier.weight(1f))
                             Text(
-                                text = officerUiState.officer.fullName,
+                                text = loginUiState.currentUser.fullName,
                                 color = Color.White,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -186,7 +196,7 @@ fun OfficerHome(
                             )
                             Spacer(modifier = Modifier.weight(1f))
                             Text(
-                                text = officerUiState.officer.userId,
+                                text = loginUiState.currentUser.userId,
                                 color = Color.White,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -329,6 +339,7 @@ fun OfficerHome(
                         content = "Are you sure you want to change profitable rates to ${newProfitableRatesValue}%",
                         onConfirm = {
                             officerViewModel.onChangeRatesConfirm(newProfitableRatesValue)
+                            newProfitableRatesValue = ""
                             isShowAlertDialog = false
                         },
                         onDismiss = {
@@ -452,8 +463,9 @@ fun OfficerHome(
 )
 @Composable
 fun OfficerHomePreview(){
-    val fakeViewModel: OfficerViewModel = viewModel()
+    val fakeOfficerViewModel: OfficerViewModel = viewModel()
+    val fakeLoginViewModel: LoginViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()
 
-    OfficerHome(fakeViewModel, fakeNavController)
+    OfficerHome(fakeOfficerViewModel, fakeLoginViewModel, fakeNavController)
 }

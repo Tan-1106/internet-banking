@@ -69,6 +69,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.android.gms:play-services-auth:20.0.0")
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
 
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("at.favre.lib:bcrypt:0.9.0")

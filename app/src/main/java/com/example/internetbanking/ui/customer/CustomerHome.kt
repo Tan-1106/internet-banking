@@ -75,7 +75,7 @@ fun CustomerHome(
     navController: NavHostController
 ) {
     val customerUiState by customerViewModel.uiState.collectAsState()
-    val customerRole = customerUiState.customer.account.role
+    val customerRole = customerUiState.account.role
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -202,10 +202,10 @@ fun CustomerHome(
                                 fontSize = 18.sp
                             )
                             Text(
-                                text = if (customerUiState.customer.account.fullName == "") {
+                                text = if (customerUiState.account.fullName == "") {
                                     "XXXX XXXX XXX"
                                 } else {
-                                    customerUiState.customer.account.fullName
+                                    customerUiState.account.fullName
                                 },
                                 color = Color.White,
                                 fontSize = 20.sp,
@@ -232,10 +232,10 @@ fun CustomerHome(
                                 modifier = Modifier.width(240.dp)
                             ) {
                                 Text(
-                                    text = if (customerUiState.customer.cardNumber == "") {
+                                    text = if (customerUiState.cardNumber == "") {
                                         "0000000000"
                                     } else {
-                                        customerUiState.customer.cardNumber
+                                        customerUiState.cardNumber
                                     },
                                     color = Color.White,
                                     fontSize = 18.sp,
@@ -249,7 +249,7 @@ fun CustomerHome(
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clickable {
-                                            val accountNumber = customerUiState.customer.cardNumber
+                                            val accountNumber = customerUiState.cardNumber
                                             clipboardManager.setText(AnnotatedString(accountNumber))
                                             scope.launch {
                                                 snackbarHostState.showSnackbar("Copied: $accountNumber")

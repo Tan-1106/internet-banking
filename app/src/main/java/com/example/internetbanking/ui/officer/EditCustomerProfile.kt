@@ -46,7 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
-import com.example.internetbanking.data.Customer
+import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.DatePicker
 import com.example.internetbanking.ui.shared.GreenGradientButton
 import com.example.internetbanking.ui.shared.InformationLine
@@ -63,16 +63,16 @@ fun EditCustomerProfile(
     navController: NavHostController
 ) {
     val officerUiState by officerViewModel.uiState.collectAsState()
-    val customer: Customer = officerUiState.customerToEdit
+    val customer: User = officerUiState.customerToEdit
 
-    var fullName by remember { mutableStateOf(customer.account.fullName) }
-    var gender by remember { mutableStateOf(customer.account.gender) }
-    var identificationNumber by remember { mutableStateOf(customer.account.gender) }
-    var phoneNumber by remember { mutableStateOf(customer.account.phoneNumber) }
-    var email by remember { mutableStateOf(customer.account.email) }
-    var birthday by remember { mutableStateOf(customer.account.birthday) }
-    var address by remember { mutableStateOf(customer.account.address) }
-    var role by remember { mutableStateOf(customer.account.role) }
+    var fullName by remember { mutableStateOf(customer.fullName) }
+    var gender by remember { mutableStateOf(customer.gender) }
+    var identificationNumber by remember { mutableStateOf(customer.gender) }
+    var phoneNumber by remember { mutableStateOf(customer.phoneNumber) }
+    var email by remember { mutableStateOf(customer.email) }
+    var birthday by remember { mutableStateOf(customer.birthday) }
+    var address by remember { mutableStateOf(customer.address) }
+    var role by remember { mutableStateOf(customer.role) }
 
     Box(
         modifier = Modifier

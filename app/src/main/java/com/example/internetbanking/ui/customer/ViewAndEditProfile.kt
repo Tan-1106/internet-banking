@@ -60,10 +60,9 @@ fun ProfileScreen(
 ) {
     val customerUiState by customerViewModel.uiState.collectAsState()
 
-    val customerAccount by remember { mutableStateOf(customerUiState.customer.account) }
-    var customerPhoneNumber by remember { mutableStateOf(customerAccount.phoneNumber) }
-    var customerEmail by remember { mutableStateOf(customerAccount.email) }
-    var customerAddress by remember { mutableStateOf(customerAccount.address) }
+    var customerPhoneNumber by remember { mutableStateOf(customerUiState.account.phoneNumber) }
+    var customerEmail by remember { mutableStateOf(customerUiState.account.email) }
+    var customerAddress by remember { mutableStateOf(customerUiState.account.address) }
 
     Box(
         modifier = Modifier
@@ -126,7 +125,7 @@ fun ProfileScreen(
                     item {
                         InformationLine(
                             label = "Card number",
-                            placeholder = customerUiState.customer.cardNumber,
+                            placeholder = customerUiState.cardNumber,
                             value = "",
                             onValueChange = {},
                             isEnable = false
@@ -135,7 +134,7 @@ fun ProfileScreen(
                     item {
                         InformationLine(
                             label = "User ID",
-                            placeholder = customerAccount.userId,
+                            placeholder = customerUiState.account.userId,
                             value = "",
                             onValueChange = {},
                             isEnable = false
@@ -144,7 +143,7 @@ fun ProfileScreen(
                     item {
                         InformationLine(
                             label = "Full name",
-                            placeholder = customerAccount.fullName,
+                            placeholder = customerUiState.account.fullName,
                             value = "",
                             onValueChange = {},
                             isEnable = false
@@ -153,7 +152,7 @@ fun ProfileScreen(
                     item{
                         InformationLine(
                             label = "Gender",
-                            placeholder = customerAccount.birthday,
+                            placeholder = customerUiState.account.birthday,
                             value = "",
                             onValueChange = {},
                             isEnable = false
@@ -162,7 +161,7 @@ fun ProfileScreen(
                     item {
                         InformationLine(
                             label = "Identification number",
-                            placeholder = customerAccount.identificationNumber,
+                            placeholder = customerUiState.account.identificationNumber,
                             value = "",
                             onValueChange = {},
                             isEnable = false
@@ -205,7 +204,7 @@ fun ProfileScreen(
                     item {
                         InformationLine(
                             label = "Birthday",
-                            placeholder = customerAccount.birthday,
+                            placeholder = customerUiState.account.birthday,
                             value = "",
                             onValueChange = {},
                             isEnable = false
@@ -230,7 +229,7 @@ fun ProfileScreen(
                     item {
                         InformationLine(
                             label = "Role",
-                            placeholder = customerAccount.role,
+                            placeholder = customerUiState.account.role,
                             value = "",
                             onValueChange = {},
                             isEnable = false

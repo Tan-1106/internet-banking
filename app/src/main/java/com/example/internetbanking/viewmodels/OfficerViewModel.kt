@@ -1,20 +1,55 @@
 package com.example.internetbanking.viewmodels
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.internetbanking.data.OfficerUiState
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.math.BigDecimal
 
 class OfficerViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(OfficerUiState())
     val uiState: StateFlow<OfficerUiState> = _uiState.asStateFlow()
+
+    private val db: FirebaseFirestore = Firebase.firestore
+
+    fun loadLatestRates() {
+        viewModelScope.launch {
+            val snapshot = db.collection("profitRates")
+                .orderBy("ratesChangeTimestamp", Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .await()
+
+            if (!snapshot.isEmpty) {
+                val doc = snapshot.documents[0]
+                val profitableRatesStr = doc.getString("profitableRates") ?: "0"
+                val timestampStr = doc.getString("ratesChangeTimestamp") ?: "0"
+
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        profitableRates = profitableRatesStr.toBigDecimalOrNull() ?: BigDecimal.ZERO,
+                        ratesChangeTimestamp = timestampStr.toLong()
+                    )
+                }
+            }
+        }
+    }
 
     // Create Customer
     var nameErrorMessage by mutableStateOf("")
@@ -145,7 +180,21 @@ class OfficerViewModel : ViewModel() {
     }
 
     fun onChangeRatesConfirm(newRate: String) {
-        // TODO: CHANGE PROFITABLE RATES
+        val newRateData = mapOf(
+            "profitableRates" to newRate,
+            "ratesChangeTimestamp" to System.currentTimeMillis().toString()
+        )
+
+        db.collection("profitRates")
+            .add(newRateData)
+            .addOnSuccessListener {
+                Log.d("Rates", "Successfully added new rate")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Rates", "Error adding new rate", e)
+            }
+
+        loadLatestRates()
     }
 
     // Edit Customer

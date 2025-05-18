@@ -4,7 +4,8 @@ import java.math.BigDecimal
 
 data class CustomerUiState(
     // All Customer
-    val customer: Customer = Customer(),
+    val account: User = User(),
+    val cardNumber: String = "",
     val transactionHistory: List<TransactionRecord> = emptyList(),
 
     // Checking and Saving

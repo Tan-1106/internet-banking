@@ -28,6 +28,7 @@ import com.example.internetbanking.ui.shared.LoginScreen
 import com.example.internetbanking.viewmodels.CustomerViewModel
 import com.example.internetbanking.viewmodels.LoginViewModel
 import com.example.internetbanking.viewmodels.OfficerViewModel
+import kotlin.math.log
 
 enum class AppScreen() {
     Login,
@@ -71,6 +72,7 @@ fun AppScreen(
         composable(route = AppScreen.CustomerHome.name) {
             CustomerHome(
                 customerViewModel = customerViewModel,
+                loginViewModel = loginViewModel,
                 navController = navController
             )
         }

@@ -97,4 +97,21 @@ class LoginViewModel : ViewModel() {
             }
         }
     }
+
+    fun logout(navController: NavHostController) {
+        FirebaseAuth.getInstance().signOut()
+
+        _uiState.update {
+            it.copy(
+                isLoggedIn = false,
+                currentUser = User()
+            )
+        }
+
+        navController.navigate(AppScreen.Login.name) {
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
 }

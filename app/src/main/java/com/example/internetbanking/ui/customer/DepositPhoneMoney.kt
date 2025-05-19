@@ -56,6 +56,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.BalanceInformation
+import com.example.internetbanking.ui.shared.PagerBalanceInformation
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_light_green2
@@ -145,7 +146,13 @@ fun DepositPhoneMoneyScreen(
                     .padding(paddingValues)
                     .padding(10.dp)
             ) {
-                BalanceInformation()
+                PagerBalanceInformation(
+                    pages =  listOf<@Composable ()-> Unit>(
+                        { BalanceInformation() }
+                        , { BalanceInformation() }
+                        ),
+                    onAddAccountClick = { }
+                )
                 Spacer(Modifier.height(20.dp))
                 Text(
                     text = "Transaction Information",
@@ -160,7 +167,8 @@ fun DepositPhoneMoneyScreen(
                         .background(
                             color = Color.White,
 
-                            shape = RoundedCornerShape(corner = CornerSize(20)
+                            shape = RoundedCornerShape(
+                                corner = CornerSize(20)
                             )
                         ),
                     horizontalArrangement = Arrangement.SpaceBetween,

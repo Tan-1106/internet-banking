@@ -208,11 +208,11 @@ fun DepositAndWithdrawScreen(
                 }
                 Spacer(Modifier.height(10.dp))
                 HintAmount()
-
             }
         }
     }
 }
+
 
 @Composable
 fun HintAmount() {
@@ -299,8 +299,7 @@ fun TabScreen(label: String, modifier: Modifier = Modifier) {
                     focusedBorderColor = custom_mint_green,
                     focusedLabelColor = custom_light_green1,
                 ),
-                placeholder = { Text("0đ") }
-
+                placeholder = { Text("0đ") }, modifier = Modifier.fillMaxWidth(0.8f)
             )
         }
     }

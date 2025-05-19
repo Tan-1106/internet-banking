@@ -1,0 +1,302 @@
+package com.example.internetbanking.ui.customer
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SeatSelectionScreen(
+    theaterName: String,
+    showTime: String,
+    movieTitle: String,
+    navController: NavHostController
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Chọn ghế") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.Close, contentDescription = "Close")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            // Thông tin rạp và suất chiếu
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = theaterName,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = showTime,
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = "Phòng chiếu 03",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
+                Text(
+                    text = "2D Phụ đề",
+                    fontSize = 14.sp,
+                    color = Color(0xFFD81B60),
+                    modifier = Modifier
+                        .background(Color(0xFFF8BBD0), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
+
+            // Màn hình
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .background(Color(0xFFD81B60), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Màn hình",
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            // Sơ đồ ghế
+            SeatMap(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            )
+
+            // Chú thích trạng thái ghế
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                SeatLegend(color = Color.Gray, label = "Đã đặt")
+                SeatLegend(color = Color(0xFFD81B60), label = "Đang chọn")
+                SeatLegend(color = Color(0xFFE0E0E0), label = "Còn trống")
+                SeatLegend(color = Color(0xFF4CAF50), label = "Ghế đôi")
+            }
+
+            // Thông tin vé
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "2 vé người lớn",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = movieTitle, // Thêm thông tin phim
+                        fontSize = 18.sp,
+                        color = Color(0xFFD81B60)
+                    )
+                    Text(
+                        text = "Ghế: E5, E6",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
+                Text(
+                    text = "130.000 đ",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFD81B60)
+                )
+            }
+
+            // Nút Thanh toán
+            Button(
+                onClick = { /* Handle payment */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD81B60)),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = "Thanh toán",
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SeatMap(modifier: Modifier = Modifier) {
+    val rows = listOf("A", "B", "C", "D", "E", "F", "G")
+    val seatsPerRow = 8
+    val selectedSeats = remember { mutableStateListOf<String>() }
+    val bookedSeats = listOf("A1", "A2", "B3", "C5") // Ghế đã đặt
+    val coupleSeats = listOf("G1-G2", "G3-G4", "G5-G6", "G7-G8") // Ghế đôi
+
+    Column(modifier = modifier) {
+        rows.forEach { row ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = row,
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .width(20.dp)
+                        .align(Alignment.CenterVertically),
+                    textAlign = TextAlign.Center
+                )
+                for (seatNum in 1..seatsPerRow) {
+                    val seatId = "$row$seatNum"
+                    val isCoupleSeat = coupleSeats.any { it.contains(seatId) }
+                    val coupleSeatPair = if (isCoupleSeat) coupleSeats.find { it.contains(seatId) } else null
+                    val isBooked = bookedSeats.contains(seatId)
+                    val isSelected = selectedSeats.contains(seatId) || (coupleSeatPair != null && selectedSeats.any { it in coupleSeatPair.orEmpty() })
+
+                    if (isCoupleSeat && seatNum % 2 == 1) { // Ghế đôi (chiếm 2 vị trí)
+                        Box(
+                            modifier = Modifier
+                                .width(60.dp)
+                                .height(30.dp)
+                                .background(
+                                    when {
+                                        isBooked -> Color.Gray
+                                        isSelected -> Color(0xFFD81B60)
+                                        else -> Color(0xFF4CAF50)
+                                    },
+                                    RoundedCornerShape(4.dp)
+                                )
+                                .clickable(enabled = !isBooked) {
+                                    if (isSelected) {
+                                        selectedSeats.removeAll { it in coupleSeatPair.orEmpty() }
+                                    } else {
+                                        coupleSeatPair?.split("-")?.forEach { selectedSeats.add(it) }
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = coupleSeatPair?.replace("-", " ") ?: "",
+                                fontSize = 12.sp,
+                                color = if (isSelected || isBooked) Color.White else Color.Black,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else if (!isCoupleSeat || seatNum % 2 == 0) { // Ghế đơn hoặc bỏ qua ghế thứ 2 của ghế đôi
+                        if (!isCoupleSeat) {
+                            Box(
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .background(
+                                        when {
+                                            isBooked -> Color.Gray
+                                            isSelected -> Color(0xFFD81B60)
+                                            else -> Color(0xFFE0E0E0)
+                                        },
+                                        RoundedCornerShape(4.dp)
+                                    )
+                                    .clickable(enabled = !isBooked) {
+                                        if (isSelected) {
+                                            selectedSeats.remove(seatId)
+                                        } else {
+                                            selectedSeats.add(seatId)
+                                        }
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = seatNum.toString(),
+                                    fontSize = 12.sp,
+                                    color = if (isSelected || isBooked) Color.White else Color.Black,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SeatLegend(color: Color, label: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .background(color, RoundedCornerShape(4.dp))
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            color = Color.Gray
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SeatSelectionScreenPreview() {
+    val navController = rememberNavController()
+    SeatSelectionScreen(
+        theaterName = "CGV Vivo City",
+        showTime = "Thứ 6, 23/05 - 17:50",
+        movieTitle = "Doraemon Movie 44: Nobita và....",
+        navController = navController
+    )
+}

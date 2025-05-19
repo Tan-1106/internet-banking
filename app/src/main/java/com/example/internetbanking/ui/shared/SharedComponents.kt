@@ -62,11 +62,13 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.absoluteValue
+import java.util.Locale
 
 // Gradient Background
 @Composable
@@ -624,6 +626,19 @@ fun Long.toReadableDateTime(pattern: String = "HH:mm - dd/MM/yyyy"): String {
         .ofPattern(pattern)
         .withZone(ZoneId.systemDefault())
     return formatter.format(instant)
+}
+
+fun dateStringToTimestamp(dateString: String): Long? {
+    return try {
+        // Define the date format for dd/mm/yyyy
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        sdf.isLenient = false // Strict parsing to reject invalid dates
+        val date = sdf.parse(dateString)
+        date?.time ?: throw IllegalArgumentException("Parsed date is null")
+    } catch (e: Exception) {
+        Log.e("DateConversion", "Error parsing date '$dateString': ${e.message}")
+        null // Return null for invalid dates
+    }
 }
 
 // Check Exist Data

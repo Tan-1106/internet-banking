@@ -24,8 +24,11 @@ data class CustomerUiState(
 )
 
 data class TransactionRecord(
-    val id: String = "",
+    val transactionId: String = "",
+    val content: String = "",
     val amount: BigDecimal = BigDecimal.ZERO,
+    val fee: BigDecimal = BigDecimal.ZERO,
+    val type: String = "",
     val timestamp: Long = 0L
 )
 

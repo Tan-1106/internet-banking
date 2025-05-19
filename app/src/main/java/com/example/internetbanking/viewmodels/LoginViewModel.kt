@@ -114,4 +114,28 @@ class LoginViewModel : ViewModel() {
         }
     }
 
+    fun updateCurrentCustomerInformation(
+        fullName: String,
+        gender: String,
+        phoneNumber: String,
+        birthday: String,
+        address: String
+    ) {
+        _uiState.update { currentState ->
+            val currentAccount = currentState.currentUser
+            currentState.copy(
+                currentUser = User(
+                    accountId = currentAccount.accountId,
+                    fullName = fullName,
+                    gender = gender,
+                    identificationNumber = currentAccount.identificationNumber,
+                    phoneNumber = phoneNumber,
+                    email = currentAccount.email,
+                    birthday = birthday,
+                    address = address,
+                    role = currentAccount.role
+                )
+            )
+        }
+    }
 }

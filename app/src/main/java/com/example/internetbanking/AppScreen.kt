@@ -96,6 +96,7 @@ fun AppScreen(
         composable(route = AppScreen.Profile.name) {
             ProfileScreen(
                 customerViewModel = customerViewModel,
+                loginViewModel = loginViewModel,
                 navController = navController
             )
         }

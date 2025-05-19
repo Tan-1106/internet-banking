@@ -254,8 +254,8 @@ class OfficerViewModel : ViewModel() {
                     "email" to email,
                     "birthday" to birthday,
                     "address" to address,
-                    "role" to "Checking",
-                    "checking" to checkingData
+                    "checking" to checkingData,
+                    "role" to "Customer"
                 )
 
                 addDocumentToCollection(

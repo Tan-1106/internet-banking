@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.math.BigDecimal
 
 class CustomerViewModel : ViewModel() {
@@ -47,41 +46,17 @@ class CustomerViewModel : ViewModel() {
                     else -> BigDecimal.ZERO
                 }
 
-                // Cập nhật UI State
-                _uiState.update { it.copy(balance = balance) }
+                // UI State
+                if (role == "Checking") {
+                    _uiState.update { it.copy(checkingBalance = balance) }
+                } else if (role == "Saving") {
+                    _uiState.update { it.copy(savingBalance = balance) }
+                }
             }
         }
     }
 
-    // Load Customer Information
-    var hasSaving by mutableStateOf(false)
-        private set
-    var hasMortgage by mutableStateOf(false)
-        private set
-
-    fun loadCustomerInformation(currentUser: User) {
-        val role = currentUser.role
-        val accountId = currentUser.accountId
-        viewModelScope.launch {
-            val cardNumber = if (role == "Checking") {
-                getFieldFromDocument("users", accountId, "checking.cardNumber")
-            } else if (role == "Saving") {
-                getFieldFromDocument("users", accountId, "saving.cardNumber")
-            } else {
-                getFieldFromDocument("users", accountId, "mortgage.cardNumber")
-            }
-
-            _uiState.update { currentState ->
-                currentState.copy(
-                    account = currentUser,
-                    cardNumber = cardNumber.toString()
-                )
-            }
-            observeBalance(accountId, role)
-            observeSubAccountsExistence(accountId)
-        }
-    }
-
+    // Observe Exist Types
     fun observeSubAccountsExistence(accountId: String) {
         val docRef = FirebaseFirestore.getInstance()
             .collection("users")
@@ -97,6 +72,42 @@ class CustomerViewModel : ViewModel() {
                 hasSaving = snapshot.contains("saving")
                 hasMortgage = snapshot.contains("mortgage")
             }
+        }
+    }
+
+    // Load Customer Information
+    var hasSaving by mutableStateOf(false)
+        private set
+    var hasMortgage by mutableStateOf(false)
+        private set
+    fun loadCustomerInformation(currentUser: User) {
+        val viewType = uiState.value.currentViewType
+        val accountId = currentUser.accountId
+        viewModelScope.launch {
+            if (viewType == "Checking") {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        account = currentUser,
+                        checkingCardNumber = getFieldFromDocument("users", accountId, "checking.cardNumber").toString()
+                    )
+                }
+            } else if (viewType == "Saving") {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        account = currentUser,
+                        savingCardNumber = getFieldFromDocument("users", accountId, "saving.cardNumber").toString()
+                    )
+                }
+            } else if (viewType == "Mortgage") {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        account = currentUser,
+                        mortgageCardNumber = getFieldFromDocument("users", accountId, "mortgage.cardNumber").toString()
+                    )
+                }
+            }
+            observeBalance(accountId, viewType)
+            observeSubAccountsExistence(accountId)
         }
     }
 }

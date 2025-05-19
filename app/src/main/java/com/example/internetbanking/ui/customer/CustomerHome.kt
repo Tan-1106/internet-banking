@@ -89,7 +89,14 @@ fun CustomerHome(
     LaunchedEffect(Unit) {
         customerViewModel.loadCustomerInformation(loginUiState.currentUser)
     }
-    val customerRole = customerUiState.account.role
+    val currentViewType = customerUiState.currentViewType
+    val cardNumber = if (currentViewType == "Checking") {
+        customerUiState.checkingCardNumber
+    } else if (currentViewType == "Saving") {
+        customerUiState.savingCardNumber
+    } else {
+        customerUiState.mortgageCardNumber
+    }
 
     // Function's Variables
     val snackbarHostState = remember { SnackbarHostState() }
@@ -162,7 +169,7 @@ fun CustomerHome(
                     .padding(20.dp)
             ) {
                 // VIEW BALANCE FOR CHECKING & SAVING
-                val boxHeight = if (customerRole == "Checking" || customerRole == "Saving") {
+                val boxHeight = if (currentViewType == "Checking" || currentViewType == "Saving") {
                     Modifier.fillMaxHeight(0.2f)
                 } else {
                     Modifier.fillMaxHeight(0.15f)
@@ -250,7 +257,7 @@ fun CustomerHome(
                                 modifier = Modifier.width(240.dp)
                             ) {
                                 Text(
-                                    text = customerUiState.cardNumber,
+                                    text = cardNumber,
                                     color = Color.White,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
@@ -263,7 +270,7 @@ fun CustomerHome(
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clickable {
-                                            val accountNumber = customerUiState.cardNumber
+                                            val accountNumber = cardNumber
                                             clipboardManager.setText(AnnotatedString(accountNumber))
                                             scope.launch {
                                                 snackbarHostState.showSnackbar("Copied: $accountNumber")
@@ -273,7 +280,7 @@ fun CustomerHome(
                             }
                         }
                         // VIEW BALANCE FOR CHECKING & SAVING
-                        if (customerRole == "Checking" || customerRole == "Saving") {
+                        if (currentViewType == "Checking" || currentViewType == "Saving") {
                             Spacer(modifier = Modifier.height(10.dp))
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -291,7 +298,11 @@ fun CustomerHome(
                                     modifier = Modifier.width(240.dp)
                                 ) {
                                     Text(
-                                        text = if (isHiddenBalance) "**********" else "${customerUiState.balance.toString()} VND",
+                                        text = if (isHiddenBalance) "**********" else if (currentViewType == "Checking") {
+                                            "${customerUiState.checkingBalance} VND"
+                                        } else {
+                                            "${customerUiState.savingBalance} VND"
+                                        },
                                         color = Color.White,
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold

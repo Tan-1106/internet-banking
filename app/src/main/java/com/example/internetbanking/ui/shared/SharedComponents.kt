@@ -113,7 +113,10 @@ fun GreenGradientButton(
 }
 
 @Composable
-fun BalanceInformation() {
+fun BalanceInformation(
+    cardNumber: String,
+    balance: String
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -154,7 +157,7 @@ fun BalanceInformation() {
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "023456000000",
+                text = cardNumber,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -167,7 +170,7 @@ fun BalanceInformation() {
             Spacer(Modifier.height(5.dp))
             Row {
                 Text(
-                    text = "120,000",
+                    text = balance,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )

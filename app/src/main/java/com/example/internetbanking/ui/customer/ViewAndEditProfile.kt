@@ -124,15 +124,6 @@ fun ProfileScreen(
                 LazyColumn {
                     item {
                         InformationLine(
-                            label = "Card number",
-                            placeholder = customerUiState.cardNumber,
-                            value = "",
-                            onValueChange = {},
-                            isEnable = false
-                        )
-                    }
-                    item {
-                        InformationLine(
                             label = "Account ID",
                             placeholder = customerUiState.account.accountId,
                             value = "",

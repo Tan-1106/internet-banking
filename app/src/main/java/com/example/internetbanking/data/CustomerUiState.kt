@@ -8,6 +8,7 @@ data class CustomerUiState(
     // All Customer
     val account: User = User(),
     val transactionHistory: List<TransactionRecord> = emptyList(),
+    val transactionHistoryToView: TransactionRecord = TransactionRecord(),
 
     // Checking
     val checkingCardNumber: String = "",

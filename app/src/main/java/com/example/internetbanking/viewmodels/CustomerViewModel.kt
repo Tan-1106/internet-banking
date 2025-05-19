@@ -325,4 +325,18 @@ class CustomerViewModel : ViewModel() {
         }
         _uiState.update { it.copy(transactionHistory = filteredTransactions) }
     }
+
+    // View Transaction Detail
+    fun onTransactionHistoryClick(
+        transaction: TransactionRecord,
+        navController: NavHostController
+    ) {
+        _uiState.update {
+            it.copy(
+                transactionHistoryToView = transaction
+            )
+        }
+        // TODO: NAVIGATE TO THE SCREEN
+        // navController.navigate(AppScreen..name)
+    }
 }

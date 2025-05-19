@@ -253,7 +253,13 @@ fun TransactionHistoryScreen(
                 ) {
                     items(customerUiState.transactionHistory.size) { index ->
                         val transaction = customerUiState.transactionHistory[index]
-                        Row (modifier = Modifier.padding(5.dp)){
+                        Row (
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .clickable {
+                                    customerViewModel.onTransactionHistoryClick(transaction, navController)
+                                }
+                        ){
                             Column {
                                 Text(
                                     text = transaction.timestamp.toReadableDateTime(),

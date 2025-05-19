@@ -50,7 +50,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
@@ -67,8 +66,8 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.math.absoluteValue
 import java.util.Locale
+import kotlin.math.absoluteValue
 
 // Gradient Background
 @Composable
@@ -733,7 +732,7 @@ suspend fun getFieldFromDocument(
         } else {
             null // Document không tồn tại
         }
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null // Có lỗi xảy ra khi truy vấn
     }
 }

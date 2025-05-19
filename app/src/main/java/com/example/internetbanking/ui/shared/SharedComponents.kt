@@ -186,15 +186,6 @@ fun BalanceInformation(
 }
 
 @Composable
-fun  Preview(){
-    PagerBalanceInformation(
-        pages = listOf<@Composable ()-> Unit>(
-            { BalanceInformation() }
-            , { BalanceInformation() }
-            , {Text("CC") }), onAddAccountClick = {}
-    )
-}
-@Composable
 fun PagerBalanceInformation(
     pages: List<@Composable ()-> Unit>,
     onAddAccountClick: () -> Unit

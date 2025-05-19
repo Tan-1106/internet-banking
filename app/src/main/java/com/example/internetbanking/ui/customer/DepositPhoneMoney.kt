@@ -94,7 +94,7 @@ fun DepositPhoneMoneyScreen(
             topBar = {
 
                 TopAppBar(
-                    title = { Text("Deposit/Withdraw", color = custom_mint_green) },
+                    title = { Text("Deposit Phone", color = custom_mint_green) },
                     navigationIcon = {
 
                         IconButton(onClick = { }) {
@@ -148,8 +148,14 @@ fun DepositPhoneMoneyScreen(
             ) {
                 PagerBalanceInformation(
                     pages =  listOf<@Composable ()-> Unit>(
-                        { BalanceInformation() }
-                        , { BalanceInformation() }
+                        { BalanceInformation(
+                            cardNumber ="DVijkcbdjd ",
+                            balance ="cbiuskjncbdbhj"
+                        ) },
+                        { BalanceInformation(
+                            cardNumber ="DVijkcbdjd ",
+                            balance ="cbiuskjncbdbhj"
+                        ) }
                         ),
                     onAddAccountClick = { }
                 )

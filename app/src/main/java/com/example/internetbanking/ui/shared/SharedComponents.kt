@@ -52,7 +52,9 @@ import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_red
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.tasks.await
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -350,6 +352,33 @@ fun InformationLine(
     }
 }
 
+@Composable
+fun LogoutDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirmLogout: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Confirm Logout") },
+            text = { Text("Are you sure you want to log out?") },
+            confirmButton = {
+                TextButton(onClick = onConfirmLogout) {
+                    Text(
+                        text = "Yes",
+                        color = Color.Red
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("No")
+                }
+            }
+        )
+    }
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -525,25 +554,57 @@ fun Long.toReadableDateTime(pattern: String = "HH:mm - dd/MM/yyyy"): String {
 }
 
 // Check Exist Data
-fun checkExistData(
+suspend fun checkExistData(
     collectionName: String,
     fieldName: String,
-    value: String,
-    onResult: (Boolean) -> Unit
-) {
-    val db = Firebase.firestore
-    db.collection(collectionName)
-        .whereEqualTo(fieldName, value)
-        .limit(1)
-        .get()
-        .addOnSuccessListener { result ->
-            onResult(!result.isEmpty)
-        }
-        .addOnFailureListener { e ->
-            Log.e("FirestoreCheck", "Error checking $fieldName in $collectionName", e)
-            onResult(false)
-        }
+    value: String
+): Boolean {
+    return try {
+        val snapshot = Firebase.firestore
+            .collection(collectionName)
+            .whereEqualTo(fieldName, value)
+            .limit(1)
+            .get()
+            .await()
+        !snapshot.isEmpty
+    } catch (e: Exception) {
+        Log.e("FirestoreCheck", "Error checking $fieldName in $collectionName", e)
+        false
+    }
 }
+
+// Check Card Number
+suspend fun checkCardNumberExistsInAllDocuments(
+    collectionName: String,
+    cardNumber: String
+): Boolean {
+    return try {
+        val collectionSnapshot = Firebase.firestore
+            .collection(collectionName)
+            .get()
+            .await()
+
+        for (document in collectionSnapshot.documents) {
+            val checking = document.get("Checking") as? Map<*, *>
+            val saving = document.get("Saving") as? Map<*, *>
+            val mortgage = document.get("Mortgage") as? Map<*, *>
+
+            val allAccounts = listOfNotNull(checking, saving, mortgage)
+
+            for (accountMap in allAccounts) {
+                if (accountMap["cardNumber"] == cardNumber) {
+                    return true
+                }
+            }
+        }
+
+        false
+    } catch (e: Exception) {
+        Log.e("CheckCardNumber", "Error checking cardNumber: ${e.message}")
+        false
+    }
+}
+
 
 // Add Document To Collection
 fun addDocumentToCollection(
@@ -566,3 +627,48 @@ fun addDocumentToCollection(
         .addOnFailureListener { e -> onFailure(e) }
 }
 
+// Get Data From Document
+suspend fun getFieldFromDocument(
+    collectionName: String,
+    documentId: String,
+    fieldName: String
+): Any? {
+    return try {
+        val documentSnapshot = FirebaseFirestore.getInstance()
+            .collection(collectionName)
+            .document(documentId)
+            .get()
+            .await()
+
+        if (documentSnapshot.exists()) {
+            documentSnapshot.get(fieldName)
+        } else {
+            null // Document không tồn tại
+        }
+    } catch (e: Exception) {
+        null // Có lỗi xảy ra khi truy vấn
+    }
+}
+
+// Update Data
+fun updateUserFieldByAccountId(
+    accountId: String,
+    fieldName: String,
+    newValue: Any,
+    onSuccess: () -> Unit = {},
+    onFailure: (Exception) -> Unit = {}
+) {
+    val db = Firebase.firestore
+
+    db.collection("users")
+        .document(accountId)
+        .update(fieldName, newValue)
+        .addOnSuccessListener {
+            Log.d("FirestoreUpdate", "Field $fieldName updated successfully")
+            onSuccess()
+        }
+        .addOnFailureListener { exception ->
+            Log.e("FirestoreUpdate", "Failed to update $fieldName", exception)
+            onFailure(exception)
+        }
+}

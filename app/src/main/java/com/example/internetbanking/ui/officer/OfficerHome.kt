@@ -61,6 +61,7 @@ import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.AppAlertDialog
 import com.example.internetbanking.ui.shared.InformationLine
+import com.example.internetbanking.ui.shared.LogoutDialog
 import com.example.internetbanking.ui.shared.toReadableDateTime
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
@@ -78,13 +79,14 @@ fun OfficerHome(
     navController: NavHostController,
 ) {
     val context: Context = LocalContext.current
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     val officerUiState by officerViewModel.uiState.collectAsState()
     val loginUiState by loginViewModel.uiState.collectAsState()
 
     var newProfitableRatesValue by remember { mutableStateOf("") }
     var isShowAlertDialog by remember { mutableStateOf(false) }
-    var customerCardNumber by remember { mutableStateOf("") }
+    var customerAccountID by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         officerViewModel.loadLatestRates()
@@ -114,7 +116,7 @@ fun OfficerHome(
                     actions = {
                         IconButton(
                             onClick = {
-                                // TODO: LOGOUT EVENT
+                                showLogoutDialog = true
                             }
                         ) {
                             Icon(
@@ -145,11 +147,24 @@ fun OfficerHome(
                     .padding(innerPadding)
                     .padding(20.dp)
             ) {
+                LogoutDialog(
+                    showDialog = showLogoutDialog,
+                    onDismiss = { showLogoutDialog = false },
+                    onConfirmLogout = {
+                        showLogoutDialog = false
+                        loginViewModel.logout(navController)
+                    }
+                )
                 Box(
                     modifier = Modifier
                         .height(100.dp)
                         .fillMaxWidth()
                         .clip(
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = custom_dark_green,
                             shape = RoundedCornerShape(12.dp)
                         )
                 ) {
@@ -221,6 +236,11 @@ fun OfficerHome(
                         .background(
                             shape = RoundedCornerShape(12.dp),
                             color = Color.White
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = custom_dark_green,
+                            shape = RoundedCornerShape(12.dp)
                         )
                 ) {
                     Box (
@@ -374,6 +394,11 @@ fun OfficerHome(
                         .clickable {
                             navController.navigate(AppScreen.CreateCustomer.name)
                         }
+                        .border(
+                            width = 1.dp,
+                            color = custom_dark_green,
+                            shape = RoundedCornerShape(12.dp)
+                        )
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -414,6 +439,11 @@ fun OfficerHome(
                             shape = RoundedCornerShape(12.dp),
                             brush = GradientColors.Green_DarkToLight
                         )
+                        .border(
+                            width = 1.dp,
+                            color = custom_dark_green,
+                            shape = RoundedCornerShape(12.dp)
+                        )
                 ) {
                     Column(
                         verticalArrangement = Arrangement.Top,
@@ -429,18 +459,14 @@ fun OfficerHome(
                             color = Color.White
                         )
                         InformationLine(
-                            label = "Customer's card number",
-                            placeholder = "Enter card number",
-                            value = customerCardNumber,
-                            onValueChange = { customerCardNumber = it },
-                            keyboardOptions = KeyboardOptions.Default.copy(
-                                keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Done
-                            ),
+                            label = "Customer's account ID",
+                            placeholder = "Enter account ID",
+                            value = customerAccountID,
+                            onValueChange = { customerAccountID = it },
                             suffix = {
                                 IconButton(
                                     onClick = {
-                                        officerViewModel.onSearchClick(customerCardNumber, context, navController)
+                                        officerViewModel.onSearchClick(customerAccountID, context, navController)
                                     }
                                 ) {
                                     Icon(

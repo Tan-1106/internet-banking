@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.officer
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -60,6 +62,8 @@ fun CreateCustomerScreen(
     officerViewModel: OfficerViewModel,
     navController: NavHostController
 ) {
+    val context: Context = LocalContext.current
+
     var accountId by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
@@ -68,7 +72,6 @@ fun CreateCustomerScreen(
     var email by remember { mutableStateOf("") }
     var birthday by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
-    var role by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -141,7 +144,7 @@ fun CreateCustomerScreen(
                             keyboardOptions = KeyboardOptions.Default.copy(
                                 imeAction = ImeAction.Next
                             ),
-                            errorMessage = officerViewModel.nameErrorMessage
+                            errorMessage = officerViewModel.accountIdErrorMessage
                         )
                     }
                     item {
@@ -233,25 +236,14 @@ fun CreateCustomerScreen(
                         )
                     }
                     item {
-                        InformationSelect(
-                            label = "Role",
-                            placeholder = "Select role",
-                            options = listOf("Checking", "Saving", "Mortgage"),
-                            onOptionSelected = { role = it },
-                            suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select role")
-                            },
-                            errorMessage = officerViewModel.roleErrorMessage
-                        )
-                    }
-                    item {
                         Spacer(modifier = Modifier.height(20.dp))
                     }
                     item {
                         GreenGradientButton(
                             onButtonClick = {
                                 officerViewModel.onCreateCustomerButtonClick(
+                                    context = context,
+                                    navController = navController,
                                     accountId = accountId,
                                     fullName = fullName,
                                     gender = gender,
@@ -259,8 +251,7 @@ fun CreateCustomerScreen(
                                     phoneNumber = phoneNumber,
                                     email = email,
                                     birthday = birthday,
-                                    address = address,
-                                    role = role
+                                    address = address
                                 )
                             },
                             buttonText = "Create",

@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.officer
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -62,17 +64,16 @@ fun EditCustomerProfile(
     officerViewModel: OfficerViewModel,
     navController: NavHostController
 ) {
+    val context: Context = LocalContext.current
+
     val officerUiState by officerViewModel.uiState.collectAsState()
     val customer: User = officerUiState.customerToEdit
 
     var fullName by remember { mutableStateOf(customer.fullName) }
     var gender by remember { mutableStateOf(customer.gender) }
-    var identificationNumber by remember { mutableStateOf(customer.gender) }
     var phoneNumber by remember { mutableStateOf(customer.phoneNumber) }
-    var email by remember { mutableStateOf(customer.email) }
     var birthday by remember { mutableStateOf(customer.birthday) }
     var address by remember { mutableStateOf(customer.address) }
-    var role by remember { mutableStateOf(customer.role) }
 
     Box(
         modifier = Modifier
@@ -151,7 +152,7 @@ fun EditCustomerProfile(
                     item{
                         InformationSelect(
                             label = "Gender",
-                            placeholder = "Select gender",
+                            placeholder = gender,
                             options = listOf("Male", "Female"),
                             onOptionSelected = { gender = it },
                             suffix = {
@@ -159,19 +160,6 @@ fun EditCustomerProfile(
                                 Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select gender")
                             },
                             errorMessage = officerViewModel.genderErrorMessage
-                        )
-                    }
-                    item {
-                        InformationLine(
-                            label = "Identification number",
-                            placeholder = "Enter ID",
-                            value = identificationNumber,
-                            onValueChange = { identificationNumber = it },
-                            keyboardOptions = KeyboardOptions.Default.copy(
-                                keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Next
-                            ),
-                            errorMessage = officerViewModel.idErrorMessage
                         )
                     }
                     item {
@@ -188,22 +176,9 @@ fun EditCustomerProfile(
                         )
                     }
                     item {
-                        InformationLine(
-                            label = "Email",
-                            placeholder = "Enter email",
-                            value = email,
-                            onValueChange = { email = it },
-                            keyboardOptions = KeyboardOptions.Default.copy(
-                                keyboardType = KeyboardType.Email,
-                                imeAction = ImeAction.Next
-                            ),
-                            errorMessage = officerViewModel.emailErrorMessage
-                        )
-                    }
-                    item {
                         DatePicker(
                             label = "Birthday",
-                            placeholder = "Select birthday",
+                            placeholder = birthday,
                             onDatePick = { birthday = it },
                             suffix = {
                                 VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
@@ -225,25 +200,20 @@ fun EditCustomerProfile(
                         )
                     }
                     item {
-                        InformationSelect(
-                            label = "Role",
-                            placeholder = role,
-                            options = listOf("Checking", "Saving", "Mortgage"),
-                            onOptionSelected = { role = it },
-                            suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select role")
-                            },
-                            errorMessage = officerViewModel.roleErrorMessage
-                        )
-                    }
-                    item {
                         Spacer(modifier = Modifier.height(20.dp))
                     }
                     item {
                         GreenGradientButton(
                             onButtonClick = {
-                                // TODO: EDIT EVENT
+                                officerViewModel.onCustomerEditClick(
+                                    context = context,
+                                    navController = navController,
+                                    fullName = fullName,
+                                    gender = gender,
+                                    phoneNumber = phoneNumber,
+                                    birthday = birthday,
+                                    address = address
+                                )
                             },
                             buttonText = "Save",
                             modifier = Modifier

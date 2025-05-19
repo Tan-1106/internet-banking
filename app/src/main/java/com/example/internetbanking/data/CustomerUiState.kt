@@ -3,18 +3,23 @@ package com.example.internetbanking.data
 import java.math.BigDecimal
 
 data class CustomerUiState(
+    val currentViewType: String = "Checking",
+
     // All Customer
     val account: User = User(),
-    val cardNumber: String = "",
     val transactionHistory: List<TransactionRecord> = emptyList(),
 
-    // Checking and Saving
-    val balance: BigDecimal = BigDecimal.ZERO,
+    // Checking
+    val checkingCardNumber: String = "",
+    val checkingBalance: BigDecimal = BigDecimal.ZERO,
 
-    // Saving Only
+    // Saving
+    val savingCardNumber: String = "",
+    val savingBalance: BigDecimal = BigDecimal.ZERO,
     val profitsForSavingAccount: BigDecimal = BigDecimal.ZERO,
 
-    // Mortgage Only
+    // Mortgage
+    val mortgageCardNumber: String = "",
     val mortgageInformation: MortgageInformation = MortgageInformation()
 )
 

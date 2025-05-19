@@ -97,7 +97,7 @@ fun TransactionHistoryScreen(
                             modifier = Modifier
                                 .size(30.dp)
                                 .clickable {
-
+                                    navController.navigateUp()
                                 }
                         )
                     },

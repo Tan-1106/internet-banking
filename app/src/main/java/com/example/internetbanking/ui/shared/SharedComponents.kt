@@ -106,8 +106,8 @@ fun GreenGradientButton(
 
 @Composable
 fun BalanceInformation(
-    cardNumber: String,
-    balance: String
+    cardNumber: String = "",
+    balance: String = ""
 ) {
     Row(
         modifier = Modifier

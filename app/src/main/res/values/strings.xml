@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Internet Banking</string>
     <string name="transfer_title">Transfer</string>
-
-
+    <array name="branch">
+<!--        <item>10.735313,106.700980</item>-->
+        <item>10.740915,106.701722</item>
+        <item>10.7706644501432,106.66938614026112</item>
+    </array>
 </resources>

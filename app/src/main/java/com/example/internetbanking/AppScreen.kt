@@ -9,11 +9,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.ui.customer.BookHotelRoomsScreen
 import com.example.internetbanking.ui.customer.BuyFlightTicketsScreen
 import com.example.internetbanking.ui.customer.BuyMovieTicketsScreen
+import com.example.internetbanking.ui.customer.ConfirmScreen
 import com.example.internetbanking.ui.customer.CustomerHome
-import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
 import com.example.internetbanking.ui.customer.DepositAndWithdrawScreen
+import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
 import com.example.internetbanking.ui.customer.EcommerceScreen
-import com.example.internetbanking.ui.customer.LocateShortestPathScreen
 import com.example.internetbanking.ui.customer.LocateUserAndBankScreen
 import com.example.internetbanking.ui.customer.PayBillsScreen
 import com.example.internetbanking.ui.customer.ProfileScreen
@@ -28,7 +28,6 @@ import com.example.internetbanking.ui.shared.LoginScreen
 import com.example.internetbanking.viewmodels.CustomerViewModel
 import com.example.internetbanking.viewmodels.LoginViewModel
 import com.example.internetbanking.viewmodels.OfficerViewModel
-import kotlin.math.log
 
 enum class AppScreen() {
     Login,
@@ -38,7 +37,7 @@ enum class AppScreen() {
     Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, Ecommerce,
     LocateUserAndBank, LocateShortestPath,
     ViewMortgageMoney,
-    ViewProfitsAndRates
+    ViewProfitsAndRates, Confirm
 
 }
 
@@ -51,7 +50,7 @@ fun AppScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppScreen.Login.name                     // TODO: CHANGE TO login.name when done
+        startDestination = AppScreen.LocateUserAndBank.name                     // TODO: CHANGE TO login.name when done
     ) {
         // Login
         composable(route = AppScreen.Login.name) {
@@ -176,12 +175,6 @@ fun AppScreen(
                 navController = navController
             )
         }
-        composable(route = AppScreen.LocateShortestPath.name) {
-            LocateShortestPathScreen(
-                customerViewModel = customerViewModel,
-                navController = navController
-            )
-        }
 
 
         // Mortgage Account Only
@@ -196,6 +189,12 @@ fun AppScreen(
         // Saving Account Only
         composable(route = AppScreen.ViewProfitsAndRates.name) {
             ViewProfitsAndRatesScreen(
+                customerViewModel = customerViewModel,
+                navController = navController
+            )
+        }
+        composable(route = AppScreen.Confirm.name) {
+            ConfirmScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )

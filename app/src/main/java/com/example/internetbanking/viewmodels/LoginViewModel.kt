@@ -97,4 +97,45 @@ class LoginViewModel : ViewModel() {
             }
         }
     }
+
+    fun logout(navController: NavHostController) {
+        FirebaseAuth.getInstance().signOut()
+
+        _uiState.update {
+            it.copy(
+                isLoggedIn = false,
+                currentUser = User()
+            )
+        }
+
+        navController.navigate(AppScreen.Login.name) {
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
+    fun updateCurrentCustomerInformation(
+        fullName: String,
+        gender: String,
+        phoneNumber: String,
+        birthday: String,
+        address: String
+    ) {
+        _uiState.update { currentState ->
+            val currentAccount = currentState.currentUser
+            currentState.copy(
+                currentUser = User(
+                    accountId = currentAccount.accountId,
+                    fullName = fullName,
+                    gender = gender,
+                    identificationNumber = currentAccount.identificationNumber,
+                    phoneNumber = phoneNumber,
+                    email = currentAccount.email,
+                    birthday = birthday,
+                    address = address,
+                    role = currentAccount.role
+                )
+            )
+        }
+    }
 }

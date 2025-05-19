@@ -61,6 +61,7 @@ import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.AppAlertDialog
 import com.example.internetbanking.ui.shared.InformationLine
+import com.example.internetbanking.ui.shared.LogoutDialog
 import com.example.internetbanking.ui.shared.toReadableDateTime
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
@@ -78,6 +79,7 @@ fun OfficerHome(
     navController: NavHostController,
 ) {
     val context: Context = LocalContext.current
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     val officerUiState by officerViewModel.uiState.collectAsState()
     val loginUiState by loginViewModel.uiState.collectAsState()
@@ -114,7 +116,7 @@ fun OfficerHome(
                     actions = {
                         IconButton(
                             onClick = {
-                                // TODO: LOGOUT EVENT
+                                showLogoutDialog = true
                             }
                         ) {
                             Icon(
@@ -145,6 +147,14 @@ fun OfficerHome(
                     .padding(innerPadding)
                     .padding(20.dp)
             ) {
+                LogoutDialog(
+                    showDialog = showLogoutDialog,
+                    onDismiss = { showLogoutDialog = false },
+                    onConfirmLogout = {
+                        showLogoutDialog = false
+                        loginViewModel.logout(navController)
+                    }
+                )
                 Box(
                     modifier = Modifier
                         .height(100.dp)

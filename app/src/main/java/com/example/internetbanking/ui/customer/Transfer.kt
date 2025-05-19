@@ -26,6 +26,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,7 +61,9 @@ fun TransferScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
-    val banks = listOf<String>("Vietcombank", "Sacombank", "Techcombank")
+    val customerUiState by customerViewModel.uiState.collectAsState()
+
+    val banks = listOf<String>("Vietcombank", "Sacombank", "Techcombank", "Agribank", "VietinBank")
     val categories = listOf<String>(
         "Supermarket", "Dining", "Billing payment",
         "House rental", "Traffic spending", "Home helper", "Others"
@@ -129,7 +132,10 @@ fun TransferScreen(
                     modifier = Modifier.fillMaxWidth(0.8f)
                 ) {
                     item {
-                        BalanceInformation()
+                        BalanceInformation(
+                            cardNumber = customerUiState.checkingCardNumber,
+                            balance = customerUiState.checkingBalance.toString()
+                        )
                     }
                     item {
                         Text(

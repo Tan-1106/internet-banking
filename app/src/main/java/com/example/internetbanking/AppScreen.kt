@@ -9,11 +9,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.ui.customer.BookHotelRoomsScreen
 import com.example.internetbanking.ui.customer.BuyFlightTicketsScreen
 import com.example.internetbanking.ui.customer.BuyMovieTicketsScreen
+import com.example.internetbanking.ui.customer.ConfirmScreen
 import com.example.internetbanking.ui.customer.CustomerHome
-import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
 import com.example.internetbanking.ui.customer.DepositAndWithdrawScreen
+import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
 import com.example.internetbanking.ui.customer.EcommerceScreen
-import com.example.internetbanking.ui.customer.LocateShortestPathScreen
 import com.example.internetbanking.ui.customer.LocateUserAndBankScreen
 import com.example.internetbanking.ui.customer.PayBillsScreen
 import com.example.internetbanking.ui.customer.ProfileScreen
@@ -37,7 +37,7 @@ enum class AppScreen() {
     Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, Ecommerce,
     LocateUserAndBank, LocateShortestPath,
     ViewMortgageMoney,
-    ViewProfitsAndRates
+    ViewProfitsAndRates, Confirm
 
 }
 
@@ -71,6 +71,7 @@ fun AppScreen(
         composable(route = AppScreen.CustomerHome.name) {
             CustomerHome(
                 customerViewModel = customerViewModel,
+                loginViewModel = loginViewModel,
                 navController = navController
             )
         }
@@ -95,6 +96,7 @@ fun AppScreen(
         composable(route = AppScreen.Profile.name) {
             ProfileScreen(
                 customerViewModel = customerViewModel,
+                loginViewModel = loginViewModel,
                 navController = navController
             )
         }
@@ -174,12 +176,6 @@ fun AppScreen(
                 navController = navController
             )
         }
-        composable(route = AppScreen.LocateShortestPath.name) {
-            LocateShortestPathScreen(
-                customerViewModel = customerViewModel,
-                navController = navController
-            )
-        }
 
 
         // Mortgage Account Only
@@ -194,6 +190,12 @@ fun AppScreen(
         // Saving Account Only
         composable(route = AppScreen.ViewProfitsAndRates.name) {
             ViewProfitsAndRatesScreen(
+                customerViewModel = customerViewModel,
+                navController = navController
+            )
+        }
+        composable(route = AppScreen.Confirm.name) {
+            ConfirmScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )

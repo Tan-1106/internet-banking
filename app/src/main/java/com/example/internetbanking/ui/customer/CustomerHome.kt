@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,10 +62,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
+import com.example.internetbanking.ui.shared.LogoutDialog
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
+import com.example.internetbanking.viewmodels.LoginViewModel
 import kotlinx.coroutines.launch
 
 
@@ -72,15 +75,33 @@ import kotlinx.coroutines.launch
 @Composable
 fun CustomerHome(
     customerViewModel: CustomerViewModel,
+    loginViewModel: LoginViewModel,
     navController: NavHostController
 ) {
+    // UiStates
     val customerUiState by customerViewModel.uiState.collectAsState()
-    val customerRole = customerUiState.account.role
+    val loginUiState by loginViewModel.uiState.collectAsState()
 
+    // Logout Dialog
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
+    // Load Data
+    LaunchedEffect(Unit) {
+        customerViewModel.loadCustomerInformation(loginUiState.currentUser)
+    }
+    val currentViewType = customerUiState.currentViewType
+    val cardNumber = if (currentViewType == "Checking") {
+        customerUiState.checkingCardNumber
+    } else if (currentViewType == "Saving") {
+        customerUiState.savingCardNumber
+    } else {
+        customerUiState.mortgageCardNumber
+    }
+
+    // Function's Variables
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     @Suppress("DEPRECATION") val clipboardManager = LocalClipboardManager.current
-
     var isHiddenBalance by remember { mutableStateOf(true) }
 
     Box(
@@ -92,6 +113,14 @@ fun CustomerHome(
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
+        )
+        LogoutDialog(
+            showDialog = showLogoutDialog,
+            onDismiss = { showLogoutDialog = false },
+            onConfirmLogout = {
+                showLogoutDialog = false
+                loginViewModel.logout(navController)
+            }
         )
         Scaffold(
             topBar = {
@@ -107,7 +136,7 @@ fun CustomerHome(
                     actions = {
                         IconButton(
                             onClick = {
-                                // TODO: LOG OUT EVENT
+                                showLogoutDialog = true
                             }
                         ) {
                             Icon(
@@ -140,7 +169,7 @@ fun CustomerHome(
                     .padding(20.dp)
             ) {
                 // VIEW BALANCE FOR CHECKING & SAVING
-                val boxHeight = if (customerRole == "Checking" || customerRole == "Saving") {
+                val boxHeight = if (currentViewType == "Checking" || currentViewType == "Saving") {
                     Modifier.fillMaxHeight(0.2f)
                 } else {
                     Modifier.fillMaxHeight(0.15f)
@@ -202,11 +231,7 @@ fun CustomerHome(
                                 fontSize = 18.sp
                             )
                             Text(
-                                text = if (customerUiState.account.fullName == "") {
-                                    "XXXX XXXX XXX"
-                                } else {
-                                    customerUiState.account.fullName
-                                },
+                                text = customerUiState.account.fullName,
                                 color = Color.White,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -232,11 +257,7 @@ fun CustomerHome(
                                 modifier = Modifier.width(240.dp)
                             ) {
                                 Text(
-                                    text = if (customerUiState.cardNumber == "") {
-                                        "0000000000"
-                                    } else {
-                                        customerUiState.cardNumber
-                                    },
+                                    text = cardNumber,
                                     color = Color.White,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
@@ -249,7 +270,7 @@ fun CustomerHome(
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clickable {
-                                            val accountNumber = customerUiState.cardNumber
+                                            val accountNumber = cardNumber
                                             clipboardManager.setText(AnnotatedString(accountNumber))
                                             scope.launch {
                                                 snackbarHostState.showSnackbar("Copied: $accountNumber")
@@ -259,7 +280,7 @@ fun CustomerHome(
                             }
                         }
                         // VIEW BALANCE FOR CHECKING & SAVING
-                        if (customerRole == "Checking" || customerRole == "Saving") {
+                        if (currentViewType == "Checking" || currentViewType == "Saving") {
                             Spacer(modifier = Modifier.height(10.dp))
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -277,7 +298,11 @@ fun CustomerHome(
                                     modifier = Modifier.width(240.dp)
                                 ) {
                                     Text(
-                                        text = if (isHiddenBalance) "**********" else customerUiState.balance.toString(),
+                                        text = if (isHiddenBalance) "**********" else if (currentViewType == "Checking") {
+                                            "${customerUiState.checkingBalance} VND"
+                                        } else {
+                                            "${customerUiState.savingBalance} VND"
+                                        },
                                         color = Color.White,
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold
@@ -459,7 +484,7 @@ fun CustomerHome(
                             }
                         )
                     }
-                    if (customerRole == "Mortgage") {
+                    if (customerViewModel.hasMortgage) {
                         item {
                             FunctionComponent(
                                 functionIcon = R.drawable.mortgage_money,
@@ -471,7 +496,7 @@ fun CustomerHome(
                             )
                         }
                     }
-                    if (customerRole == "Saving") {
+                    if (customerViewModel.hasSaving ) {
                         item {
                             FunctionComponent(
                                 functionIcon = R.drawable.profits,
@@ -525,8 +550,9 @@ fun FunctionComponent(
 )
 @Composable
 fun CustomerHomePreview(){
-    val fakeViewModel: CustomerViewModel = viewModel()
+    val fakeCustomerViewModel: CustomerViewModel = viewModel()
+    val fakeLoginViewModel: LoginViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()
 
-    CustomerHome(fakeViewModel, fakeNavController)
+    CustomerHome(fakeCustomerViewModel, fakeLoginViewModel, fakeNavController)
 }

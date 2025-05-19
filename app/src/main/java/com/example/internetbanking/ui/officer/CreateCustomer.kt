@@ -72,7 +72,6 @@ fun CreateCustomerScreen(
     var email by remember { mutableStateOf("") }
     var birthday by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
-    var role by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -237,19 +236,6 @@ fun CreateCustomerScreen(
                         )
                     }
                     item {
-                        InformationSelect(
-                            label = "Role",
-                            placeholder = "Select role",
-                            options = listOf("Checking", "Saving", "Mortgage"),
-                            onOptionSelected = { role = it },
-                            suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select role")
-                            },
-                            errorMessage = officerViewModel.roleErrorMessage
-                        )
-                    }
-                    item {
                         Spacer(modifier = Modifier.height(20.dp))
                     }
                     item {
@@ -265,8 +251,7 @@ fun CreateCustomerScreen(
                                     phoneNumber = phoneNumber,
                                     email = email,
                                     birthday = birthday,
-                                    address = address,
-                                    role = role
+                                    address = address
                                 )
                             },
                             buttonText = "Create",

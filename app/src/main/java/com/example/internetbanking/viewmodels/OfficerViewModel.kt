@@ -13,6 +13,7 @@ import com.example.internetbanking.AppScreen
 import com.example.internetbanking.data.OfficerUiState
 import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.addDocumentToCollection
+import com.example.internetbanking.ui.shared.checkCardNumberExistsInAllDocuments
 import com.example.internetbanking.ui.shared.checkExistData
 import com.example.internetbanking.ui.shared.updateUserFieldByAccountId
 import com.google.firebase.Firebase
@@ -100,8 +101,7 @@ class OfficerViewModel : ViewModel() {
         phoneNumber: String,
         email: String,
         birthday: String,
-        address: String,
-        role: String
+        address: String
     ): Boolean {
         var isValid = true
 
@@ -187,18 +187,10 @@ class OfficerViewModel : ViewModel() {
             addressErrorMessage = ""
         }
 
-        // Role
-        if (role.isEmpty()) {
-            roleErrorMessage = "Role is required"
-            isValid = false
-        } else {
-            roleErrorMessage = ""
-        }
-
         return isValid
     }
 
-
+    // Send Reset Email For New User
     fun createUserAndSendResetEmail(
         email: String,
         tempPassword: String = "Temp@1234",
@@ -217,6 +209,18 @@ class OfficerViewModel : ViewModel() {
             .addOnFailureListener { e -> onFailure(e) }
     }
 
+    // Generate Random Card Number
+    private suspend fun generateUniqueAccountId(): String {
+        var cardNumber: String
+        while (true) {
+            cardNumber = (1000000000..9999999999).random().toString()
+            val isCardNumberExist = checkCardNumberExistsInAllDocuments("users", cardNumber)
+            if (!isCardNumberExist) {
+                return cardNumber
+            }
+        }
+    }
+
     // Create Customer
     fun onCreateCustomerButtonClick(
         context: Context,
@@ -228,16 +232,19 @@ class OfficerViewModel : ViewModel() {
         phoneNumber: String,
         email: String,
         birthday: String,
-        address: String,
-        role: String
+        address: String
     ) {
         viewModelScope.launch {
             val isValid = validateInputs(
                 accountId, fullName, gender, idNumber,
-                phoneNumber, email, birthday, address, role
+                phoneNumber, email, birthday, address
             )
 
             if (isValid) {
+                val checkingData = mapOf(
+                    "cardNumber" to generateUniqueAccountId(),
+                    "balance" to 0
+                )
                 val customerData = mapOf(
                     "accountId" to accountId,
                     "fullName" to fullName,
@@ -247,7 +254,8 @@ class OfficerViewModel : ViewModel() {
                     "email" to email,
                     "birthday" to birthday,
                     "address" to address,
-                    "role" to role
+                    "checking" to checkingData,
+                    "role" to "Customer"
                 )
 
                 addDocumentToCollection(

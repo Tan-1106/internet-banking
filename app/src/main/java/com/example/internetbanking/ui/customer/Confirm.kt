@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,12 +18,17 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -36,16 +42,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
-import com.example.internetbanking.ui.shared.BalanceInformation
-import com.example.internetbanking.ui.shared.InformationLine
-import com.example.internetbanking.ui.shared.InformationSelect
-import com.example.internetbanking.ui.shared.PagerBalanceInformation
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_mint_green
@@ -53,11 +58,12 @@ import com.example.internetbanking.viewmodels.CustomerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PayBillsScreen(
+fun ConfirmScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
-    var customerCode by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -75,7 +81,7 @@ fun PayBillsScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Pay Bills",
+                            text = "Confirm",
                             fontWeight = FontWeight.Bold,
                             color = custom_mint_green
                         )
@@ -109,7 +115,9 @@ fun PayBillsScreen(
                 ) {
 
                     ElevatedButton(
-                        onClick = {},
+                        onClick = {
+                            showDialog=true
+                        },
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 10.dp)
                             .fillMaxSize(),
@@ -134,40 +142,116 @@ fun PayBillsScreen(
                     .padding(innerPadding)
                     .padding(10.dp)
             ) {
-                PagerBalanceInformation(
-                    pages = listOf(
-                        { BalanceInformation(
-                            cardNumber = "cbuijkcbdsj ",
-                            balance ="cbiajkb "
-                        ) }
-                    ),
-                    onAddAccountClick = {}
-                )
-                InformationSelect(
-                    label = "Service",
-                    placeholder = "Select Service",
-                    options = listOf("Electricity", "Water"),
-                    onOptionSelected = {}
-                )
-                InformationLine(
-                    label = "Customer code ",
-                    placeholder = "Enter customer code",
-                    value = customerCode,
-                    onValueChange = {},
-                    isEnable = true,
-                )
+                Spacer(Modifier.height(30.dp))
+                Column(
+                    modifier = Modifier.background(
+                        color = custom_mint_green,
+                        shape = RoundedCornerShape(
+                            corner = CornerSize(20.dp)
+                        )
+                    ).padding(all = 20.dp)
+                ) {
+                    LineConfirm(
+                        label="Service Type",
+                        data = "Electricity Bill"
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    LineConfirm(
+                        label="Customer Code",
+                        data = "$$$$"
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    LineConfirm(
+                        label="Customer Name",
+                        data = "$$$$"
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    LineConfirm(
+                        label="Pay Amount",
+                        data = "$$$$"
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    LineConfirm(
+                        label="Fee Amount",
+                        data = "$$$$"
+                    )
+
+
+
+                    PasswordConfirmationDialog(
+                        showDialog = showDialog,
+                        onDismiss = { showDialog = false },
+                        onConfirm = { password ->
+                            // Handle password confirmation
+                        }
+                    )
+                }
             }
         }
     }
+}
+@Composable
+fun PasswordConfirmationDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(
+                    shape = RoundedCornerShape(CornerSize(10.dp)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = custom_light_green1
+                    ),
+                    onClick = {
+                        onConfirm(password)
+                        onDismiss()
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onDismiss) {
+                    Text("Cancel", color = Color.Black)
+                }
+            },
+            title = { Text("Password Authentication") },
+            text = {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation()
+                )
+            },
+            properties = DialogProperties(dismissOnClickOutside = false)
+        )
+    }
+}
+@Composable
+fun LineConfirm(label: String, data: String) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, fontWeight = FontWeight.Bold,
+            fontSize = 15.sp)
+        Text(data,fontSize = 15.sp)
+    }
+    Spacer(Modifier.height(10.dp))
+    HorizontalDivider(color = Color.Gray)
 }
 
 @Preview(
     showBackground = true
 )
 @Composable
-fun PayBillsScreenPreview() {
+fun ConfirmScreenPreview() {
     val fakeViewModel: CustomerViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()
 
-    PayBillsScreen(fakeViewModel, fakeNavController)
+    ConfirmScreen(fakeViewModel, fakeNavController)
 }

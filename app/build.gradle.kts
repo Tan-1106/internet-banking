@@ -73,4 +73,6 @@ dependencies {
 
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("at.favre.lib:bcrypt:0.9.0")
+    implementation("org.osmdroid:osmdroid-android:6.1.16")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 }

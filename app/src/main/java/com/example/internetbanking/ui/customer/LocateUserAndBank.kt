@@ -64,6 +64,10 @@ import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
@@ -300,31 +304,44 @@ fun drawRoute(
     end: GeoPoint,
     onFinish: () -> Unit
 ) {
-    Thread {
-        val url =
-            "https://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson"
-        val response = URL(url).readText()
-        val json = JSONObject(response)
-        val coordinates = json
-            .getJSONArray("routes")
-            .getJSONObject(0)
-            .getJSONObject("geometry")
-            .getJSONArray("coordinates")
+    CoroutineScope(
+        Dispatchers.IO
+    ).launch {
+        try {
 
-        val geoPoints = mutableListOf<GeoPoint>()
-        for (i in 0 until coordinates.length()) {
-            val coord = coordinates.getJSONArray(i)
-            geoPoints.add(GeoPoint(coord.getDouble(1), coord.getDouble(0)))
-        }
+            val url =
+                "https://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson"
+            val response = URL(url).readText()
+            val json = JSONObject(response)
+            val coordinates = json
+                .getJSONArray("routes")
+                .getJSONObject(0)
+                .getJSONObject("geometry")
+                .getJSONArray("coordinates")
 
-        Handler(Looper.getMainLooper()).post {
-            val polyline = Polyline()
-            polyline.setPoints(geoPoints)
-            mapView.overlays.add(polyline)
-            mapView.invalidate()
+            val geoPoints = mutableListOf<GeoPoint>()
+            for (i in 0 until coordinates.length()) {
+                val coord = coordinates.getJSONArray(i)
+                geoPoints.add(GeoPoint(coord.getDouble(1), coord.getDouble(0)))
+            }
+            withContext(Dispatchers.Main) {
+                Polyline().apply {
+                    setPoints(geoPoints)
+                    mapView.overlays.add(this)
+                    mapView.invalidate()
+
+                }
+                onFinish()
+
+            }
+        } catch (
+            e: Exception
+        ) {
+            e.printStackTrace()
             onFinish()
         }
-    }.start()
+
+    }
 }
 
 

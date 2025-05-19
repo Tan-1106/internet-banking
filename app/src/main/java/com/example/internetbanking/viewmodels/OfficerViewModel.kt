@@ -14,6 +14,7 @@ import com.example.internetbanking.data.OfficerUiState
 import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.addDocumentToCollection
 import com.example.internetbanking.ui.shared.checkExistData
+import com.example.internetbanking.ui.shared.updateUserFieldByAccountId
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -337,6 +338,111 @@ class OfficerViewModel : ViewModel() {
                     Log.e("onSearchClick", "Firestore error", e)
                 }
             }
+        }
+    }
+
+    fun validateEditInput(
+        fullName: String,
+        gender: String,
+        phoneNumber: String,
+        birthday: String,
+        address: String
+    ): Boolean {
+        var isValid = true
+
+        // Full name
+        if (fullName.isEmpty()) {
+            nameErrorMessage = "Full name is required"
+            isValid = false
+        } else {
+            nameErrorMessage = ""
+        }
+
+        // Gender
+        if (gender.isEmpty()) {
+            genderErrorMessage = "Gender is required"
+            isValid = false
+        } else {
+            genderErrorMessage = ""
+        }
+
+        // Phone number
+        if (phoneNumber.isEmpty()) {
+            phoneNumberErrorMessage = "Phone number is required"
+            isValid = false
+        } else if (phoneNumber.length != 10 && phoneNumber.length != 11) {
+            phoneNumberErrorMessage = "Invalid phone number"
+            isValid = false
+        } else {
+            phoneNumberErrorMessage = ""
+        }
+
+        // Birthday
+        if (birthday.isEmpty()) {
+            birthdayErrorMessage = "Birthday is required"
+            isValid = false
+        } else {
+            birthdayErrorMessage = ""
+        }
+
+        // Address
+        if (address.isEmpty()) {
+            addressErrorMessage = "Address is required"
+            isValid = false
+        } else {
+            addressErrorMessage = ""
+        }
+
+        return isValid
+    }
+    fun onCustomerEditClick(
+        context: Context,
+        navController: NavHostController,
+        fullName: String,
+        gender: String,
+        phoneNumber: String,
+        birthday: String,
+        address: String
+    ) {
+        if (validateEditInput(fullName, gender, phoneNumber, birthday, address)) {
+            updateUserFieldByAccountId(
+                accountId = uiState.value.customerToEdit.accountId,
+                fieldName = "fullName",
+                newValue = fullName,
+                onSuccess = {},
+                onFailure = { e -> Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
+            )
+            updateUserFieldByAccountId(
+                accountId = uiState.value.customerToEdit.accountId,
+                fieldName = "gender",
+                newValue = gender,
+                onSuccess = {},
+                onFailure = { e -> Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
+            )
+            updateUserFieldByAccountId(
+                accountId = uiState.value.customerToEdit.accountId,
+                fieldName = "phoneNumber",
+                newValue = phoneNumber,
+                onSuccess = {},
+                onFailure = { e -> Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
+            )
+            updateUserFieldByAccountId(
+                accountId = uiState.value.customerToEdit.accountId,
+                fieldName = "birthday",
+                newValue = birthday,
+                onSuccess = {},
+                onFailure = { e -> Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
+            )
+            updateUserFieldByAccountId(
+                accountId = uiState.value.customerToEdit.accountId,
+                fieldName = "address",
+                newValue = address,
+                onSuccess = {},
+                onFailure = { e -> Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
+            )
+
+            Toast.makeText(context, "Information updated successfully", Toast.LENGTH_SHORT).show()
+            navController.navigateUp()
         }
     }
 }

@@ -566,3 +566,24 @@ fun addDocumentToCollection(
         .addOnFailureListener { e -> onFailure(e) }
 }
 
+fun updateUserFieldByAccountId(
+    accountId: String,
+    fieldName: String,
+    newValue: Any,
+    onSuccess: () -> Unit = {},
+    onFailure: (Exception) -> Unit = {}
+) {
+    val db = Firebase.firestore
+
+    db.collection("users")
+        .document(accountId)
+        .update(fieldName, newValue)
+        .addOnSuccessListener {
+            Log.d("FirestoreUpdate", "Field $fieldName updated successfully")
+            onSuccess()
+        }
+        .addOnFailureListener { exception ->
+            Log.e("FirestoreUpdate", "Failed to update $fieldName", exception)
+            onFailure(exception)
+        }
+}

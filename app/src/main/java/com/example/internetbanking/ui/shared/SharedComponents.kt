@@ -205,7 +205,10 @@ fun PagerBalanceInformation(
     val pageCount = pages.size + 1
     val pagerState = rememberPagerState { pageCount }
 
-    Column {
+    Column(
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         HorizontalPager(
             state = pagerState,
             modifier = modifier
@@ -217,15 +220,11 @@ fun PagerBalanceInformation(
                     .fillMaxWidth()
                     .size(200.dp)
                     .graphicsLayer {
-                        // Calculate the absolute offset for the current page from the
-                        // scroll position. We use the absolute value which allows us to mirror
-                        // any effects for both directions
                         val pageOffset = (
                                 (pagerState.currentPage - page) + pagerState
                                     .currentPageOffsetFraction
                                 ).absoluteValue
 
-                        // We animate the alpha, between 50% and 100%
                         alpha = lerp(
                             start = 0.5f,
                             stop = 1f,
@@ -282,7 +281,6 @@ fun PagerBalanceInformation(
                 }
             }
         }
-
         //indicator
         Row(
             verticalAlignment = Alignment.CenterVertically,

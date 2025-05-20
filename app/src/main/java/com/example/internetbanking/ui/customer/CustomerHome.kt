@@ -1,5 +1,7 @@
 package com.example.internetbanking.ui.customer
 
+import android.content.Context
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -51,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -84,6 +87,8 @@ fun CustomerHome(
     loginViewModel: LoginViewModel,
     navController: NavHostController
 ) {
+    val context: Context = LocalContext.current
+
     // UiStates
     val customerUiState by customerViewModel.uiState.collectAsState()
     val loginUiState by loginViewModel.uiState.collectAsState()
@@ -159,14 +164,6 @@ fun CustomerHome(
         }
     }
 
-
-//    // VIEW BALANCE FOR CHECKING & SAVING
-//    val cardHeight = if (currentViewType == "Checking" || currentViewType == "Saving") {
-//        Modifier.fillMaxHeight(0.25f)
-//    } else {
-//        Modifier.fillMaxHeight(0.2f)
-//    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -235,8 +232,11 @@ fun CustomerHome(
                 PagerBalanceInformation(
                     pages = pages,
                     onAddAccountClick = {
-
-                    }
+                        if (pages.size == 3) {
+                            Toast.makeText(context, "Cannot create more cards", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxHeight(0.3f)
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 Text(
@@ -417,9 +417,18 @@ fun UserCardsInformation(
     modifier: Modifier = Modifier
 ) {
     var isHiddenBalance by remember { mutableStateOf(true) }
+
+    val cardHeight = if (currentViewType == "Checking" || currentViewType == "Saving") {
+        Modifier.fillMaxHeight()
+    } else {
+        Modifier.fillMaxHeight(0.8f)
+    }
+
     Column(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .padding(horizontal = 5.dp)
+            .then(cardHeight)
     ) {
         Box(
             modifier = modifier
@@ -486,7 +495,7 @@ fun UserCardsInformation(
                             .fillMaxWidth()
                     )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(5.dp))
                 // ACCOUNT NUMBER:
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -501,7 +510,7 @@ fun UserCardsInformation(
                     Spacer(modifier = Modifier.weight(1f))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.width(240.dp)
+                        modifier = Modifier.width(220.dp)
                     ) {
                         Text(
                             text = cardNumber,
@@ -524,7 +533,7 @@ fun UserCardsInformation(
                 }
                 // VIEW BALANCE FOR CHECKING & SAVING
                 if (currentViewType == "Checking" || currentViewType == "Saving") {
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start,
@@ -538,7 +547,7 @@ fun UserCardsInformation(
                         Spacer(modifier = Modifier.weight(1f))
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.width(240.dp)
+                            modifier = Modifier.width(220.dp)
                         ) {
                             Text(
                                 text = if (isHiddenBalance) "**********" else "${formatCurrencyVN(balance)} VND",
@@ -559,6 +568,26 @@ fun UserCardsInformation(
                             )
                         }
                     }
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Type:",
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = currentViewType,
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.width(220.dp)
+                    )
                 }
             }
         }

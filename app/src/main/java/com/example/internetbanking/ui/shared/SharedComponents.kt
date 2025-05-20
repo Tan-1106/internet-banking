@@ -481,6 +481,21 @@ fun InformationLine(
         }
     }
 }
+@Composable
+fun ViewProfitRatesAndProfit(){
+    
+    AlertDialog(
+        onDismissRequest = {},
+       title = {Text("Profit Rates and Profit")},
+        text = {
+
+        },
+        confirmButton = {},
+        dismissButton = {}
+
+
+    )
+}
 
 @Composable
 fun LogoutDialog(

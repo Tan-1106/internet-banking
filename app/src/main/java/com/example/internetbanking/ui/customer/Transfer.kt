@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -128,7 +127,7 @@ fun TransferScreen(
                     .fillMaxSize()
 
             ) {
-                LazyColumn (
+                LazyColumn(
                     modifier = Modifier.fillMaxWidth(0.8f)
                 ) {
                     item {
@@ -157,7 +156,10 @@ fun TransferScreen(
                                         .fillMaxHeight(0.8f),
                                     color = Color.Gray
                                 )
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Beneficiary Bank")
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = "Select Beneficiary Bank"
+                                )
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -232,7 +234,10 @@ fun TransferScreen(
                                         .fillMaxHeight(0.8f),
                                     color = Color.Gray
                                 )
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Transaction Category")
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = "Transaction Category"
+                                )
                             },
                             modifier = Modifier.fillMaxWidth()
                         )

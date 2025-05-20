@@ -21,8 +21,8 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Input
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Input
 import androidx.compose.material.icons.filled.Output
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
@@ -43,6 +43,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -59,10 +60,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
+import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +76,7 @@ fun DepositAndWithdrawScreen(
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(userSelect) }
     val tabs = listOf("Deposit", "Withdraw")
+    var amount by remember { mutableStateOf(BigDecimal.ZERO) }
 
     Box(
         modifier = Modifier
@@ -88,13 +92,20 @@ fun DepositAndWithdrawScreen(
             topBar = {
 
                 TopAppBar(
-                    title = { Text("Deposit/Withdraw", color = custom_mint_green) },
+                    title = {
+                        Text(
+                            text = "Deposit/Withdraw",
+                            color = custom_mint_green
+                        )
+                    },
                     navigationIcon = {
-
-                        IconButton(onClick = { navController.navigateUp() }) {
+                        IconButton(
+                            onClick = { navController.navigateUp() }
+                        ) {
                             Icon(
-                                Icons.Default.ArrowBack, contentDescription = null, tint =
-                                    custom_mint_green
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                                tint = custom_mint_green
                             )
                         }
                     },
@@ -104,7 +115,7 @@ fun DepositAndWithdrawScreen(
                     modifier = Modifier
                         .background(
                             brush = GradientColors.Green_DarkToLight
-                        ),
+                        )
                 )
             },
             bottomBar = {
@@ -126,10 +137,13 @@ fun DepositAndWithdrawScreen(
                                 containerColor = custom_light_green1
                             )
                         ) {
-                            Text("Deposit", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = "Deposit",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     } else {
-
                         ElevatedButton(
                             onClick = {},
                             modifier = Modifier
@@ -140,7 +154,11 @@ fun DepositAndWithdrawScreen(
                                 containerColor = custom_light_green1
                             )
                         ) {
-                            Text("Withdraw", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = "Withdraw",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }
@@ -155,16 +173,15 @@ fun DepositAndWithdrawScreen(
                     .padding(paddingValue)
                     .padding(10.dp)
             ) {
-
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
                     contentColor = Color.Black,
                     indicator = { tabPositions ->
                         TabRowDefaults
-                            .Indicator(
-                                color = custom_light_green1,
+                            .SecondaryIndicator(
                                 modifier = Modifier
-                                    .tabIndicatorOffset(tabPositions[selectedTabIndex])
+                                    .tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                                color = custom_light_green1
                             )
                     },
                     containerColor = Color.Transparent
@@ -174,10 +191,9 @@ fun DepositAndWithdrawScreen(
                             selected = selectedTabIndex == index,
                             onClick = { selectedTabIndex = index },
                             text = {
-
                                 Row {
                                     Icon(
-                                        if (index == 0) Icons.Default.Input else Icons.Default.Output,
+                                        if (index == 0) Icons.AutoMirrored.Filled.Input else Icons.Default.Output,
                                         contentDescription = null
                                     )
                                     Spacer(Modifier.width(10.dp))
@@ -203,11 +219,34 @@ fun DepositAndWithdrawScreen(
                 }
 
                 when (selectedTabIndex) {
-                    0 -> TabScreen(label = "Enter the amount to deposit")
-                    1 -> TabScreen(label = "Enter the amount to withdraw")
+                    0 -> TabScreen(
+                        amount = amount,
+                        label = "Enter the amount to deposit",
+                        onAmountChange = {
+                            amount = if (it.isEmpty()) {
+                                BigDecimal.ZERO
+                            } else {
+                                it.toBigDecimal()
+                            }
+                        }
+                    )
+
+                    1 -> TabScreen(
+                        amount = amount,
+                        label = "Enter the amount to withdraw",
+                        onAmountChange = {
+                            amount = if (it.isEmpty()) {
+                                BigDecimal.ZERO
+                            } else {
+                                it.toBigDecimal()
+                            }
+                        }
+                    )
                 }
                 Spacer(Modifier.height(10.dp))
-                HintAmount()
+                HintAmount(
+                    onAmountClick = { amount = it }
+                )
             }
         }
     }
@@ -215,15 +254,18 @@ fun DepositAndWithdrawScreen(
 
 
 @Composable
-fun HintAmount() {
+fun HintAmount(
+    onAmountClick: (BigDecimal) -> Unit
+) {
     val amounts = listOf(
-        "50.0000đ",
-        "100.0000đ",
-        "200.0000đ",
-        "500.0000đ",
-        "1.000.0000đ",
-        "2.000.0000đ",
+        BigDecimal("50000"),
+        BigDecimal("100000"),
+        BigDecimal("200000"),
+        BigDecimal("500000"),
+        BigDecimal("1000000"),
+        BigDecimal("2000000")
     )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -246,12 +288,12 @@ fun HintAmount() {
 
             items(items = amounts) { amount ->
                 OutlinedButton(
-                    onClick = {},
+                    onClick = { onAmountClick(amount) },
                     shape = RoundedCornerShape(corner = CornerSize(10.dp)),
                     contentPadding = PaddingValues(all = 0.dp),
                     modifier = Modifier.padding(5.dp)
                 ) {
-                    Text(amount, fontSize = 15.sp, color = Color.Black)
+                    Text("${formatCurrencyVN(amount)}đ", fontSize = 15.sp, color = Color.Black)
                 }
             }
         }
@@ -260,7 +302,12 @@ fun HintAmount() {
 }
 
 @Composable
-fun TabScreen(label: String, modifier: Modifier = Modifier) {
+fun TabScreen(
+    amount: BigDecimal,
+    onAmountChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -290,8 +337,11 @@ fun TabScreen(label: String, modifier: Modifier = Modifier) {
             }
             Spacer(Modifier.height(5.dp))
             OutlinedTextField(
-                "",
-                onValueChange = {},
+                value = "${formatCurrencyVN(amount)}đ",
+                onValueChange = {
+                    val raw = it.replace(".", "").replace("đ", "").trim()
+                    onAmountChange(raw)
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 shape = OutlinedTextFieldDefaults.shape,
                 colors = OutlinedTextFieldDefaults.colors(

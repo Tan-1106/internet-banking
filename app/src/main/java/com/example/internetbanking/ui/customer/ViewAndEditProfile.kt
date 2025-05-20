@@ -153,21 +153,30 @@ fun ProfileScreen(
                                 imeAction = ImeAction.Next
                             ),
                             suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f),
+                                    color = Color.Gray
+                                )
                                 Icon(Icons.Filled.Edit, contentDescription = "Edit Information")
                             },
                             errorMessage = customerViewModel.nameErrorMessage
                         )
                     }
-                    item{
+                    item {
                         InformationSelect(
                             label = "Gender",
                             placeholder = customerGender,
                             options = listOf("Male", "Female"),
                             onOptionSelected = { customerGender = it },
                             suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select gender")
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f),
+                                    color = Color.Gray
+                                )
+                                Icon(
+                                    Icons.Filled.ArrowDropDown,
+                                    contentDescription = "Select gender"
+                                )
                             },
                             errorMessage = customerViewModel.genderErrorMessage
                         )
@@ -192,7 +201,10 @@ fun ProfileScreen(
                                 imeAction = ImeAction.Next
                             ),
                             suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f),
+                                    color = Color.Gray
+                                )
                                 Icon(Icons.Filled.Edit, contentDescription = "Edit Information")
                             },
                             errorMessage = customerViewModel.phoneNumberErrorMessage
@@ -213,7 +225,10 @@ fun ProfileScreen(
                             placeholder = customerBirthday,
                             onDatePick = { customerBirthday = it },
                             suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f),
+                                    color = Color.Gray
+                                )
                                 Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
                             },
                             errorMessage = customerViewModel.birthdayErrorMessage
@@ -229,7 +244,10 @@ fun ProfileScreen(
                                 imeAction = ImeAction.Next
                             ),
                             suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f),
+                                    color = Color.Gray
+                                )
                                 Icon(Icons.Filled.Edit, contentDescription = "Edit Information")
                             },
                             errorMessage = ""

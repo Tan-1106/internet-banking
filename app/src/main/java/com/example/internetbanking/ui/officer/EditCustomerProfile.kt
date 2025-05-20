@@ -149,15 +149,21 @@ fun EditCustomerProfile(
                             errorMessage = officerViewModel.nameErrorMessage
                         )
                     }
-                    item{
+                    item {
                         InformationSelect(
                             label = "Gender",
                             placeholder = gender,
                             options = listOf("Male", "Female"),
                             onOptionSelected = { gender = it },
                             suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select gender")
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f),
+                                    color = Color.Gray
+                                )
+                                Icon(
+                                    Icons.Filled.ArrowDropDown,
+                                    contentDescription = "Select gender"
+                                )
                             },
                             errorMessage = officerViewModel.genderErrorMessage
                         )
@@ -181,7 +187,10 @@ fun EditCustomerProfile(
                             placeholder = birthday,
                             onDatePick = { birthday = it },
                             suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f),
+                                    color = Color.Gray
+                                )
                                 Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
                             },
                             errorMessage = officerViewModel.birthdayErrorMessage
@@ -231,7 +240,7 @@ fun EditCustomerProfile(
     showBackground = true
 )
 @Composable
-fun EditCustomerProfilePreview(){
+fun EditCustomerProfilePreview() {
     val fakeViewModel: OfficerViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()
 

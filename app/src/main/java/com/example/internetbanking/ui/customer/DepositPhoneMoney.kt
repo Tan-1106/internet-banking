@@ -17,13 +17,11 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
@@ -99,8 +97,9 @@ fun DepositPhoneMoneyScreen(
 
                         IconButton(onClick = { }) {
                             Icon(
-                                Icons.Default.ArrowBack, contentDescription = null, tint =
-                                    custom_mint_green
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                                tint = custom_mint_green
                             )
                         }
                     },
@@ -147,16 +146,20 @@ fun DepositPhoneMoneyScreen(
                     .padding(10.dp)
             ) {
                 PagerBalanceInformation(
-                    pages =  listOf<@Composable ()-> Unit>(
-                        { BalanceInformation(
-                            cardNumber ="DVijkcbdjd ",
-                            balance ="cbiuskjncbdbhj"
-                        ) },
-                        { BalanceInformation(
-                            cardNumber ="DVijkcbdjd ",
-                            balance ="cbiuskjncbdbhj"
-                        ) }
-                        ),
+                    pages = listOf<@Composable () -> Unit>(
+                        {
+                            BalanceInformation(
+                                cardNumber = "DVijkcbdjd ",
+                                balance = "cbiuskjncbdbhj"
+                            )
+                        },
+                        {
+                            BalanceInformation(
+                                cardNumber = "DVijkcbdjd ",
+                                balance = "cbiuskjncbdbhj"
+                            )
+                        }
+                    ),
                     onAddAccountClick = { }
                 )
                 Spacer(Modifier.height(20.dp))
@@ -183,7 +186,8 @@ fun DepositPhoneMoneyScreen(
                     Column(modifier = Modifier.fillMaxWidth(0.8f)) {
                         TextField(
                             phoneNumber,
-                            onValueChange = { phoneNumber = it }, keyboardOptions = KeyboardOptions.Default.copy(
+                            onValueChange = { phoneNumber = it },
+                            keyboardOptions = KeyboardOptions.Default.copy(
                                 keyboardType = KeyboardType.Number
                             )
 

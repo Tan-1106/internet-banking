@@ -13,10 +13,10 @@ import com.example.internetbanking.ui.customer.ConfirmScreen
 import com.example.internetbanking.ui.customer.CustomerHome
 import com.example.internetbanking.ui.customer.DepositAndWithdrawScreen
 import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
-import com.example.internetbanking.ui.customer.EcommerceScreen
 import com.example.internetbanking.ui.customer.LocateUserAndBankScreen
 import com.example.internetbanking.ui.customer.PayBillsScreen
 import com.example.internetbanking.ui.customer.ProfileScreen
+import com.example.internetbanking.ui.customer.SeatSelectionScreen
 import com.example.internetbanking.ui.customer.TransactionHistoryScreen
 import com.example.internetbanking.ui.customer.TransferScreen
 import com.example.internetbanking.ui.customer.mortgage.ViewMortgageMoneyScreen
@@ -34,8 +34,8 @@ enum class AppScreen() {
     OfficerHome, CreateCustomer, EditCustomerProfile,
     CustomerHome, Profile,
     Deposit, Withdraw, TransactionHistory,
-    Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, Ecommerce,
-    LocateUserAndBank, LocateShortestPath,
+    Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, SeatSelection,
+    LocateUserAndBank,
     ViewMortgageMoney,
     ViewProfitsAndRates, Confirm
 
@@ -156,20 +156,19 @@ fun AppScreen(
                 navController = navController
             )
         }
+        composable(route = AppScreen.SeatSelection.name) {
+            SeatSelectionScreen(
+                navController = navController
+            )
+        }
         composable(route = AppScreen.BookHotelRooms.name) {
             BookHotelRoomsScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )
         }
-        composable(route = AppScreen.Ecommerce.name) {
-            EcommerceScreen(
-                customerViewModel = customerViewModel,
-                navController = navController
-            )
-        }
 
-        // Customer - Navigation
+        // Customer - Location
         composable(route = AppScreen.LocateUserAndBank.name) {
             LocateUserAndBankScreen(
                 customerViewModel = customerViewModel,

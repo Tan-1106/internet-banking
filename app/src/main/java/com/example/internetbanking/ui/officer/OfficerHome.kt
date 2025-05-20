@@ -243,7 +243,7 @@ fun OfficerHome(
                             shape = RoundedCornerShape(12.dp)
                         )
                 ) {
-                    Box (
+                    Box(
                         modifier = Modifier
                             .height(100.dp)
                             .fillMaxWidth(0.5f)
@@ -285,12 +285,12 @@ fun OfficerHome(
                             }
                         }
                     }
-                    Box (
+                    Box(
                         modifier = Modifier
                             .height(100.dp)
                             .fillMaxWidth()
 
-                    ){
+                    ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -333,7 +333,11 @@ fun OfficerHome(
                             }
                             Button(
                                 onClick = {
-                                    if(officerViewModel.onValidateNewRateInput(newProfitableRatesValue, context)) {
+                                    if (officerViewModel.onValidateNewRateInput(
+                                            newProfitableRatesValue,
+                                            context
+                                        )
+                                    ) {
                                         isShowAlertDialog = true
                                     }
                                 },
@@ -449,8 +453,8 @@ fun OfficerHome(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.Start,
                         modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
+                            .fillMaxWidth()
+                            .padding(10.dp)
                     ) {
                         Text(
                             text = "Edit Customer's Information",
@@ -466,7 +470,11 @@ fun OfficerHome(
                             suffix = {
                                 IconButton(
                                     onClick = {
-                                        officerViewModel.onSearchClick(customerAccountID, context, navController)
+                                        officerViewModel.onSearchClick(
+                                            customerAccountID,
+                                            context,
+                                            navController
+                                        )
                                     }
                                 ) {
                                     Icon(
@@ -488,7 +496,7 @@ fun OfficerHome(
     showBackground = true
 )
 @Composable
-fun OfficerHomePreview(){
+fun OfficerHomePreview() {
     val fakeOfficerViewModel: OfficerViewModel = viewModel()
     val fakeLoginViewModel: LoginViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()

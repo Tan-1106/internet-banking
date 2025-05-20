@@ -61,6 +61,9 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+import java.math.BigDecimal
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.SimpleDateFormat
 import java.time.Clock
 import java.time.Instant
@@ -631,12 +634,12 @@ fun dateStringToTimestamp(dateString: String): Long? {
     return try {
         // Define the date format for dd/mm/yyyy
         val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        sdf.isLenient = false // Strict parsing to reject invalid dates
+        sdf.isLenient = false
         val date = sdf.parse(dateString)
         date?.time ?: throw IllegalArgumentException("Parsed date is null")
     } catch (e: Exception) {
         Log.e("DateConversion", "Error parsing date '$dateString': ${e.message}")
-        null // Return null for invalid dates
+        null
     }
 }
 
@@ -730,10 +733,10 @@ suspend fun getFieldFromDocument(
         if (documentSnapshot.exists()) {
             documentSnapshot.get(fieldName)
         } else {
-            null // Document không tồn tại
+            null
         }
     } catch (_: Exception) {
-        null // Có lỗi xảy ra khi truy vấn
+        null
     }
 }
 
@@ -759,3 +762,14 @@ fun updateUserFieldByAccountId(
             onFailure(exception)
         }
 }
+
+// Big Decimal to VN Currency String
+fun formatCurrencyVN(amount: BigDecimal): String {
+    val symbols = DecimalFormatSymbols(Locale("vi", "VN")).apply {
+        groupingSeparator = '.'
+        decimalSeparator = ','
+    }
+    val formatter = DecimalFormat("#,###", symbols)
+    return formatter.format(amount)
+}
+

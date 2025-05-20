@@ -173,8 +173,8 @@ fun TransactionHistoryScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(50.dp)
+                        .fillMaxWidth(0.8f)
+                        .height(50.dp)
                 ) {
                     transactionTypeOptions.forEach { option ->
                         val isSelected = option == selectedType
@@ -233,7 +233,8 @@ fun TransactionHistoryScreen(
                     Text(
                         text = "Transaction History",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 }
                 LazyColumn(
                     modifier = Modifier
@@ -253,13 +254,16 @@ fun TransactionHistoryScreen(
                 ) {
                     items(customerUiState.transactionHistory.size) { index ->
                         val transaction = customerUiState.transactionHistory[index]
-                        Row (
+                        Row(
                             modifier = Modifier
                                 .padding(5.dp)
                                 .clickable {
-                                    customerViewModel.onTransactionHistoryClick(transaction, navController)
+                                    customerViewModel.onTransactionHistoryClick(
+                                        transaction,
+                                        navController
+                                    )
                                 }
-                        ){
+                        ) {
                             Column {
                                 Text(
                                     text = transaction.timestamp.toReadableDateTime(),
@@ -283,7 +287,7 @@ fun TransactionHistoryScreen(
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Text(
-                                            text = if(transaction.type == "In") {
+                                            text = if (transaction.type == "In") {
                                                 "+${transaction.amount} VND"
                                             } else {
                                                 "-${transaction.amount} VND"

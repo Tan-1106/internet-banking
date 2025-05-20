@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -116,7 +115,7 @@ fun ConfirmScreen(
 
                     ElevatedButton(
                         onClick = {
-                            showDialog=true
+                            showDialog = true
                         },
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 10.dp)
@@ -144,35 +143,37 @@ fun ConfirmScreen(
             ) {
                 Spacer(Modifier.height(30.dp))
                 Column(
-                    modifier = Modifier.background(
-                        color = custom_mint_green,
-                        shape = RoundedCornerShape(
-                            corner = CornerSize(20.dp)
+                    modifier = Modifier
+                        .background(
+                            color = custom_mint_green,
+                            shape = RoundedCornerShape(
+                                corner = CornerSize(20.dp)
+                            )
                         )
-                    ).padding(all = 20.dp)
+                        .padding(all = 20.dp)
                 ) {
                     LineConfirm(
-                        label="Service Type",
+                        label = "Service Type",
                         data = "Electricity Bill"
                     )
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
-                        label="Customer Code",
+                        label = "Customer Code",
                         data = "$$$$"
                     )
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
-                        label="Customer Name",
+                        label = "Customer Name",
                         data = "$$$$"
                     )
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
-                        label="Pay Amount",
+                        label = "Pay Amount",
                         data = "$$$$"
                     )
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
-                        label="Fee Amount",
+                        label = "Fee Amount",
                         data = "$$$$"
                     )
 
@@ -190,6 +191,7 @@ fun ConfirmScreen(
         }
     }
 }
+
 @Composable
 fun PasswordConfirmationDialog(
     showDialog: Boolean,
@@ -217,7 +219,8 @@ fun PasswordConfirmationDialog(
             },
             dismissButton = {
                 TextButton(
-                    onClick = onDismiss) {
+                    onClick = onDismiss
+                ) {
                     Text("Cancel", color = Color.Black)
                 }
             },
@@ -234,12 +237,15 @@ fun PasswordConfirmationDialog(
         )
     }
 }
+
 @Composable
 fun LineConfirm(label: String, data: String) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, fontWeight = FontWeight.Bold,
-            fontSize = 15.sp)
-        Text(data,fontSize = 15.sp)
+        Text(
+            label, fontWeight = FontWeight.Bold,
+            fontSize = 15.sp
+        )
+        Text(data, fontSize = 15.sp)
     }
     Spacer(Modifier.height(10.dp))
     HorizontalDivider(color = Color.Gray)

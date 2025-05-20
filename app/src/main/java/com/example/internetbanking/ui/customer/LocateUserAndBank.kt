@@ -4,8 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
-import android.os.Handler
-import android.os.Looper
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -90,11 +88,11 @@ fun LocateUserAndBankScreen(
 ) {
 
     val context = LocalContext.current
-    val branchs = mutableListOf<GeoPoint>()
+    val branches = mutableListOf<GeoPoint>()
     stringArrayResource(R.array.branch).apply {
         forEach {
             val data = it.split(',')
-            branchs.add(
+            branches.add(
                 GeoPoint(
                     data[0].toDouble(),
                     data[1].toDouble()
@@ -133,7 +131,7 @@ fun LocateUserAndBankScreen(
         }
     }
     val nearestBranch = deviceLocation?.let { location ->
-        branchs.minByOrNull { branch ->
+        branches.minByOrNull { branch ->
             haversineDistance(location, branch)
         }
     }
@@ -257,7 +255,7 @@ fun LocateUserAndBankScreen(
                                     userMaker.title = "Your location"
                                     overlays.add(userMaker)
 
-                                    branchs.forEachIndexed { index, branch ->
+                                    branches.forEachIndexed { index, branch ->
                                         val marker = Marker(this)
                                         marker.position = branch
                                         marker.icon = ContextCompat.getDrawable(
@@ -279,7 +277,7 @@ fun LocateUserAndBankScreen(
                                 .align(alignment = Alignment.BottomEnd)
                                 .padding(20.dp),
                             onClick = {
-                                mapViewState.value?.let { mapView ->
+                                mapViewState.value.let { mapView ->
                                     mapView.controller.setZoom(18.0)
                                     mapView.controller.setCenter(deviceLocation)
                                 }
@@ -346,7 +344,7 @@ fun drawRoute(
 
 
 fun haversineDistance(p1: GeoPoint, p2: GeoPoint): Double {
-    val R = 6371e3 // Earth radius in meters
+    val r = 6371e3 // Earth radius in meters
     val lat1 = Math.toRadians(p1.latitude)
     val lat2 = Math.toRadians(p2.latitude)
     val dLat = Math.toRadians(p2.latitude - p1.latitude)
@@ -356,7 +354,7 @@ fun haversineDistance(p1: GeoPoint, p2: GeoPoint): Double {
             cos(lat1) * cos(lat2) *
             sin(dLon / 2).pow(2.0)
     val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    return R * c
+    return r * c
 }
 
 

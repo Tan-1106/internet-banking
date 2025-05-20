@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +58,9 @@ fun PayBillsScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
+    // TODO
+    val customerUiState by customerViewModel.uiState.collectAsState()
+    var service by remember { mutableStateOf("") }
     var customerCode by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
@@ -118,7 +122,11 @@ fun PayBillsScreen(
                             containerColor = custom_light_green1
                         )
                     ) {
-                        Text("Continue", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "Continue",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
 
                 }
@@ -136,10 +144,12 @@ fun PayBillsScreen(
             ) {
                 PagerBalanceInformation(
                     pages = listOf(
-                        { BalanceInformation(
-                            cardNumber = "cbuijkcbdsj ",
-                            balance ="cbiajkb "
-                        ) }
+                        {
+                            BalanceInformation(
+                                cardNumber = customerUiState.checkingCardNumber,
+                                balance = customerUiState.checkingBalance.toString()
+                            )
+                        }
                     ),
                     onAddAccountClick = {}
                 )
@@ -147,13 +157,13 @@ fun PayBillsScreen(
                     label = "Service",
                     placeholder = "Select Service",
                     options = listOf("Electricity", "Water"),
-                    onOptionSelected = {}
+                    onOptionSelected = { service = it }
                 )
                 InformationLine(
                     label = "Customer code ",
                     placeholder = "Enter customer code",
                     value = customerCode,
-                    onValueChange = {},
+                    onValueChange = { customerCode = it },
                     isEnable = true,
                 )
             }

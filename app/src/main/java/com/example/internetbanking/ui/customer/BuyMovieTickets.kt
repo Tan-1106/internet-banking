@@ -2,17 +2,41 @@ package com.example.internetbanking.ui.customer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -59,20 +83,45 @@ fun BuyMovieTicketsScreen(
     )
 
     val theaters = listOf(
-        Theater("CGV Vivo City", "Ho Chi Minh City", "0.6 km", "Tầng 5 | Trung tâm thương mại SC Vivo City..."),
-        Theater("Lotte Nam Sài Gòn", "Ho Chi Minh City", "0.6 km", "Tầng 3, TTTM Lotte, số 469 đường Nguyễn..."),
-        Theater("CGV Crescent Mall", "Ho Chi Minh City", "2.1 km", "Tầng 5 | Crescent Mall, số 101 đường Tôn..."),
-        Theater("Lotte Gold View", "Ho Chi Minh City", "2.6 km", "Tầng 3 TTTM TNL Plaza, Số 346 Đường..."),
-        Theater("Galaxy Parc Mall Q8", "Ho Chi Minh City", "2.6 km", "Tầng 4 TTTM Parc Mall, 547-549 Tạ Q...")
+        Theater(
+            "CGV Vivo City",
+            "Ho Chi Minh City",
+            "0.6 km",
+            "Tầng 5 | Trung tâm thương mại SC Vivo City..."
+        ),
+        Theater(
+            "Lotte Nam Sài Gòn",
+            "Ho Chi Minh City",
+            "0.6 km",
+            "Tầng 3, TTTM Lotte, số 469 đường Nguyễn..."
+        ),
+        Theater(
+            "CGV Crescent Mall",
+            "Ho Chi Minh City",
+            "2.1 km",
+            "Tầng 5 | Crescent Mall, số 101 đường Tôn..."
+        ),
+        Theater(
+            "Lotte Gold View",
+            "Ho Chi Minh City",
+            "2.6 km",
+            "Tầng 3 TTTM TNL Plaza, Số 346 Đường..."
+        ),
+        Theater(
+            "Galaxy Parc Mall Q8",
+            "Ho Chi Minh City",
+            "2.6 km",
+            "Tầng 4 TTTM Parc Mall, 547-549 Tạ Q..."
+        )
     )
 
-    // Trạng thái UI
+    // UI State
     var searchQuery by remember { mutableStateOf("") }
     var filteredMovies by remember { mutableStateOf(movies) }
     var selectedMovie by remember { mutableStateOf<Movie?>(null) }
     var selectedTheater by remember { mutableStateOf<Theater?>(null) }
 
-    // Lọc phim hoặc rạp dựa trên tìm kiếm
+    // Search
     LaunchedEffect(searchQuery) {
         filteredMovies = if (searchQuery.isEmpty()) movies else movies.filter {
             it.title.contains(searchQuery, ignoreCase = true) ||
@@ -89,6 +138,18 @@ fun BuyMovieTicketsScreen(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = custom_mint_green
+                    )
+                },
+                navigationIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Navigate Back",
+                        tint = custom_mint_green,
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clickable {
+                                navController.navigateUp()
+                            }
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -108,11 +169,11 @@ fun BuyMovieTicketsScreen(
                 .padding(16.dp)
         ) {
             item {
-                // Thanh tìm kiếm
+                // Search bar
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    label = { Text("Tìm tên phim hoặc rạp") },
+                    label = { Text("Find movie or theater name") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
@@ -264,7 +325,7 @@ fun TheaterItem(
                 )
             }
             Icon(
-                imageVector = Icons.Default.ArrowForward,
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = "Select Theater",
                 modifier = Modifier.size(24.dp)
             )

@@ -72,7 +72,6 @@ fun CreateCustomerScreen(
     var email by remember { mutableStateOf("") }
     var birthday by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
-    var role by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -160,15 +159,21 @@ fun CreateCustomerScreen(
                             errorMessage = officerViewModel.nameErrorMessage
                         )
                     }
-                    item{
+                    item {
                         InformationSelect(
                             label = "Gender",
                             placeholder = "Select gender",
                             options = listOf("Male", "Female"),
                             onOptionSelected = { gender = it },
                             suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select gender")
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f),
+                                    color = Color.Gray
+                                )
+                                Icon(
+                                    Icons.Filled.ArrowDropDown,
+                                    contentDescription = "Select gender"
+                                )
                             },
                             errorMessage = officerViewModel.genderErrorMessage
                         )
@@ -218,7 +223,10 @@ fun CreateCustomerScreen(
                             placeholder = "Select birthday",
                             onDatePick = { birthday = it },
                             suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f),
+                                    color = Color.Gray
+                                )
                                 Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
                             },
                             errorMessage = officerViewModel.birthdayErrorMessage
@@ -237,19 +245,6 @@ fun CreateCustomerScreen(
                         )
                     }
                     item {
-                        InformationSelect(
-                            label = "Role",
-                            placeholder = "Select role",
-                            options = listOf("Checking", "Saving", "Mortgage"),
-                            onOptionSelected = { role = it },
-                            suffix = {
-                                VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Select role")
-                            },
-                            errorMessage = officerViewModel.roleErrorMessage
-                        )
-                    }
-                    item {
                         Spacer(modifier = Modifier.height(20.dp))
                     }
                     item {
@@ -265,8 +260,7 @@ fun CreateCustomerScreen(
                                     phoneNumber = phoneNumber,
                                     email = email,
                                     birthday = birthday,
-                                    address = address,
-                                    role = role
+                                    address = address
                                 )
                             },
                             buttonText = "Create",
@@ -285,7 +279,7 @@ fun CreateCustomerScreen(
     showBackground = true
 )
 @Composable
-fun CreateCustomerScreenPreview(){
+fun CreateCustomerScreenPreview() {
     val fakeViewModel: OfficerViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()
 

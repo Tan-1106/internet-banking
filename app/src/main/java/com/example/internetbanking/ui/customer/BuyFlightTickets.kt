@@ -2,22 +2,61 @@ package com.example.internetbanking.ui.customer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.ui.shared.DatePicker
+import com.example.internetbanking.ui.shared.InformationLine
+import com.example.internetbanking.ui.shared.InformationSelect
+import com.example.internetbanking.ui.theme.GradientColors
+import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
 
 data class Flight(
@@ -57,20 +96,41 @@ fun BuyFlightTicketsScreen(
     var departureAirport by remember { mutableStateOf<Airport?>(null) }
     var arrivalAirport by remember { mutableStateOf<Airport?>(null) }
     var departureDate by remember { mutableStateOf("") }
-    var numberOfPassengers by remember { mutableStateOf(1) }
+    var numberOfPassengers by remember { mutableIntStateOf(1) }
     var ticketClass by remember { mutableStateOf("Economy") }
     var selectedFlight by remember { mutableStateOf<Flight?>(null) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Buy Flight Tickets") },
+                title = {
+                    Text(
+                        text = "Buy Flight Tickers",
+                        fontWeight = FontWeight.Bold,
+                        color = custom_mint_green
+                    )
+                },
+                navigationIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Navigate Back",
+                        tint = custom_mint_green,
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clickable {
+                                navController.navigateUp()
+                            }
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White
-                )
+                    containerColor = Color.Transparent
+                ),
+                modifier = Modifier
+                    .background(
+                        brush = GradientColors.Green_DarkToLight
+                    )
             )
-        }
+        },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -79,39 +139,82 @@ fun BuyFlightTicketsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Chọn sân bay đi
-            AirportPicker(
+            InformationSelect(
                 label = "Departure Airport",
-                selectedAirport = departureAirport,
-                airports = airports,
-                onAirportSelected = { airport -> departureAirport = airport }
+                placeholder = "Select departure airport",
+                options = airports.map { it.name },
+                onOptionSelected = {},
+                suffix = {
+                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
+
+                },
             )
+            InformationSelect(
+                label = "Arrival Airport",
+                placeholder = "Select arrival airport",
+                options = airports.map { it.name },
+                onOptionSelected = {},
+                suffix = {
+                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
+
+                },
+            )
+//            // Chọn sân bay đi
+//            AirportPicker(
+//                label = "Departure Airport",
+//                selectedAirport = departureAirport,
+//                airports = airports,
+//                onAirportSelected = { airport -> departureAirport = airport }
+//            )
 
             // Chọn sân bay đến
-            AirportPicker(
-                label = "Arrival Airport",
-                selectedAirport = arrivalAirport,
-                airports = airports,
-                onAirportSelected = { airport -> arrivalAirport = airport }
-            )
-
-            // Chọn ngày bay
-            DatePickerField(
+//            AirportPicker(
+//                label = "Arrival Airport",
+//                selectedAirport = arrivalAirport,
+//                airports = airports,
+//                onAirportSelected = { airport -> arrivalAirport = airport }
+//            )
+            DatePicker(
                 label = "Departure Date",
-                selectedDate = departureDate,
-                onDateSelected = { date -> departureDate = date }
+                placeholder = "Select departure date",
+                onDatePick = {},
+                canSelectFuture = true,
+                suffix = {
+                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                    Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
+
+                },
+            )
+            // Chọn ngày bay
+//            DatePickerField(
+//                label = "Departure Date",
+//                selectedDate = departureDate,
+//                onDateSelected = { date -> departureDate = date }
+//            )
+            InformationLine(
+                label = "Number passenger",
+                placeholder = "Enter number passenger",
+                value = "",
+                onValueChange = {},
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                ),
             )
 
-            // Số lượng hành khách
-            PassengerCounter(
-                numberOfPassengers = numberOfPassengers,
-                onPassengerCountChanged = { count -> numberOfPassengers = count }
-            )
+            InformationSelect(
+                label = "Ticket Class",
+                placeholder = "Select ticket class",
 
-            // Chọn loại vé
-            TicketClassSelector(
-                selectedClass = ticketClass,
-                onClassSelected = { ticket -> ticketClass = ticket }
+                options = listOf("Economy", "Business", "First Class"),
+                onOptionSelected = { },
+                suffix = {
+
+                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
+
+                },
             )
 
             // Danh sách chuyến bay
@@ -166,7 +269,7 @@ fun AirportPicker(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = true },
-            readOnly = true
+            enabled = false
         )
         DropdownMenu(
             expanded = expanded,

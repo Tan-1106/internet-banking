@@ -19,7 +19,7 @@ fun ViewProfitsAndRatesScreen(
     showBackground = true
 )
 @Composable
-fun ViewProfitsAndRatesScreenPreview(){
+fun ViewProfitsAndRatesScreenPreview() {
     val fakeViewModel: CustomerViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()
 

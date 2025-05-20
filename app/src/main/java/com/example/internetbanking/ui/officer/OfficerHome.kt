@@ -61,6 +61,7 @@ import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.AppAlertDialog
 import com.example.internetbanking.ui.shared.InformationLine
+import com.example.internetbanking.ui.shared.LogoutDialog
 import com.example.internetbanking.ui.shared.toReadableDateTime
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
@@ -78,6 +79,7 @@ fun OfficerHome(
     navController: NavHostController,
 ) {
     val context: Context = LocalContext.current
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     val officerUiState by officerViewModel.uiState.collectAsState()
     val loginUiState by loginViewModel.uiState.collectAsState()
@@ -114,7 +116,7 @@ fun OfficerHome(
                     actions = {
                         IconButton(
                             onClick = {
-                                // TODO: LOGOUT EVENT
+                                showLogoutDialog = true
                             }
                         ) {
                             Icon(
@@ -145,6 +147,14 @@ fun OfficerHome(
                     .padding(innerPadding)
                     .padding(20.dp)
             ) {
+                LogoutDialog(
+                    showDialog = showLogoutDialog,
+                    onDismiss = { showLogoutDialog = false },
+                    onConfirmLogout = {
+                        showLogoutDialog = false
+                        loginViewModel.logout(navController)
+                    }
+                )
                 Box(
                     modifier = Modifier
                         .height(100.dp)
@@ -233,7 +243,7 @@ fun OfficerHome(
                             shape = RoundedCornerShape(12.dp)
                         )
                 ) {
-                    Box (
+                    Box(
                         modifier = Modifier
                             .height(100.dp)
                             .fillMaxWidth(0.5f)
@@ -275,12 +285,12 @@ fun OfficerHome(
                             }
                         }
                     }
-                    Box (
+                    Box(
                         modifier = Modifier
                             .height(100.dp)
                             .fillMaxWidth()
 
-                    ){
+                    ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -323,7 +333,11 @@ fun OfficerHome(
                             }
                             Button(
                                 onClick = {
-                                    if(officerViewModel.onValidateNewRateInput(newProfitableRatesValue, context)) {
+                                    if (officerViewModel.onValidateNewRateInput(
+                                            newProfitableRatesValue,
+                                            context
+                                        )
+                                    ) {
                                         isShowAlertDialog = true
                                     }
                                 },
@@ -439,8 +453,8 @@ fun OfficerHome(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.Start,
                         modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
+                            .fillMaxWidth()
+                            .padding(10.dp)
                     ) {
                         Text(
                             text = "Edit Customer's Information",
@@ -456,7 +470,11 @@ fun OfficerHome(
                             suffix = {
                                 IconButton(
                                     onClick = {
-                                        officerViewModel.onSearchClick(customerAccountID, context, navController)
+                                        officerViewModel.onSearchClick(
+                                            customerAccountID,
+                                            context,
+                                            navController
+                                        )
                                     }
                                 ) {
                                     Icon(
@@ -478,7 +496,7 @@ fun OfficerHome(
     showBackground = true
 )
 @Composable
-fun OfficerHomePreview(){
+fun OfficerHomePreview() {
     val fakeOfficerViewModel: OfficerViewModel = viewModel()
     val fakeLoginViewModel: LoginViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()

@@ -15,12 +15,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,6 +33,8 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -41,23 +48,36 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_red
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+import java.math.BigDecimal
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.text.SimpleDateFormat
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
+import kotlin.math.absoluteValue
 
 // Gradient Background
 @Composable
@@ -104,7 +124,10 @@ fun GreenGradientButton(
 }
 
 @Composable
-fun BalanceInformation() {
+fun BalanceInformation(
+    cardNumber: String = "",
+    balance: String = ""
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -145,7 +168,7 @@ fun BalanceInformation() {
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "023456000000",
+                text = cardNumber,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -158,7 +181,7 @@ fun BalanceInformation() {
             Spacer(Modifier.height(5.dp))
             Row {
                 Text(
-                    text = "120,000",
+                    text = balance,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
@@ -167,6 +190,114 @@ fun BalanceInformation() {
                     text = "VND",
                     color = Color.Gray,
                     fontSize = 10.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PagerBalanceInformation(
+    pages: List<@Composable () -> Unit>,
+    onAddAccountClick: () -> Unit
+) {
+    val pageCount = pages.size + 1
+    val pagerState = rememberPagerState { pageCount }
+
+    Column {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp) // chỉnh chiều cao cho phù hợp
+        ) { page ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(200.dp)
+                    .graphicsLayer {
+                        // Calculate the absolute offset for the current page from the
+                        // scroll position. We use the absolute value which allows us to mirror
+                        // any effects for both directions
+                        val pageOffset = (
+                                (pagerState.currentPage - page) + pagerState
+                                    .currentPageOffsetFraction
+                                ).absoluteValue
+
+                        // We animate the alpha, between 50% and 100%
+                        alpha = lerp(
+                            start = 0.5f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
+                    }) {
+                if (page == pageCount - 1) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp)
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(
+                                    corner = CornerSize(20.dp)
+                                )
+                            )
+                            .drawBehind {
+                                drawRoundRect(
+                                    color = Color.Gray,
+                                    style = Stroke(
+                                        width = 3.dp.toPx(),
+                                        pathEffect = PathEffect.dashPathEffect(
+                                            floatArrayOf(
+                                                10f,
+                                                10f
+                                            ), 0f
+                                        )
+                                    ), cornerRadius = CornerRadius(
+                                        20.dp.toPx(),
+                                        20.dp.toPx()
+                                    )
+                                )
+                            }
+                            .clickable(
+                                onClick = onAddAccountClick
+                            )
+                            .padding(20.dp),
+
+                        ) {
+                        Icon(Icons.Outlined.Add, contentDescription = null)
+                        Text(
+                            "Add Account",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                else {
+                    pages[page]()
+                }
+            }
+        }
+        //indicator
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            repeat(pageCount) { index ->
+                val selected = pagerState.currentPage == index
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(if (selected) 12.dp else 8.dp)
+                        .background(
+                            color = if (selected) custom_light_green1
+                            else Color.Gray,
+                            shape = RoundedCornerShape(50)
+                        )
                 )
             }
         }
@@ -221,7 +352,7 @@ fun InformationSelect(
                 )
                 if (selectedOption != "") {
                     Text(
-                        text =  selectedOption,
+                        text = selectedOption,
                         color = Color.Black,
                         modifier = Modifier.clickable {
                             expanded = true
@@ -229,7 +360,7 @@ fun InformationSelect(
                     )
                 } else {
                     Text(
-                        text =  placeholder,
+                        text = placeholder,
                         color = Color.Gray,
                         modifier = Modifier.clickable {
                             expanded = true
@@ -351,7 +482,33 @@ fun InformationLine(
     }
 }
 
-
+@Composable
+fun LogoutDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirmLogout: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Confirm Logout") },
+            text = { Text("Are you sure you want to log out?") },
+            confirmButton = {
+                TextButton(onClick = onConfirmLogout) {
+                    Text(
+                        text = "Yes",
+                        color = Color.Red
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("No")
+                }
+            }
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -525,6 +682,19 @@ fun Long.toReadableDateTime(pattern: String = "HH:mm - dd/MM/yyyy"): String {
     return formatter.format(instant)
 }
 
+fun dateStringToTimestamp(dateString: String): Long? {
+    return try {
+        // Define the date format for dd/mm/yyyy
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        sdf.isLenient = false
+        val date = sdf.parse(dateString)
+        date?.time ?: throw IllegalArgumentException("Parsed date is null")
+    } catch (e: Exception) {
+        Log.e("DateConversion", "Error parsing date '$dateString': ${e.message}")
+        null
+    }
+}
+
 // Check Exist Data
 suspend fun checkExistData(
     collectionName: String,
@@ -544,6 +714,39 @@ suspend fun checkExistData(
         false
     }
 }
+
+// Check Card Number
+suspend fun checkCardNumberExistsInAllDocuments(
+    collectionName: String,
+    cardNumber: String
+): Boolean {
+    return try {
+        val collectionSnapshot = Firebase.firestore
+            .collection(collectionName)
+            .get()
+            .await()
+
+        for (document in collectionSnapshot.documents) {
+            val checking = document.get("Checking") as? Map<*, *>
+            val saving = document.get("Saving") as? Map<*, *>
+            val mortgage = document.get("Mortgage") as? Map<*, *>
+
+            val allAccounts = listOfNotNull(checking, saving, mortgage)
+
+            for (accountMap in allAccounts) {
+                if (accountMap["cardNumber"] == cardNumber) {
+                    return true
+                }
+            }
+        }
+
+        false
+    } catch (e: Exception) {
+        Log.e("CheckCardNumber", "Error checking cardNumber: ${e.message}")
+        false
+    }
+}
+
 
 // Add Document To Collection
 fun addDocumentToCollection(
@@ -566,6 +769,30 @@ fun addDocumentToCollection(
         .addOnFailureListener { e -> onFailure(e) }
 }
 
+// Get Data From Document
+suspend fun getFieldFromDocument(
+    collectionName: String,
+    documentId: String,
+    fieldName: String
+): Any? {
+    return try {
+        val documentSnapshot = FirebaseFirestore.getInstance()
+            .collection(collectionName)
+            .document(documentId)
+            .get()
+            .await()
+
+        if (documentSnapshot.exists()) {
+            documentSnapshot.get(fieldName)
+        } else {
+            null
+        }
+    } catch (_: Exception) {
+        null
+    }
+}
+
+// Update Data
 fun updateUserFieldByAccountId(
     accountId: String,
     fieldName: String,
@@ -587,3 +814,14 @@ fun updateUserFieldByAccountId(
             onFailure(exception)
         }
 }
+
+// Big Decimal to VN Currency String
+fun formatCurrencyVN(amount: BigDecimal): String {
+    val symbols = DecimalFormatSymbols(Locale("vi", "VN")).apply {
+        groupingSeparator = '.'
+        decimalSeparator = ','
+    }
+    val formatter = DecimalFormat("#,###", symbols)
+    return formatter.format(amount)
+}
+

@@ -1,20 +1,42 @@
-import androidx.compose.foundation.Image
+package com.example.internetbanking.ui.customer
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,7 +55,7 @@ fun MovieScheduleScreen(movieTitle: String, navController: NavHostController) {
                 title = { Text(movieTitle) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -212,7 +234,18 @@ fun MovieScheduleScreen(movieTitle: String, navController: NavHostController) {
                     address = "Tầng 5 | Trung tâm thương mại SC Vivo... Tìm đường",
                     showTimes = listOf(
                         ShowTime("2D Phụ đề", listOf("17:50 - 19:56"), "Còn 163/174"),
-                        ShowTime("2D Lồng tiếng", listOf("10:20 - 12:26", "12:30 - 14:36", "14:40 - 16:46", "16:50 - 18:56", "19:00 - 21:06", "20:00 - 22:06"), "Còn 268/268")
+                        ShowTime(
+                            "2D Lồng tiếng",
+                            listOf(
+                                "10:20 - 12:26",
+                                "12:30 - 14:36",
+                                "14:40 - 16:46",
+                                "16:50 - 18:56",
+                                "19:00 - 21:06",
+                                "20:00 - 22:06"
+                            ),
+                            "Còn 268/268"
+                        )
                     )
                 )
                 TheaterItem(
@@ -307,7 +340,11 @@ fun TheaterItem(
                                 onClick = { /* Handle time slot selection */ },
                                 modifier = Modifier
                                     .height(32.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD81B60)),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(
+                                        0xFFD81B60
+                                    )
+                                ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text(text = time, fontSize = 12.sp, color = Color.White)

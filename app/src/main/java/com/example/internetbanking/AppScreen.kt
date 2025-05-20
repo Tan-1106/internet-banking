@@ -9,14 +9,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.ui.customer.BookHotelRoomsScreen
 import com.example.internetbanking.ui.customer.BuyFlightTicketsScreen
 import com.example.internetbanking.ui.customer.BuyMovieTicketsScreen
+import com.example.internetbanking.ui.customer.ConfirmScreen
 import com.example.internetbanking.ui.customer.CustomerHome
-import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
 import com.example.internetbanking.ui.customer.DepositAndWithdrawScreen
-import com.example.internetbanking.ui.customer.EcommerceScreen
-import com.example.internetbanking.ui.customer.LocateShortestPathScreen
+import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
 import com.example.internetbanking.ui.customer.LocateUserAndBankScreen
 import com.example.internetbanking.ui.customer.PayBillsScreen
 import com.example.internetbanking.ui.customer.ProfileScreen
+import com.example.internetbanking.ui.customer.SeatSelectionScreen
 import com.example.internetbanking.ui.customer.TransactionHistoryScreen
 import com.example.internetbanking.ui.customer.TransferScreen
 import com.example.internetbanking.ui.customer.mortgage.ViewMortgageMoneyScreen
@@ -34,10 +34,10 @@ enum class AppScreen() {
     OfficerHome, CreateCustomer, EditCustomerProfile,
     CustomerHome, Profile,
     Deposit, Withdraw, TransactionHistory,
-    Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, Ecommerce,
-    LocateUserAndBank, LocateShortestPath,
+    Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, SeatSelection,
+    LocateUserAndBank,
     ViewMortgageMoney,
-    ViewProfitsAndRates
+    ViewProfitsAndRates, Confirm
 
 }
 
@@ -71,6 +71,7 @@ fun AppScreen(
         composable(route = AppScreen.CustomerHome.name) {
             CustomerHome(
                 customerViewModel = customerViewModel,
+                loginViewModel = loginViewModel,
                 navController = navController
             )
         }
@@ -95,6 +96,7 @@ fun AppScreen(
         composable(route = AppScreen.Profile.name) {
             ProfileScreen(
                 customerViewModel = customerViewModel,
+                loginViewModel = loginViewModel,
                 navController = navController
             )
         }
@@ -154,28 +156,21 @@ fun AppScreen(
                 navController = navController
             )
         }
+        composable(route = AppScreen.SeatSelection.name) {
+            SeatSelectionScreen(
+                navController = navController
+            )
+        }
         composable(route = AppScreen.BookHotelRooms.name) {
             BookHotelRoomsScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )
         }
-        composable(route = AppScreen.Ecommerce.name) {
-            EcommerceScreen(
-                customerViewModel = customerViewModel,
-                navController = navController
-            )
-        }
 
-        // Customer - Navigation
+        // Customer - Location
         composable(route = AppScreen.LocateUserAndBank.name) {
             LocateUserAndBankScreen(
-                customerViewModel = customerViewModel,
-                navController = navController
-            )
-        }
-        composable(route = AppScreen.LocateShortestPath.name) {
-            LocateShortestPathScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )
@@ -194,6 +189,12 @@ fun AppScreen(
         // Saving Account Only
         composable(route = AppScreen.ViewProfitsAndRates.name) {
             ViewProfitsAndRatesScreen(
+                customerViewModel = customerViewModel,
+                navController = navController
+            )
+        }
+        composable(route = AppScreen.Confirm.name) {
+            ConfirmScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )

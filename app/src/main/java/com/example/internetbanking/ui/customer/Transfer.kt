@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +25,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,7 +60,9 @@ fun TransferScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
-    val banks = listOf<String>("Vietcombank", "Sacombank", "Techcombank")
+    val customerUiState by customerViewModel.uiState.collectAsState()
+
+    val banks = listOf<String>("Vietcombank", "Sacombank", "Techcombank", "Agribank", "VietinBank")
     val categories = listOf<String>(
         "Supermarket", "Dining", "Billing payment",
         "House rental", "Traffic spending", "Home helper", "Others"
@@ -125,11 +127,14 @@ fun TransferScreen(
                     .fillMaxSize()
 
             ) {
-                LazyColumn (
+                LazyColumn(
                     modifier = Modifier.fillMaxWidth(0.8f)
                 ) {
                     item {
-                        BalanceInformation()
+                        BalanceInformation(
+                            cardNumber = customerUiState.checkingCardNumber,
+                            balance = customerUiState.checkingBalance.toString()
+                        )
                     }
                     item {
                         Text(
@@ -151,7 +156,10 @@ fun TransferScreen(
                                         .fillMaxHeight(0.8f),
                                     color = Color.Gray
                                 )
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Beneficiary Bank")
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = "Select Beneficiary Bank"
+                                )
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -226,7 +234,10 @@ fun TransferScreen(
                                         .fillMaxHeight(0.8f),
                                     color = Color.Gray
                                 )
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Transaction Category")
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = "Transaction Category"
+                                )
                             },
                             modifier = Modifier.fillMaxWidth()
                         )

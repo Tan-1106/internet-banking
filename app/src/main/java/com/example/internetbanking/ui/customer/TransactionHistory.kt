@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,11 +29,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +53,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.DatePicker
+import com.example.internetbanking.ui.shared.dateStringToTimestamp
+import com.example.internetbanking.ui.shared.toReadableDateTime
 import com.example.internetbanking.ui.theme.GradientColors
+import com.example.internetbanking.ui.theme.custom_dark_green
 import com.example.internetbanking.ui.theme.custom_light_green2
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
@@ -64,8 +67,15 @@ fun TransactionHistoryScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
+    val customerUiState by customerViewModel.uiState.collectAsState()
+
     var fromDate by remember { mutableStateOf("Pick a date") }
+    var from = 0L
     var toDate by remember { mutableStateOf("Pick a date") }
+    var to = 0L
+
+    val transactionTypeOptions: List<String> = listOf("All", "In", "Out")
+    var selectedType by remember { mutableStateOf("All") }
 
     Box(
         modifier = Modifier
@@ -97,7 +107,7 @@ fun TransactionHistoryScreen(
                             modifier = Modifier
                                 .size(30.dp)
                                 .clickable {
-
+                                    navController.navigateUp()
                                 }
                         )
                     },
@@ -130,6 +140,7 @@ fun TransactionHistoryScreen(
                             placeholder = fromDate,
                             onDatePick = {
                                 fromDate = it
+                                from = dateStringToTimestamp(it) ?: 0L
                             },
                             suffix = {
                                 Icon(
@@ -146,6 +157,7 @@ fun TransactionHistoryScreen(
                             placeholder = toDate,
                             onDatePick = {
                                 toDate = it
+                                to = dateStringToTimestamp(it) ?: 0L
                             },
                             suffix = {
                                 Icon(
@@ -156,11 +168,53 @@ fun TransactionHistoryScreen(
                         )
                     }
                 }
-
+                // Transaction Type
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .height(50.dp)
+                ) {
+                    transactionTypeOptions.forEach { option ->
+                        val isSelected = option == selectedType
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            tonalElevation = if (isSelected) 8.dp else 2.dp,
+                            shadowElevation = if (isSelected) 8.dp else 0.dp,
+                            color = if (isSelected) custom_dark_green else custom_light_green2,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(60.dp)
+                                .padding(horizontal = 4.dp)
+                                .clickable { selectedType = option }
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .weight(0.3f)
+                                    .background(
+                                        color = if (isSelected) custom_dark_green else custom_light_green2,
+                                        shape = RoundedCornerShape(percent = 20),
+                                    )
+                                    .padding(vertical = 10.dp)
+                            ) {
+                                Text(
+                                    text = option,
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+                // Search
                 Row(modifier = Modifier.fillMaxWidth(0.8f)) {
                     ElevatedButton(
                         shape = RoundedCornerShape(percent = 20),
-                        onClick = {},
+                        onClick = {
+                            customerViewModel.filterTransactions(selectedType, from, to)
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = custom_light_green2
@@ -169,68 +223,19 @@ fun TransactionHistoryScreen(
                         Text("Search")
                     }
                 }
-                Spacer(modifier = Modifier.height(5.dp))
-                Row(modifier = Modifier.fillMaxWidth(0.8f)) {
-                    Text("Transaction History", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                }
 
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(50.dp)
-                ) {
-                    TextButton(
-                        onClick = {
-
-                        },
-                        modifier = Modifier
-                            .weight(0.3f)
-                            .background(
-                                color = custom_light_green2,
-                                shape = RoundedCornerShape(percent = 20),
-                            )
-                            .padding(vertical = 10.dp), contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text(
-                            text = "All",
-                            color = Color.White
-                        )
-                    }
-                    Spacer(Modifier.width(5.dp))
-                    TextButton(
-                        onClick = {}, modifier = Modifier
-                            .weight(0.3f)
-                            .background(
-                                color = custom_light_green2,
-                                shape = RoundedCornerShape(percent = 20)
-                            )
-                            .padding(vertical = 10.dp), contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text(
-                            text = "In",
-                            color = Color.White
-                        )
-                    }
-                    Spacer(Modifier.width(5.dp))
-                    TextButton(
-                        onClick = {}, modifier = Modifier
-                            .weight(0.3f)
-                            .background(
-                                color = custom_light_green2,
-                                shape = RoundedCornerShape(percent = 20)
-                            )
-                            .padding(vertical = 10.dp), contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text(
-                            text = "Out",
-                            color = Color.White
-                        )
-                    }
-                }
-
+                // List
                 Spacer(Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                ) {
+                    Text(
+                        text = "Transaction History",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -247,11 +252,21 @@ fun TransactionHistoryScreen(
                         )
 
                 ) {
-                    items(count = 10) {
-                        Row (modifier = Modifier.padding(5.dp)){
+                    items(customerUiState.transactionHistory.size) { index ->
+                        val transaction = customerUiState.transactionHistory[index]
+                        Row(
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .clickable {
+                                    customerViewModel.onTransactionHistoryClick(
+                                        transaction,
+                                        navController
+                                    )
+                                }
+                        ) {
                             Column {
                                 Text(
-                                    text = "04/05/2025",
+                                    text = transaction.timestamp.toReadableDateTime(),
                                     fontSize = 12.sp,
                                     color = Color.Gray
                                 )
@@ -262,7 +277,7 @@ fun TransactionHistoryScreen(
                                         modifier = Modifier.weight(6f)
                                     ) {
                                         Text(
-                                            "ABCD EFGH IJK XXXXXX",
+                                            text = transaction.content,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -271,7 +286,13 @@ fun TransactionHistoryScreen(
                                         modifier = Modifier.weight(3f),
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
-                                        Text("-12.000VND")
+                                        Text(
+                                            text = if (transaction.type == "In") {
+                                                "+${transaction.amount} VND"
+                                            } else {
+                                                "-${transaction.amount} VND"
+                                            }
+                                        )
                                     }
                                     Spacer(Modifier.width(5.dp))
                                     Column(

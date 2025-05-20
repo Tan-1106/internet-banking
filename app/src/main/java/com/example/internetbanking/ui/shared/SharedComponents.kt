@@ -24,6 +24,8 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,6 +33,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SelectableDates
@@ -45,7 +48,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -191,10 +198,10 @@ fun BalanceInformation(
 
 @Composable
 fun PagerBalanceInformation(
-    pages: List<@Composable ()-> Unit>,
+    pages: List<@Composable () -> Unit>,
     onAddAccountClick: () -> Unit
 ) {
-    val pageCount = pages.size
+    val pageCount = pages.size + 1
     val pagerState = rememberPagerState { pageCount }
 
     Column {
@@ -205,6 +212,7 @@ fun PagerBalanceInformation(
                 .height(140.dp) // chỉnh chiều cao cho phù hợp
         ) { page ->
             Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .size(200.dp)
@@ -224,10 +232,54 @@ fun PagerBalanceInformation(
                             fraction = 1f - pageOffset.coerceIn(0f, 1f)
                         )
                     }) {
-            pages[page]()
+                if (page == pageCount - 1) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp)
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(
+                                    corner = CornerSize(20.dp)
+                                )
+                            )
+                            .drawBehind {
+                                drawRoundRect(
+                                    color = Color.Gray,
+                                    style = Stroke(
+                                        width = 3.dp.toPx(),
+                                        pathEffect = PathEffect.dashPathEffect(
+                                            floatArrayOf(
+                                                10f,
+                                                10f
+                                            ), 0f
+                                        )
+                                    ), cornerRadius = CornerRadius(
+                                        20.dp.toPx(),
+                                        20.dp.toPx()
+                                    )
+                                )
+                            }
+                            .clickable(
+                                onClick = onAddAccountClick
+                            )
+                            .padding(20.dp),
+
+                        ) {
+                        Icon(Icons.Outlined.Add, contentDescription = null)
+                        Text(
+                            "Add Account",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+                } else {
+                    pages[page]()
+                }
             }
         }
-        // Thêm indicator nếu muốn
+        //indicator
         Row(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
@@ -241,9 +293,8 @@ fun PagerBalanceInformation(
                         .padding(4.dp)
                         .size(if (selected) 12.dp else 8.dp)
                         .background(
-                            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(
-                                alpha = 0.3f
-                            ),
+                            color = if (selected) custom_light_green1
+                            else Color.Gray,
                             shape = RoundedCornerShape(50)
                         )
                 )

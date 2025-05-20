@@ -105,7 +105,8 @@ fun ConfirmScreen(
                             brush = GradientColors.Green_DarkToLight
                         )
                 )
-            }, bottomBar = {
+            },
+            bottomBar = {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

@@ -46,7 +46,6 @@ import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.BalanceInformation
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
-import com.example.internetbanking.ui.shared.PagerBalanceInformation
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_mint_green
@@ -142,16 +141,9 @@ fun PayBillsScreen(
                     .padding(innerPadding)
                     .padding(10.dp)
             ) {
-                PagerBalanceInformation(
-                    pages = listOf(
-                        {
-                            BalanceInformation(
-                                cardNumber = customerUiState.checkingCardNumber,
-                                balance = customerUiState.checkingBalance.toString()
-                            )
-                        }
-                    ),
-                    onAddAccountClick = {}
+                BalanceInformation(
+                    cardNumber = "DVijkcbdjd ",
+                    balance = "cbiuskjncbdbhj"
                 )
                 InformationSelect(
                     label = "Service",

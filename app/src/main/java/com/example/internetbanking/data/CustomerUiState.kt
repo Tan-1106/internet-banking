@@ -6,23 +6,30 @@ data class CustomerUiState(
     val currentViewType: String = "Checking",
 
     // All Customer
-    val account: User = User(),
+    val account: User = User(), // accountId, fullName, gender, identificationNumber, phoneNumber, email, birthday, address, role
     val transactionHistory: List<TransactionRecord> = emptyList(),
     val transactionHistoryToView: TransactionRecord = TransactionRecord(),
 
     // Checking
     val checkingCardNumber: String = "",
     val checkingBalance: BigDecimal = BigDecimal.ZERO,
-    val currentTransfer: TransactionRecord = TransactionRecord(),
+    val checkingCurrentTransfer: TransactionRecord = TransactionRecord(),
 
     // Saving
     val savingCardNumber: String = "",
     val savingBalance: BigDecimal = BigDecimal.ZERO,
-    val profitsForSavingAccount: BigDecimal = BigDecimal.ZERO,
+    val savingProfits: BigDecimal = BigDecimal.ZERO,
+    val savingWithdrawDate: String = "",
+    val savingStatus: String = "",
 
     // Mortgage
     val mortgageCardNumber: String = "",
-    val mortgageInformation: MortgageInformation = MortgageInformation()
+    val mortgageLoan: BigDecimal = BigDecimal.ZERO,
+    val mortgageMonthPayment: BigDecimal = BigDecimal.ZERO,
+    val mortgage2WeeksPayment: BigDecimal = BigDecimal.ZERO,
+    val mortgageLoadDate: Long = 0L,
+    val mortgagePayDate: Long = 0L,
+    val mortgageStatus: String = ""
 )
 
 data class TransactionRecord(
@@ -31,10 +38,6 @@ data class TransactionRecord(
     val amount: BigDecimal = BigDecimal.ZERO,
     val fee: BigDecimal = BigDecimal.ZERO,
     val type: String = "",
-    val timestamp: Long = 0L
-)
-
-data class MortgageInformation(
-    val paymentPerMonth: BigDecimal = BigDecimal.ZERO,
-    val paymentPer2Weeks: BigDecimal = BigDecimal.ZERO
+    val timestamp: Long = 0L,
+    val beneficiaryAccount: String = ""
 )

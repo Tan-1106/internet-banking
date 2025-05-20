@@ -59,7 +59,7 @@ fun LoginScreen(
     navController: NavHostController
 ) {
     val loginUiState by loginViewModel.uiState.collectAsState()
-    var idInput by remember { mutableStateOf("test") }
+    var idInput by remember { mutableStateOf("nnt0406") }
     var passwordInput by remember { mutableStateOf("test123") }
     var isPasswordShowing by remember { mutableStateOf(false) }
 

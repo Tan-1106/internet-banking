@@ -52,7 +52,6 @@ import com.example.internetbanking.ui.shared.GreenGradientButton
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
 import com.example.internetbanking.ui.shared.checkCardNumberExistsInAllDocuments
-import com.example.internetbanking.ui.shared.checkExistData
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_mint_green
@@ -283,6 +282,8 @@ fun TransferScreen(
                                         beneficiaryAccountEM = "Card does not exist"
                                     } else if (amount <= BigDecimal.valueOf(5000.0)) {
                                         amountEM = "Transaction amount must higher than 5000đ"
+                                    } else if (amount >= customerUiState.checkingBalance) {
+                                        amountEM = "Insufficient checking balance"
                                     } else {
                                         beneficiaryBankEM = ""
                                         beneficiaryAccountEM = ""
@@ -293,7 +294,8 @@ fun TransferScreen(
                                             card = beneficiaryAccount,
                                             amount = amount,
                                             content = content,
-                                            category = category
+                                            category = category,
+                                            beneficiaryAccount = beneficiaryAccount
                                         )
                                     }
                                 }

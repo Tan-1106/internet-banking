@@ -77,7 +77,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.absoluteValue
 
-// Gradient Background
+// COMPONENTS
+// App Background
 @Composable
 fun AppBackground(
     modifier: Modifier = Modifier,
@@ -96,6 +97,7 @@ fun AppBackground(
     }
 }
 
+// Gradient Button
 @Composable
 fun GreenGradientButton(
     onButtonClick: () -> Unit,
@@ -121,6 +123,7 @@ fun GreenGradientButton(
     }
 }
 
+// Balance Information
 @Composable
 fun BalanceInformation(
     cardNumber: String = "",
@@ -194,6 +197,7 @@ fun BalanceInformation(
     }
 }
 
+// Card Swiper
 @Composable
 fun PagerBalanceInformation(
     pages: List<@Composable () -> Unit>,
@@ -304,6 +308,7 @@ fun PagerBalanceInformation(
     }
 }
 
+// Information Select Options
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InformationSelect(
@@ -405,6 +410,7 @@ fun InformationSelect(
     }
 }
 
+// Information Line
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InformationLine(
@@ -481,6 +487,8 @@ fun InformationLine(
         }
     }
 }
+
+// View Profits
 @Composable
 fun ViewProfitRatesAndProfit(){
     AlertDialog(
@@ -496,6 +504,7 @@ fun ViewProfitRatesAndProfit(){
     )
 }
 
+// LogOut Dialog
 @Composable
 fun LogoutDialog(
     showDialog: Boolean,
@@ -524,6 +533,7 @@ fun LogoutDialog(
     }
 }
 
+// Date Picker
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePicker(
@@ -642,6 +652,7 @@ fun DatePicker(
     }
 }
 
+// App Alert Dialog
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppAlertDialog(
@@ -688,6 +699,8 @@ fun AppAlertDialog(
     }
 }
 
+// FUNCTION - FORMAT
+// Timestamp to Readable Date Time
 fun Long.toReadableDateTime(pattern: String = "HH:mm - dd/MM/yyyy"): String {
     val instant = Instant.ofEpochMilli(this)
     val formatter = DateTimeFormatter
@@ -696,6 +709,7 @@ fun Long.toReadableDateTime(pattern: String = "HH:mm - dd/MM/yyyy"): String {
     return formatter.format(instant)
 }
 
+// Readable Date Time to Timestamp
 fun dateStringToTimestamp(dateString: String): Long? {
     return try {
         // Define the date format for dd/mm/yyyy
@@ -709,7 +723,19 @@ fun dateStringToTimestamp(dateString: String): Long? {
     }
 }
 
-// Check Exist Data
+// Big Decimal to VN Currency String
+fun formatCurrencyVN(amount: BigDecimal): String {
+    val symbols = DecimalFormatSymbols(Locale("vi", "VN")).apply {
+        groupingSeparator = '.'
+        decimalSeparator = ','
+    }
+    val formatter = DecimalFormat("#,###", symbols)
+    return formatter.format(amount)
+}
+
+
+// FUNCTION - FIREBASE
+// Check Exist Data From A Collection
 suspend fun checkExistData(
     collectionName: String,
     fieldName: String,
@@ -729,7 +755,7 @@ suspend fun checkExistData(
     }
 }
 
-// Transaction ID
+// Create Unique Transaction ID
 fun generateTransactionId(): String {
     val datePart = java.time.LocalDate.now().toString().replace("-", "")
     val randomPart = (1..8)
@@ -740,7 +766,6 @@ fun generateTransactionId(): String {
         .joinToString("")
     return "LB-$datePart-$randomPart"
 }
-
 suspend fun generateUniqueTransactionId(): String {
     var transactionId: String
     do {
@@ -755,8 +780,7 @@ suspend fun generateUniqueTransactionId(): String {
     return transactionId
 }
 
-
-// Check Card Number
+// Check Existing Card Number
 suspend fun checkCardNumberExistsInAllDocuments(
     collectionName: String,
     cardNumber: String
@@ -788,8 +812,7 @@ suspend fun checkCardNumberExistsInAllDocuments(
     }
 }
 
-
-// Add Document To Collection
+// Add A Document To Collection
 fun addDocumentToCollection(
     collectionName: String,
     data: Map<String, Any>,
@@ -810,7 +833,7 @@ fun addDocumentToCollection(
         .addOnFailureListener { e -> onFailure(e) }
 }
 
-// Update Data
+// Update User's Data
 fun updateUserFieldByAccountId(
     accountId: String,
     fieldName: String,
@@ -832,14 +855,3 @@ fun updateUserFieldByAccountId(
             onFailure(exception)
         }
 }
-
-// Big Decimal to VN Currency String
-fun formatCurrencyVN(amount: BigDecimal): String {
-    val symbols = DecimalFormatSymbols(Locale("vi", "VN")).apply {
-        groupingSeparator = '.'
-        decimalSeparator = ','
-    }
-    val formatter = DecimalFormat("#,###", symbols)
-    return formatter.format(amount)
-}
-

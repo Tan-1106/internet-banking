@@ -90,8 +90,6 @@ class OfficerViewModel : ViewModel() {
         roleErrorMessage = ""
     }
 
-
-
     // Validate Input Field
     suspend fun validateInputs(
         accountId: String,
@@ -201,7 +199,6 @@ class OfficerViewModel : ViewModel() {
 
         auth.createUserWithEmailAndPassword(email, tempPassword)
             .addOnSuccessListener {
-                // Gửi email đặt lại mật khẩu
                 auth.sendPasswordResetEmail(email)
                     .addOnSuccessListener { onSuccess() }
                     .addOnFailureListener { e -> onFailure(e) }
@@ -241,10 +238,7 @@ class OfficerViewModel : ViewModel() {
             )
 
             if (isValid) {
-                val checkingData = mapOf(
-                    "cardNumber" to generateUniqueAccountId(),
-                    "balance" to 0
-                )
+                // Add User Data
                 val customerData = mapOf(
                     "accountId" to accountId,
                     "fullName" to fullName,
@@ -254,10 +248,8 @@ class OfficerViewModel : ViewModel() {
                     "email" to email,
                     "birthday" to birthday,
                     "address" to address,
-                    "checking" to checkingData,
                     "role" to "Customer"
                 )
-
                 addDocumentToCollection(
                     collectionName = "users",
                     data = customerData,
@@ -267,6 +259,23 @@ class OfficerViewModel : ViewModel() {
                     }
                 )
 
+                // Add User's Checking Data
+                val checkingCardNumber = generateUniqueAccountId()
+                val checkingData = mapOf(
+                    "accountId" to accountId,
+                    "cardNumber" to checkingCardNumber,
+                    "balance" to 0
+                )
+                addDocumentToCollection(
+                    collectionName = "checking",
+                    data = checkingData,
+                    documentId = checkingCardNumber,
+                    onSuccess = {
+                        Toast.makeText(context, "User's checking card created successfully", Toast.LENGTH_SHORT).show()
+                    }
+                )
+
+                // Send Email For Password
                 createUserAndSendResetEmail(
                     email = email,
                     onSuccess = {
@@ -276,7 +285,6 @@ class OfficerViewModel : ViewModel() {
                         Log.e("CreateUser", "Error: ${e.message}")
                     }
                 )
-
                 navController.navigateUp()
             }
         }
@@ -291,7 +299,6 @@ class OfficerViewModel : ViewModel() {
         }
         return true
     }
-
     fun onChangeRatesConfirm(newRate: String) {
         val newRateData = mapOf(
             "profitableRates" to newRate,
@@ -337,10 +344,7 @@ class OfficerViewModel : ViewModel() {
                     )
 
                     _uiState.update { it.copy(customerToEdit = customer) }
-
-                    // Navigate to edit screen (replace with your actual route)
                     navController.navigate(AppScreen.EditCustomerProfile.name)
-
                 } catch (e: Exception) {
                     Toast.makeText(context, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
                     Log.e("onSearchClick", "Firestore error", e)
@@ -349,6 +353,7 @@ class OfficerViewModel : ViewModel() {
         }
     }
 
+    // Validate Edit Input
     fun validateEditInput(
         fullName: String,
         gender: String,
@@ -403,6 +408,8 @@ class OfficerViewModel : ViewModel() {
 
         return isValid
     }
+
+    // Save New Customer's Information
     fun onCustomerEditClick(
         context: Context,
         navController: NavHostController,

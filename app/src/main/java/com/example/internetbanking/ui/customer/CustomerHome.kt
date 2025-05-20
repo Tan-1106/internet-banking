@@ -87,8 +87,6 @@ fun CustomerHome(
     loginViewModel: LoginViewModel,
     navController: NavHostController
 ) {
-    val context: Context = LocalContext.current
-
     // UiStates
     val customerUiState by customerViewModel.uiState.collectAsState()
     val loginUiState by loginViewModel.uiState.collectAsState()
@@ -97,6 +95,7 @@ fun CustomerHome(
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     // Load Data
+    val context: Context = LocalContext.current
     LaunchedEffect(Unit) {
         customerViewModel.loadCustomerInformation(loginUiState.currentUser)
     }

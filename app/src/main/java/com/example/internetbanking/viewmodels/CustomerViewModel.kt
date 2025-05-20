@@ -13,9 +13,13 @@ import com.example.internetbanking.AppScreen
 import com.example.internetbanking.data.CustomerUiState
 import com.example.internetbanking.data.TransactionRecord
 import com.example.internetbanking.data.User
+import com.example.internetbanking.ui.shared.addDocumentToCollection
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.shared.generateUniqueTransactionId
 import com.example.internetbanking.ui.shared.updateUserFieldByAccountId
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,35 +32,54 @@ import java.math.BigDecimal
 class CustomerViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CustomerUiState())
     val uiState: StateFlow<CustomerUiState> = _uiState.asStateFlow()
-
-
+    private val auth: FirebaseAuth = Firebase.auth
     private val db = FirebaseFirestore.getInstance()
 
-    // Observe Exist Types
+    // OBSERVING EXISTING CARD TYPE
     var hasSaving by mutableStateOf(false)
         private set
     var hasMortgage by mutableStateOf(false)
         private set
+
     fun observeSubAccountsExistence(accountId: String) {
-        val docRef = db.collection("users").document(accountId)
-        docRef.addSnapshotListener { snapshot, error ->
+        val savingRef = db.collection("saving")
+            .whereEqualTo("accountId", accountId)
+            .limit(1)
+        val mortgageRef = db.collection("mortgage")
+            .whereEqualTo("accountId", accountId)
+            .limit(1)
+
+        savingRef.addSnapshotListener { snapshot, error ->
             if (error != null) {
                 error.printStackTrace()
                 return@addSnapshotListener
             }
-
-            if (snapshot != null && snapshot.exists()) {
-                hasSaving = snapshot.contains("saving")
-                hasMortgage = snapshot.contains("mortgage")
+            hasSaving = snapshot != null && !snapshot.isEmpty
+        }
+        mortgageRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                error.printStackTrace()
+                return@addSnapshotListener
             }
+            hasMortgage = snapshot != null && !snapshot.isEmpty
         }
     }
-
     private suspend fun checkSubAccountsExistence(accountId: String): Pair<Boolean, Boolean> {
         return try {
-            val snapshot = db.collection("users").document(accountId).get().await()
-            val savingExists = snapshot.contains("saving")
-            val mortgageExists = snapshot.contains("mortgage")
+            val savingSnapshot = db.collection("saving")
+                .whereEqualTo("accountId", accountId)
+                .limit(1)
+                .get()
+                .await()
+            val mortgageSnapshot = db.collection("mortgage")
+                .whereEqualTo("accountId", accountId)
+                .limit(1)
+                .get()
+                .await()
+
+            val savingExists = !savingSnapshot.isEmpty
+            val mortgageExists = !mortgageSnapshot.isEmpty
+
             Pair(savingExists, mortgageExists)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -64,69 +87,109 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    // Real Time Balance
+    // OBSERVING CARD BALANCE
     fun observeBalance(accountId: String) {
-        val documentRef = db.collection("users").document(accountId)
+        // Observe checking balance
+        db.collection("checking")
+            .whereEqualTo("accountId", accountId)
+            .limit(1)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("BalanceObserver", "Failed to observe checking: ${error.message}")
+                    return@addSnapshotListener
+                }
 
-        documentRef.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                Log.e("BalanceObserver", "Listen failed: ${error.message}")
-                return@addSnapshotListener
+                val checkingBalance = snapshot?.documents?.firstOrNull()?.get("balance")?.let { value ->
+                    when (value) {
+                        is Number -> BigDecimal.valueOf(value.toDouble())
+                        is String -> value.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                        else -> BigDecimal.ZERO
+                    }
+                } ?: BigDecimal.ZERO
+
+                _uiState.update { it.copy(checkingBalance = checkingBalance) }
             }
 
-            if (snapshot != null && snapshot.exists()) {
-                val checkingValue = snapshot.get("checking.balance")
-                val savingValue = snapshot.get("saving.balance")
-
-                val checkingBalance = when (checkingValue) {
-                    is Number -> BigDecimal.valueOf(checkingValue.toDouble())
-                    is String -> checkingValue.toBigDecimalOrNull() ?: BigDecimal.ZERO
-                    else -> BigDecimal.ZERO
-                }
-                val savingBalance = when (savingValue) {
-                    is Number -> BigDecimal.valueOf(savingValue.toDouble())
-                    is String -> savingValue.toBigDecimalOrNull() ?: BigDecimal.ZERO
-                    else -> BigDecimal.ZERO
+        // Observe saving balance
+        db.collection("saving")
+            .whereEqualTo("accountId", accountId)
+            .limit(1)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("BalanceObserver", "Failed to observe saving: ${error.message}")
+                    return@addSnapshotListener
                 }
 
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        checkingBalance = checkingBalance,
-                        savingBalance = savingBalance
-                    )
-                }
+                val savingBalance = snapshot?.documents?.firstOrNull()?.get("balance")?.let { value ->
+                    when (value) {
+                        is Number -> BigDecimal.valueOf(value.toDouble())
+                        is String -> value.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                        else -> BigDecimal.ZERO
+                    }
+                } ?: BigDecimal.ZERO
+
+                _uiState.update { it.copy(savingBalance = savingBalance) }
             }
-        }
     }
 
-    // Load Customer Information
+    // LOAD CUSTOMER INFORMATION
     fun loadCustomerInformation(currentUser: User) {
         val accountId = currentUser.accountId
         viewModelScope.launch {
+            // Kiểm tra sự tồn tại các sub-accounts
             val (savingExists, mortgageExists) = checkSubAccountsExistence(accountId)
             hasSaving = savingExists
             hasMortgage = mortgageExists
 
-            val userDocSnapshot = db.collection("users").document(accountId).get().await()
-            val checkingCardNumber = userDocSnapshot.get("checking.cardNumber")
+            // Truy vấn checking để lấy card number
+            val checkingSnapshot = db.collection("checking")
+                .whereEqualTo("accountId", accountId)
+                .limit(1)
+                .get()
+                .await()
+            val checkingCardNumber = checkingSnapshot.documents.firstOrNull()?.getString("cardNumber") ?: ""
 
+            // Truy vấn saving nếu tồn tại
+            val savingCardNumber = if (savingExists) {
+                db.collection("saving")
+                    .whereEqualTo("accountId", accountId)
+                    .limit(1)
+                    .get()
+                    .await()
+                    .documents
+                    .firstOrNull()
+                    ?.getString("cardNumber") ?: ""
+            } else ""
+
+            // Truy vấn mortgage nếu tồn tại
+            val mortgageCardNumber = if (mortgageExists) {
+                db.collection("mortgage")
+                    .whereEqualTo("accountId", accountId)
+                    .limit(1)
+                    .get()
+                    .await()
+                    .documents
+                    .firstOrNull()
+                    ?.getString("cardNumber") ?: ""
+            } else ""
+
+            // Cập nhật state
             _uiState.update { currentState ->
                 currentState.copy(
                     account = currentUser,
-                    checkingCardNumber = checkingCardNumber.toString(),
-                    savingCardNumber = if (savingExists) userDocSnapshot.get("saving.cardNumber").toString() else "",
-                    mortgageCardNumber = if (mortgageExists) userDocSnapshot.get("mortgage.cardNumber").toString() else ""
+                    checkingCardNumber = checkingCardNumber,
+                    savingCardNumber = savingCardNumber,
+                    mortgageCardNumber = mortgageCardNumber
                 )
             }
 
+            // Bắt đầu lắng nghe các dữ liệu realtime
             observeSubAccountsExistence(accountId)
             observeBalance(accountId)
-            observeTransactionHistory(accountId)
         }
     }
 
-
-    // Edit Information
+    // EDIT INFORMATION
     // Error Messages
     var nameErrorMessage by mutableStateOf("")
         private set
@@ -146,6 +209,7 @@ class CustomerViewModel : ViewModel() {
         addressErrorMessage = ""
     }
 
+    // Validate User Edit Input
     fun validateEditInput(
         fullName: String,
         gender: String,
@@ -201,15 +265,16 @@ class CustomerViewModel : ViewModel() {
         return isValid
     }
 
+    // User Save New Information Event
     fun onEditSaveClick(
         context: Context,
         navController: NavHostController,
+        loginViewModel: LoginViewModel,
         fullName: String,
         gender: String,
         phoneNumber: String,
         birthday: String,
         address: String,
-        loginViewModel: LoginViewModel
         ) {
         if (validateEditInput(fullName, gender, phoneNumber, birthday, address)) {
             val accountId = uiState.value.account.accountId
@@ -355,7 +420,8 @@ class CustomerViewModel : ViewModel() {
         card: String,
         amount: BigDecimal,
         content: String,
-        category: String
+        category: String,
+        beneficiaryAccount: String
     ) {
         val cate = if (category.isEmpty()) "Transfer" else category
         viewModelScope.launch {
@@ -366,14 +432,115 @@ class CustomerViewModel : ViewModel() {
                 content = summaryContent,
                 amount = amount,
                 type = "Out",
-                timestamp = System.currentTimeMillis()
+                timestamp = System.currentTimeMillis(),
+                beneficiaryAccount = beneficiaryAccount
             )
             _uiState.update { currentState ->
                 currentState.copy(
-                    currentTransfer = newTransactionRecord
+                    checkingCurrentTransfer = newTransactionRecord
                 )
             }
             navController.navigate(AppScreen.Confirm.name)
+        }
+    }
+
+    // Transfer Event
+    fun transferEvent(
+        senderAccountId: String,
+        receiverCardNumber: String,
+        amount: BigDecimal,
+        onSuccess: () -> Unit = {},
+        onFailure: (Exception) -> Unit = {}
+    ) {
+        val db = FirebaseFirestore.getInstance()
+
+        viewModelScope.launch {
+            try {
+                val receiverQuerySnapshot = db.collection("users")
+                    .whereEqualTo("checking.cardNumber", receiverCardNumber)
+                    .limit(1)
+                    .get()
+                    .await()
+
+                if (receiverQuerySnapshot.isEmpty) {
+                    throw IllegalArgumentException("Receiver not found")
+                }
+
+                val receiverDoc = receiverQuerySnapshot.documents[0]
+
+                db.runTransaction { transaction ->
+                    val senderRef = db.collection("users").document(senderAccountId)
+                    val senderSnapshot = transaction.get(senderRef)
+
+                    val senderBalance = senderSnapshot.getDouble("checking.balance") ?: 0.0
+                    val newSenderBalance = senderBalance - amount.toDouble()
+                    if (newSenderBalance < 0) throw IllegalArgumentException("Insufficient funds")
+
+                    transaction.update(senderRef, "checking.balance", newSenderBalance)
+
+                    val receiverRef = receiverDoc.reference
+                    val receiverBalance = receiverDoc.getDouble("checking.balance") ?: 0.0
+                    val newReceiverBalance = receiverBalance + amount.toDouble()
+
+                    transaction.update(receiverRef, "checking.balance", newReceiverBalance)
+                }.addOnSuccessListener {
+                    onSuccess()
+                }.addOnFailureListener {
+                    onFailure(it)
+                }
+
+            } catch (e: Exception) {
+                onFailure(e)
+            }
+        }
+    }
+
+    // Confirm Password
+    fun confirmPassword(
+        context: Context,
+        currentTransferRecord: TransactionRecord,
+        accountId: String,
+        password: String,
+        navController: NavHostController
+    ) {
+        viewModelScope.launch {
+            try {
+                val document = db.collection("users").document(accountId).get().await()
+                val email = document.getString("email") ?: ""
+
+                // Success login
+                auth.signInWithEmailAndPassword(email, password).await()
+
+                addDocumentToCollection(
+                    collectionName = "transactionHistories",
+                    data = mapOf(
+                        "transactionId" to currentTransferRecord.transactionId,
+                        "accountId" to accountId,
+                        "amount" to currentTransferRecord.amount,
+                        "content" to currentTransferRecord.content,
+                        "fee" to currentTransferRecord.fee,
+                        "timestamp" to currentTransferRecord.timestamp,
+                        "type" to currentTransferRecord.type,
+                        "beneficiaryAccount" to currentTransferRecord.beneficiaryAccount
+                    ),
+                    documentId = currentTransferRecord.transactionId,
+                    onSuccess = {
+                        transferEvent(
+                            senderAccountId = accountId,
+                            receiverCardNumber = currentTransferRecord.beneficiaryAccount,
+                            amount = currentTransferRecord.amount,
+                            onSuccess = {
+                                Toast.makeText(context, "Transfer successfully", Toast.LENGTH_SHORT).show()
+                                navController.navigate(AppScreen.CustomerHome.name)
+                            },
+                            onFailure = { Toast.makeText(context, "Cannot transfer money", Toast.LENGTH_SHORT).show() }
+                        )
+                    },
+                    onFailure = { Toast.makeText(context, "Cannot process Firebase data", Toast.LENGTH_SHORT).show() }
+                )
+            } catch (_: Exception) {
+                Toast.makeText(context, "Wrong password", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

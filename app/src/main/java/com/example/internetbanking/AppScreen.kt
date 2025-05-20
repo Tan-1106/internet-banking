@@ -180,7 +180,7 @@ fun AppScreen(
         // Mortgage Account Only
         composable(route = AppScreen.ViewMortgageMoney.name) {
             ViewMortgageMoneyScreen(
-                customerViewModel = customerViewModel,
+//                customerViewModel = customerViewModel,
                 navController = navController
             )
         }

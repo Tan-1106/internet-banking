@@ -95,6 +95,7 @@ fun TransactionHistoryScreen(
                     title = {
                         Text(
                             text = "Transaction History",
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = custom_mint_green
                         )

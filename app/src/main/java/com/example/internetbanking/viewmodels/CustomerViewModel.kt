@@ -9,10 +9,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.example.internetbanking.AppScreen
 import com.example.internetbanking.data.CustomerUiState
 import com.example.internetbanking.data.TransactionRecord
 import com.example.internetbanking.data.User
-import com.example.internetbanking.ui.shared.getFieldFromDocument
+import com.example.internetbanking.ui.shared.formatCurrencyVN
+import com.example.internetbanking.ui.shared.generateUniqueTransactionId
 import com.example.internetbanking.ui.shared.updateUserFieldByAccountId
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -344,5 +346,34 @@ class CustomerViewModel : ViewModel() {
         }
         // TODO: NAVIGATE TO THE SCREEN
         // navController.navigate(AppScreen..name)
+    }
+
+    // Transfer
+    fun onContinueTransferClick(
+        navController: NavHostController,
+        bank: String,
+        card: String,
+        amount: BigDecimal,
+        content: String,
+        category: String
+    ) {
+        val cate = if (category.isEmpty()) "Transfer" else category
+        viewModelScope.launch {
+            val summaryContent = "[$cate] ${formatCurrencyVN(amount)}đ has been transferred with the content \"$content\" to $card - $bank "
+            val transactionId = generateUniqueTransactionId()
+            val newTransactionRecord = TransactionRecord(
+                transactionId = transactionId,
+                content = summaryContent,
+                amount = amount,
+                type = "Out",
+                timestamp = System.currentTimeMillis()
+            )
+            _uiState.update { currentState ->
+                currentState.copy(
+                    currentTransfer = newTransactionRecord
+                )
+            }
+            navController.navigate(AppScreen.Confirm.name)
+        }
     }
 }

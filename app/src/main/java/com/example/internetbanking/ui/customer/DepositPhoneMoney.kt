@@ -35,6 +35,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +55,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.BalanceInformation
+import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_light_green2
@@ -66,7 +68,8 @@ fun DepositPhoneMoneyScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
-//    var scrollState = rememberScrollState()
+    val customerUiState by customerViewModel.uiState.collectAsState()
+
     var phoneNumber by remember { mutableStateOf("") }
     val amounts = listOf(
         "50.0000đ",
@@ -91,7 +94,14 @@ fun DepositPhoneMoneyScreen(
             topBar = {
 
                 TopAppBar(
-                    title = { Text("Deposit Phone", color = custom_mint_green) },
+                    title = {
+                        Text(
+                            text = "Deposit phone",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = custom_mint_green
+                        )
+                    },
                     navigationIcon = {
 
                         IconButton(onClick = { }) {
@@ -137,7 +147,6 @@ fun DepositPhoneMoneyScreen(
             modifier = Modifier
                 .systemBarsPadding()
                 .fillMaxSize()
-//                .verticalScroll(scrollState),
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -145,8 +154,8 @@ fun DepositPhoneMoneyScreen(
                     .padding(10.dp)
             ) {
                 BalanceInformation(
-                    cardNumber = "DVijkcbdjd ",
-                    balance = "cbiuskjncbdbhj"
+                    cardNumber = customerUiState.checkingCardNumber,
+                    balance = formatCurrencyVN(customerUiState.checkingBalance)
                 )
                 Spacer(Modifier.height(20.dp))
                 Text(

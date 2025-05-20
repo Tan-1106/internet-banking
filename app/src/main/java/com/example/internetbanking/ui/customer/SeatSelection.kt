@@ -1,6 +1,7 @@
 package com.example.internetbanking.ui.customer
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -38,6 +40,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.ui.theme.GradientColors
+import com.example.internetbanking.ui.theme.custom_dark_green
+import com.example.internetbanking.ui.theme.custom_light_green2
+import com.example.internetbanking.ui.theme.custom_light_red
+import com.example.internetbanking.ui.theme.custom_mint_green
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,17 +57,33 @@ fun SeatSelectionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Chọn ghế") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
+                title = {
+                    Text(
+                        text = "Select seat",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = custom_mint_green
+                    )
                 },
-                actions = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
-                    }
-                }
+                navigationIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Navigate Back",
+                        tint = custom_mint_green,
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clickable {
+                                navController.navigateUp()
+                            }
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                ),
+                modifier = Modifier
+                    .background(
+                        brush = GradientColors.Green_DarkToLight
+                    )
             )
         }
     ) { padding ->
@@ -70,7 +93,6 @@ fun SeatSelectionScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            // Thông tin rạp và suất chiếu
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -104,18 +126,24 @@ fun SeatSelectionScreen(
                 )
             }
 
-            // Màn hình
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp)
-                    .background(Color(0xFFD81B60), RoundedCornerShape(8.dp)),
+                    .background(
+                        color = custom_mint_green,
+                        shape = RoundedCornerShape(8.dp))
+                    .border(
+                        color = custom_dark_green,
+                        width = 1.dp,
+                        shape = RoundedCornerShape(8.dp)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Màn hình",
+                    text = "Screen",
                     fontSize = 16.sp,
-                    color = Color.White,
+                    color = custom_dark_green,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -127,20 +155,18 @@ fun SeatSelectionScreen(
                     .padding(vertical = 16.dp)
             )
 
-            // Chú thích trạng thái ghế
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                SeatLegend(color = Color.Gray, label = "Đã đặt")
-                SeatLegend(color = Color(0xFFD81B60), label = "Đang chọn")
-                SeatLegend(color = Color(0xFFE0E0E0), label = "Còn trống")
-                SeatLegend(color = Color(0xFF4CAF50), label = "Ghế đôi")
+                SeatLegend(color = Color.Gray, label = "Booked")
+                SeatLegend(color = custom_dark_green, label = "Selecting")
+                SeatLegend(color = Color(0xFFE0E0E0), label = "Available")
+                SeatLegend(color = custom_light_red, label = "Double seat")
             }
 
-            // Thông tin vé
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -149,12 +175,12 @@ fun SeatSelectionScreen(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "2 vé người lớn",
+                        text = "2 adult tickets",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = movieTitle, // Thêm thông tin phim
+                        text = movieTitle,
                         fontSize = 18.sp,
                         color = Color(0xFFD81B60)
                     )
@@ -172,17 +198,18 @@ fun SeatSelectionScreen(
                 )
             }
 
-            // Nút Thanh toán
             Button(
-                onClick = { /* Handle payment */ },
+                onClick = {
+                    // TODO: PAYMENT
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD81B60)),
+                colors = ButtonDefaults.buttonColors(containerColor = custom_light_green2),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = "Thanh toán",
+                    text = "Pay",
                     fontSize = 16.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
@@ -225,7 +252,7 @@ fun SeatMap(modifier: Modifier = Modifier) {
                     val isSelected =
                         selectedSeats.contains(seatId) || (coupleSeatPair != null && selectedSeats.any { it in coupleSeatPair })
 
-                    if (isCoupleSeat && seatNum % 2 == 1) { // Ghế đôi (chiếm 2 vị trí)
+                    if (isCoupleSeat && seatNum % 2 == 1) {
                         Box(
                             modifier = Modifier
                                 .width(60.dp)
@@ -233,8 +260,8 @@ fun SeatMap(modifier: Modifier = Modifier) {
                                 .background(
                                     when {
                                         isBooked -> Color.Gray
-                                        isSelected -> Color(0xFFD81B60)
-                                        else -> Color(0xFF4CAF50)
+                                        isSelected -> custom_dark_green
+                                        else -> custom_light_red
                                     },
                                     RoundedCornerShape(4.dp)
                                 )
@@ -251,7 +278,7 @@ fun SeatMap(modifier: Modifier = Modifier) {
                             Text(
                                 text = coupleSeatPair?.replace("-", " ") ?: "",
                                 fontSize = 12.sp,
-                                color = if (isSelected || isBooked) Color.White else Color.Black,
+                                color = Color.White,
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -263,7 +290,7 @@ fun SeatMap(modifier: Modifier = Modifier) {
                                     .background(
                                         when {
                                             isBooked -> Color.Gray
-                                            isSelected -> Color(0xFFD81B60)
+                                            isSelected -> custom_dark_green
                                             else -> Color(0xFFE0E0E0)
                                         },
                                         RoundedCornerShape(4.dp)

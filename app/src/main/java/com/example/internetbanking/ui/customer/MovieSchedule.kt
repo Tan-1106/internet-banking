@@ -52,7 +52,9 @@ fun MovieScheduleScreen(movieTitle: String, navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(movieTitle) },
+                title = {
+                    Text(movieTitle)
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")

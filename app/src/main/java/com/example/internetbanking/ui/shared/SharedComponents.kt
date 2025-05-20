@@ -34,7 +34,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -65,7 +64,6 @@ import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_red
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.google.firebase.Firebase
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 import java.math.BigDecimal
@@ -485,7 +483,6 @@ fun InformationLine(
 }
 @Composable
 fun ViewProfitRatesAndProfit(){
-    
     AlertDialog(
         onDismissRequest = {},
        title = {Text("Profit Rates and Profit")},
@@ -732,6 +729,33 @@ suspend fun checkExistData(
     }
 }
 
+// Transaction ID
+fun generateTransactionId(): String {
+    val datePart = java.time.LocalDate.now().toString().replace("-", "")
+    val randomPart = (1..8)
+        .map { ('A'..'Z') + ('0'..'9') }
+        .flatten()
+        .shuffled()
+        .take(8)
+        .joinToString("")
+    return "LB-$datePart-$randomPart"
+}
+
+suspend fun generateUniqueTransactionId(): String {
+    var transactionId: String
+    do {
+        transactionId = generateTransactionId()
+    } while (
+        checkExistData(
+            collectionName = "transactionHistories",
+            fieldName = "transactionId",
+            value = transactionId
+        )
+    )
+    return transactionId
+}
+
+
 // Check Card Number
 suspend fun checkCardNumberExistsInAllDocuments(
     collectionName: String,
@@ -744,9 +768,9 @@ suspend fun checkCardNumberExistsInAllDocuments(
             .await()
 
         for (document in collectionSnapshot.documents) {
-            val checking = document.get("Checking") as? Map<*, *>
-            val saving = document.get("Saving") as? Map<*, *>
-            val mortgage = document.get("Mortgage") as? Map<*, *>
+            val checking = document.get("checking") as? Map<*, *>
+            val saving = document.get("saving") as? Map<*, *>
+            val mortgage = document.get("mortgage") as? Map<*, *>
 
             val allAccounts = listOfNotNull(checking, saving, mortgage)
 
@@ -784,29 +808,6 @@ fun addDocumentToCollection(
     docRef.set(data)
         .addOnSuccessListener { onSuccess() }
         .addOnFailureListener { e -> onFailure(e) }
-}
-
-// Get Data From Document
-suspend fun getFieldFromDocument(
-    collectionName: String,
-    documentId: String,
-    fieldName: String
-): Any? {
-    return try {
-        val documentSnapshot = FirebaseFirestore.getInstance()
-            .collection(collectionName)
-            .document(documentId)
-            .get()
-            .await()
-
-        if (documentSnapshot.exists()) {
-            documentSnapshot.get(fieldName)
-        } else {
-            null
-        }
-    } catch (_: Exception) {
-        null
-    }
 }
 
 // Update Data

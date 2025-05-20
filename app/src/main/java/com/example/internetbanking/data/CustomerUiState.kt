@@ -13,6 +13,7 @@ data class CustomerUiState(
     // Checking
     val checkingCardNumber: String = "",
     val checkingBalance: BigDecimal = BigDecimal.ZERO,
+    val currentTransfer: TransactionRecord = TransactionRecord(),
 
     // Saving
     val savingCardNumber: String = "",

@@ -93,6 +93,7 @@ fun ProfileScreen(
                     title = {
                         Text(
                             text = "Your Information",
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = custom_mint_green
                         )

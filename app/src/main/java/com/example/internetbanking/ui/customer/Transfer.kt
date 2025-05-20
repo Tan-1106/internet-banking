@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,9 +51,14 @@ import com.example.internetbanking.ui.shared.BalanceInformation
 import com.example.internetbanking.ui.shared.GreenGradientButton
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
+import com.example.internetbanking.ui.shared.checkCardNumberExistsInAllDocuments
+import com.example.internetbanking.ui.shared.checkExistData
+import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
+import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,11 +75,17 @@ fun TransferScreen(
     )
 
     var beneficiaryBank by remember { mutableStateOf("") }
-    var beneficiaryAccount by remember { mutableStateOf("") }
-    var amount by remember { mutableStateOf("") }
-    var content by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
+    var beneficiaryBankEM by remember { mutableStateOf("") }
 
+    var beneficiaryAccount by remember { mutableStateOf("") }
+    var beneficiaryAccountEM by remember { mutableStateOf("") }
+
+    var amount by remember { mutableStateOf(BigDecimal.ZERO) }
+    var amountEM by remember { mutableStateOf("") }
+
+    var content by remember { mutableStateOf("${customerUiState.account.fullName} money transfer") }
+
+    var category by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -92,6 +104,7 @@ fun TransferScreen(
                     title = {
                         Text(
                             text = stringResource(R.string.transfer_title),
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = custom_mint_green
                         )
@@ -133,7 +146,7 @@ fun TransferScreen(
                     item {
                         BalanceInformation(
                             cardNumber = customerUiState.checkingCardNumber,
-                            balance = customerUiState.checkingBalance.toString()
+                            balance = formatCurrencyVN(customerUiState.checkingBalance)
                         )
                     }
                     item {
@@ -161,6 +174,7 @@ fun TransferScreen(
                                     contentDescription = "Select Beneficiary Bank"
                                 )
                             },
+                            errorMessage = beneficiaryBankEM,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -174,6 +188,7 @@ fun TransferScreen(
                                 keyboardType = KeyboardType.Number,
                                 imeAction = ImeAction.Next
                             ),
+                            errorMessage = beneficiaryAccountEM,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -189,8 +204,15 @@ fun TransferScreen(
                         InformationLine(
                             label = "Amount",
                             placeholder = "Enter amount",
-                            value = amount,
-                            onValueChange = { amount = it },
+                            value = "${formatCurrencyVN(amount)}đ",
+                            onValueChange = {
+                                val raw = it.replace(".", "").replace("đ", "").trim()
+                                amount = if (raw.isEmpty()) {
+                                    BigDecimal.ZERO
+                                } else {
+                                    raw.toBigDecimal()
+                                }
+                            },
                             suffix = {
                                 VerticalDivider(
                                     modifier = Modifier
@@ -207,6 +229,7 @@ fun TransferScreen(
                                 keyboardType = KeyboardType.Number,
                                 imeAction = ImeAction.Next
                             ),
+                            errorMessage = amountEM,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -244,9 +267,36 @@ fun TransferScreen(
                     }
                     item { Spacer(modifier = Modifier.height(10.dp)) }
                     item {
+                        val coroutineScope = rememberCoroutineScope()
+
                         GreenGradientButton(
                             onButtonClick = {
-                                // TODO: TRANSFER EVENT
+                                coroutineScope.launch {
+                                    val existCard = checkCardNumberExistsInAllDocuments("users", beneficiaryAccount)
+                                    if (beneficiaryBank == "") {
+                                        beneficiaryBankEM = "Please select beneficiary bank"
+                                    } else if (beneficiaryAccount == customerUiState.checkingCardNumber) {
+                                        beneficiaryAccountEM = "Cannot transfer money in the same card"
+                                    } else if(beneficiaryAccount == ""){
+                                        beneficiaryAccountEM = "Please enter beneficiary card number"
+                                    } else if (!existCard) {
+                                        beneficiaryAccountEM = "Card does not exist"
+                                    } else if (amount <= BigDecimal.valueOf(5000.0)) {
+                                        amountEM = "Transaction amount must higher than 5000đ"
+                                    } else {
+                                        beneficiaryBankEM = ""
+                                        beneficiaryAccountEM = ""
+                                        amountEM = ""
+                                        customerViewModel.onContinueTransferClick(
+                                            navController = navController,
+                                            bank = beneficiaryBank,
+                                            card = beneficiaryAccount,
+                                            amount = amount,
+                                            content = content,
+                                            category = category
+                                        )
+                                    }
+                                }
                             },
                             buttonText = "Continue",
                             modifier = Modifier.fillMaxWidth()

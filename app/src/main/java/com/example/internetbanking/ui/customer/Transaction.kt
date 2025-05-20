@@ -17,24 +17,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_mint_green
+import com.example.internetbanking.viewmodels.CustomerViewModel
+import java.math.BigDecimal
 
-// Định nghĩa màu xanh đậm
-val DarkMintGreen = Color(0xFF2E7D32) // Xanh lá đậm
-val LightDarkMintGreen = Color(0xFF4CAF50) // Xanh lá nhạt hơn nhưng vẫn đậm
+val DarkMintGreen = Color(0xFF2E7D32)
+val LightDarkMintGreen = Color(0xFF4CAF50)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    customerViewModel: CustomerViewModel
 ) {
-    // Trạng thái UI
-    var amount by remember { mutableStateOf(50000.0) } // Số tiền mặc định 50,000đ
-    var cardNumber by remember { mutableStateOf("") } // Số tài khoản/thẻ
-    var bankName by remember { mutableStateOf("") } // Tên ngân hàng
+    var amount by remember { mutableStateOf(BigDecimal.valueOf(50000)) }
+    var cardNumber by remember { mutableStateOf("") }
+    var bankName by remember { mutableStateOf("") }
     var cardHolderName by remember { mutableStateOf("") }
 
     Scaffold(
@@ -43,7 +46,8 @@ fun TransactionScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Thanh toán an toàn",
+                        text = "Secure payment",
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = custom_mint_green
                     )
@@ -80,7 +84,7 @@ fun TransactionScreen(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = "Tài khoản/Thẻ",
+                text = "Account/Card",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -89,15 +93,14 @@ fun TransactionScreen(
                     .padding(top = 16.dp)
             )
 
-            // Các trường nhập liệu
             OutlinedTextField(
                 value = cardNumber,
                 onValueChange = { cardNumber = it },
-                label = { Text("Số tài khoản/thẻ") },
+                label = { Text("Card number") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                colors = TextFieldDefaults.colors( // Thay thế bằng colors()
+                colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White,
                     focusedTextColor = Color.Black,
@@ -112,11 +115,11 @@ fun TransactionScreen(
             OutlinedTextField(
                 value = bankName,
                 onValueChange = { bankName = it },
-                label = { Text("Tên ngân hàng") },
+                label = { Text("Bank") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                colors = TextFieldDefaults.colors( // Thay thế bằng colors()
+                colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White,
                     focusedTextColor = Color.Black,
@@ -131,11 +134,11 @@ fun TransactionScreen(
             OutlinedTextField(
                 value = cardHolderName,
                 onValueChange = { cardHolderName = it },
-                label = { Text("Tên chủ thẻ") },
+                label = { Text("Owner's name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                colors = TextFieldDefaults.colors( // Thay thế bằng colors()
+                colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White,
                     focusedTextColor = Color.Black,
@@ -147,9 +150,8 @@ fun TransactionScreen(
                 )
             )
 
-            // Thông tin giao dịch
             Text(
-                text = "Chi tiết giao dịch",
+                text = "Transaction details",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -171,7 +173,7 @@ fun TransactionScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Dịch vụ", fontSize = 16.sp, color = Color.Black)
+                        Text("Service", fontSize = 16.sp, color = Color.Black)
                         Text(
                             text = "Nạp tiền vào Ví MoMo",
                             fontSize = 16.sp,
@@ -185,7 +187,7 @@ fun TransactionScreen(
                             .padding(top = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Ngân hàng", fontSize = 16.sp, color = Color.Black)
+                        Text("Bank", fontSize = 16.sp, color = Color.Black)
                         Text(
                             text = if (bankName.isNotEmpty()) bankName else "Techcombank",
                             fontSize = 16.sp,
@@ -199,9 +201,9 @@ fun TransactionScreen(
                             .padding(top = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Số tiền", fontSize = 16.sp, color = Color.Black)
+                        Text("Amount", fontSize = 16.sp, color = Color.Black)
                         Text(
-                            text = String.format("%,dđ", amount.toInt()),
+                            text = "${formatCurrencyVN(amount)} đ",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = DarkMintGreen
@@ -213,9 +215,9 @@ fun TransactionScreen(
                             .padding(top = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Phí giao dịch", fontSize = 16.sp, color = Color.Black)
+                        Text("Transaction Fee", fontSize = 16.sp, color = Color.Black)
                         Text(
-                            text = "Miễn phí",
+                            text = "Free",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = DarkMintGreen
@@ -231,18 +233,20 @@ fun TransactionScreen(
                     .padding(top = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Tổng tiền", fontSize = 16.sp, color = Color.Black)
+                Text("Total amount", fontSize = 16.sp, color = Color.Black)
                 Text(
-                    text = String.format("%,dđ", amount.toInt()),
+                    text = "${formatCurrencyVN(amount)} đ",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkMintGreen
                 )
             }
 
-            // Nút Xác nhận
             Button(
-                onClick = { /* Xử lý xác nhận */ },
+                onClick = {
+                    //TODO: CONFIRM
+
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp)
@@ -262,7 +266,7 @@ fun TransactionScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Xác nhận",
+                        text = "Confirm",
                         fontSize = 16.sp,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
@@ -277,5 +281,6 @@ fun TransactionScreen(
 @Composable
 fun TransactionScreenPreview() {
     val fakeNavController: NavHostController = rememberNavController()
-    TransactionScreen(fakeNavController)
+    val fakeViewModel: CustomerViewModel = viewModel()
+    TransactionScreen(fakeNavController, fakeViewModel)
 }

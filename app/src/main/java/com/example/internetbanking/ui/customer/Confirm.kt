@@ -31,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
+import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_mint_green
@@ -61,6 +63,9 @@ fun ConfirmScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
+    val customerUiState by customerViewModel.uiState.collectAsState()
+    val currentTransaction = customerUiState.currentTransfer
+
     var showDialog by remember { mutableStateOf(false) }
 
     Box(
@@ -154,28 +159,33 @@ fun ConfirmScreen(
                         .padding(all = 20.dp)
                 ) {
                     LineConfirm(
-                        label = "Service Type",
-                        data = "Electricity Bill"
+                        label = "Service Type: ",
+                        data = currentTransaction.type
                     )
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
-                        label = "Customer Code",
-                        data = "$$$$"
+                        label = "Customer Card: ",
+                        data = customerUiState.checkingCardNumber
                     )
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
-                        label = "Customer Name",
-                        data = "$$$$"
+                        label = "Customer Name: ",
+                        data = customerUiState.account.fullName
                     )
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
-                        label = "Pay Amount",
-                        data = "$$$$"
+                        label = "Amount: ",
+                        data = "${formatCurrencyVN(currentTransaction.amount)} VND"
                     )
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
-                        label = "Fee Amount",
-                        data = "$$$$"
+                        label = "Fee Amount: ",
+                        data = "${formatCurrencyVN(currentTransaction.fee)} VND"
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    LineConfirm(
+                        label = "Content: ",
+                        data = currentTransaction.content
                     )
 
 

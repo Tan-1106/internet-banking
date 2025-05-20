@@ -98,14 +98,74 @@ fun CustomerHome(
 
     // Function's Variables
     val snackbarHostState = remember { SnackbarHostState() }
-    val currentViewType by remember { mutableStateOf("Saving") }
-    val cardNumber = if (currentViewType == "Checking") {
-        customerUiState.checkingCardNumber
-    } else if (currentViewType == "Saving") {
-        customerUiState.savingCardNumber
-    } else {
-        customerUiState.mortgageCardNumber
+    val scope = rememberCoroutineScope()
+    @Suppress("DEPRECATION") val clipboardManager = LocalClipboardManager.current
+
+    // Card List
+    val pages = buildList<@Composable () -> Unit> {
+        add {
+            UserCardsInformation(
+                account = customerUiState.account,
+                currentViewType = "Checking",
+                cardNumber = customerUiState.checkingCardNumber,
+                balance = customerUiState.checkingBalance,
+                navController = navController,
+                onCopyClick = {
+                    val accountNumber = customerUiState.checkingCardNumber
+                    clipboardManager.setText(AnnotatedString(accountNumber))
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Copied: $accountNumber")
+                    }
+                }
+            )
+        }
+
+        if (customerViewModel.hasSaving) {
+            add {
+                UserCardsInformation(
+                    account = customerUiState.account,
+                    currentViewType = "Saving",
+                    cardNumber = customerUiState.savingCardNumber,
+                    balance = customerUiState.savingBalance,
+                    navController = navController,
+                    onCopyClick = {
+                        val accountNumber = customerUiState.savingCardNumber
+                        clipboardManager.setText(AnnotatedString(accountNumber))
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Copied: $accountNumber")
+                        }
+                    }
+                )
+            }
+        }
+
+        if (customerViewModel.hasMortgage) {
+            add {
+                UserCardsInformation(
+                    account = customerUiState.account,
+                    currentViewType = "Mortgage",
+                    cardNumber = customerUiState.mortgageCardNumber,
+                    balance = BigDecimal.ZERO,
+                    navController = navController,
+                    onCopyClick = {
+                        val accountNumber = customerUiState.mortgageCardNumber
+                        clipboardManager.setText(AnnotatedString(accountNumber))
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Copied: $accountNumber")
+                        }
+                    }
+                )
+            }
+        }
     }
+
+
+//    // VIEW BALANCE FOR CHECKING & SAVING
+//    val cardHeight = if (currentViewType == "Checking" || currentViewType == "Saving") {
+//        Modifier.fillMaxHeight(0.25f)
+//    } else {
+//        Modifier.fillMaxHeight(0.2f)
+//    }
 
     Box(
         modifier = Modifier
@@ -171,21 +231,12 @@ fun CustomerHome(
                     .padding(innerPadding)
                     .padding(20.dp)
             ) {
+                // Card List
                 PagerBalanceInformation(
-                    pages = listOf({
-//                        BalanceInformation()
-                        UserCardsInformation(
-                            account = customerUiState.account,
-                            currentViewType = currentViewType,
-                            cardNumber = cardNumber,
-                            checkingBalance = customerUiState.checkingBalance,
-                            savingBalance = customerUiState.savingBalance,
-                            navController = navController,
-                            snackbarHostState = snackbarHostState
-                        )
+                    pages = pages,
+                    onAddAccountClick = {
+
                     }
-                    ),
-                    onAddAccountClick = {}
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 Text(
@@ -288,7 +339,7 @@ fun CustomerHome(
                             functionIcon = R.drawable.bank_location,
                             functionName = "Bank offices",
                             onFunctionClick = {
-                                // Ecommerce
+                                //
                                 navController.navigate(AppScreen.LocateUserAndBank.name)
                             }
                         )
@@ -299,7 +350,7 @@ fun CustomerHome(
                                 functionIcon = R.drawable.mortgage_money,
                                 functionName = "Installment",
                                 onFunctionClick = {
-                                    // Ecommerce
+                                    //
                                     navController.navigate(AppScreen.ViewMortgageMoney.name)
                                 }
                             )
@@ -311,7 +362,7 @@ fun CustomerHome(
                                 functionIcon = R.drawable.profits,
                                 functionName = "Rates & profits",
                                 onFunctionClick = {
-                                    // Ecommerce
+                                    //
                                     navController.navigate(AppScreen.ViewProfitsAndRates.name)
                                 }
                             )
@@ -360,136 +411,90 @@ fun UserCardsInformation(
     account: User,
     currentViewType: String,
     cardNumber: String,
-    checkingBalance: BigDecimal,
-    savingBalance: BigDecimal,
+    balance: BigDecimal,
     navController: NavHostController,
-    snackbarHostState: SnackbarHostState
+    onCopyClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
-    @Suppress("DEPRECATION") val clipboardManager = LocalClipboardManager.current
     var isHiddenBalance by remember { mutableStateOf(true) }
-
-    // VIEW BALANCE FOR CHECKING & SAVING
-    val boxHeight = if (currentViewType == "Checking" || currentViewType == "Saving") {
-        Modifier.fillMaxHeight(0.2f)
-    } else {
-        Modifier.fillMaxHeight(0.15f)
-    }
-    Box(
-        modifier = Modifier
-            .then(boxHeight)
-            .fillMaxWidth()
-            .clip(
-                shape = RoundedCornerShape(
-                    topStart = 12.dp,
-                    topEnd = 12.dp
-                )
-            )
-            .border(
-                color = custom_dark_green,
-                width = 1.dp,
-                shape = RoundedCornerShape(
-                    topStart = 12.dp,
-                    topEnd = 12.dp
-                )
-            )
+    Column(
+        modifier = modifier
+            .fillMaxSize()
     ) {
-        Image(
-            painter = painterResource(R.drawable.app_background),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
         Box(
-            contentAlignment = Alignment.TopEnd,
-            modifier = Modifier
-                .padding(10.dp)
-                .fillMaxSize()
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.8f)
+                .clip(
+                    shape = RoundedCornerShape(
+                        topStart = 12.dp,
+                        topEnd = 12.dp
+                    )
+                )
+                .border(
+                    color = custom_dark_green,
+                    width = 1.dp,
+                    shape = RoundedCornerShape(
+                        topStart = 12.dp,
+                        topEnd = 12.dp
+                    )
+                )
         ) {
-            Icon(
-                imageVector = Icons.Filled.Settings,
-                contentDescription = "View Profile",
-                tint = Color.White,
-                modifier = Modifier.clickable {
-                    // View Customer Profile
-                    navController.navigate(AppScreen.Profile.name)
-                }
+            Image(
+                painter = painterResource(R.drawable.app_background),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
             )
-        }
-        Column(
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
+            Box(
+                contentAlignment = Alignment.TopEnd,
+                modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxSize()
             ) {
-                Text(
-                    text = "Hello, ",
-                    color = Color.White,
-                    fontSize = 18.sp
-                )
-                Text(
-                    text = account.fullName,
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "View Profile",
+                    tint = Color.White,
+                    modifier = Modifier.clickable {
+                        // View Customer Profile
+                        navController.navigate(AppScreen.Profile.name)
+                    }
                 )
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            // ACCOUNT NUMBER:
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp)
             ) {
-                Text(
-                    text = "Account:",
-                    color = Color.White,
-                    fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.width(240.dp)
-                ) {
-                    Text(
-                        text = cardNumber,
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Icon(
-                        imageVector = Icons.Filled.ContentCopy,
-                        contentDescription = "Copy Account Number",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable {
-                                val accountNumber = cardNumber
-                                clipboardManager.setText(AnnotatedString(accountNumber))
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Copied: $accountNumber")
-                                }
-                            }
-                    )
-                }
-            }
-            // VIEW BALANCE FOR CHECKING & SAVING
-            if (currentViewType == "Checking" || currentViewType == "Saving") {
-                Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Balance:",
+                        text = "Hello, ",
+                        color = Color.White,
+                        fontSize = 18.sp
+                    )
+                    Text(
+                        text = account.fullName,
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                // ACCOUNT NUMBER:
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Account:",
                         color = Color.White,
                         fontSize = 16.sp
                     )
@@ -499,73 +504,106 @@ fun UserCardsInformation(
                         modifier = Modifier.width(240.dp)
                     ) {
                         Text(
-                            text = if (isHiddenBalance) "**********" else if (currentViewType == "Checking") {
-                                "${formatCurrencyVN(checkingBalance)} VND"
-                            } else {
-                                "${formatCurrencyVN(savingBalance)} VND"
-                            },
+                            text = cardNumber,
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Icon(
-                            imageVector = if (isHiddenBalance) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                            contentDescription = "Balance Showing",
+                            imageVector = Icons.Filled.ContentCopy,
+                            contentDescription = "Copy Account Number",
                             tint = Color.White,
                             modifier = Modifier
                                 .size(20.dp)
                                 .clickable {
-                                    isHiddenBalance = !isHiddenBalance
+                                    onCopyClick()
                                 }
                         )
                     }
                 }
+                // VIEW BALANCE FOR CHECKING & SAVING
+                if (currentViewType == "Checking" || currentViewType == "Saving") {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Balance:",
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.width(240.dp)
+                        ) {
+                            Text(
+                                text = if (isHiddenBalance) "**********" else "${formatCurrencyVN(balance)} VND",
+                                color = Color.White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Icon(
+                                imageVector = if (isHiddenBalance) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = "Balance Showing",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable {
+                                        isHiddenBalance = !isHiddenBalance
+                                    }
+                            )
+                        }
+                    }
+                }
             }
         }
-    }
-    Box(
-        modifier = Modifier
-            .height(30.dp)
-            .fillMaxWidth()
-            .clip(
-                shape = RoundedCornerShape(
-                    bottomStart = 12.dp,
-                    bottomEnd = 12.dp
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(
+                    shape = RoundedCornerShape(
+                        bottomStart = 12.dp,
+                        bottomEnd = 12.dp
+                    )
                 )
-            )
-            .background(
-                brush = GradientColors.Green_LightToDark
-            )
-            .border(
-                color = custom_dark_green,
-                width = 1.dp,
-                shape = RoundedCornerShape(
-                    bottomStart = 12.dp,
-                    bottomEnd = 12.dp
+                .background(
+                    brush = GradientColors.Green_LightToDark
                 )
-            )
-            .clickable {
-                // Transaction History
-                navController.navigate(AppScreen.TransactionHistory.name)
-            }
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+                .border(
+                    color = custom_dark_green,
+                    width = 1.dp,
+                    shape = RoundedCornerShape(
+                        bottomStart = 12.dp,
+                        bottomEnd = 12.dp
+                    )
+                )
+                .clickable {
+                    // Transaction History
+                    navController.navigate(AppScreen.TransactionHistory.name)
+                }
         ) {
-            Icon(
-                imageVector = Icons.Filled.AccessTime,
-                contentDescription = "Transaction History",
-                tint = Color.White
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "Transaction history",
-                fontSize = 14.sp,
-                color = Color.White
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.AccessTime,
+                    contentDescription = "Transaction History",
+                    tint = Color.White
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Transaction history",
+                    fontSize = 14.sp,
+                    color = Color.White
+                )
+            }
         }
     }
 }

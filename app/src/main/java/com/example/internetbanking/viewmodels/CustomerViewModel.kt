@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.math.BigDecimal
 
 class CustomerViewModel : ViewModel() {
@@ -29,46 +30,13 @@ class CustomerViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
 
-    // Real Time Balance
-    fun observeBalance(accountId: String, role: String) {
-        val path = when (role) {
-            "Checking" -> "checking.balance"
-            "Saving" -> "saving.balance"
-            else -> return
-        }
-
-        val documentRef = db.collection("users").document(accountId)
-
-        documentRef.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                Log.e("BalanceObserver", "Listen failed: ${error.message}")
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                val balanceValue = snapshot.get(path)
-                val balance = when (balanceValue) {
-                    is Number -> BigDecimal.valueOf(balanceValue.toDouble())
-                    is String -> balanceValue.toBigDecimalOrNull() ?: BigDecimal.ZERO
-                    else -> BigDecimal.ZERO
-                }
-
-                // UI State
-                if (role == "Checking") {
-                    _uiState.update { it.copy(checkingBalance = balance) }
-                } else if (role == "Saving") {
-                    _uiState.update { it.copy(savingBalance = balance) }
-                }
-            }
-        }
-    }
-
     // Observe Exist Types
+    var hasSaving by mutableStateOf(false)
+        private set
+    var hasMortgage by mutableStateOf(false)
+        private set
     fun observeSubAccountsExistence(accountId: String) {
-        val docRef = FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(accountId)
-
+        val docRef = db.collection("users").document(accountId)
         docRef.addSnapshotListener { snapshot, error ->
             if (error != null) {
                 error.printStackTrace()
@@ -82,42 +50,79 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    // Load Customer Information
-    var hasSaving by mutableStateOf(false)
-        private set
-    var hasMortgage by mutableStateOf(false)
-        private set
-    fun loadCustomerInformation(currentUser: User) {
-        val viewType = uiState.value.currentViewType
-        val accountId = currentUser.accountId
-        viewModelScope.launch {
-            if (viewType == "Checking") {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        account = currentUser,
-                        checkingCardNumber = getFieldFromDocument("users", accountId, "checking.cardNumber").toString()
-                    )
+    private suspend fun checkSubAccountsExistence(accountId: String): Pair<Boolean, Boolean> {
+        return try {
+            val snapshot = db.collection("users").document(accountId).get().await()
+            val savingExists = snapshot.contains("saving")
+            val mortgageExists = snapshot.contains("mortgage")
+            Pair(savingExists, mortgageExists)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Pair(false, false)
+        }
+    }
+
+    // Real Time Balance
+    fun observeBalance(accountId: String) {
+        val documentRef = db.collection("users").document(accountId)
+
+        documentRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                Log.e("BalanceObserver", "Listen failed: ${error.message}")
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val checkingValue = snapshot.get("checking.balance")
+                val savingValue = snapshot.get("saving.balance")
+
+                val checkingBalance = when (checkingValue) {
+                    is Number -> BigDecimal.valueOf(checkingValue.toDouble())
+                    is String -> checkingValue.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                    else -> BigDecimal.ZERO
                 }
-            } else if (viewType == "Saving") {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        account = currentUser,
-                        savingCardNumber = getFieldFromDocument("users", accountId, "saving.cardNumber").toString()
-                    )
+                val savingBalance = when (savingValue) {
+                    is Number -> BigDecimal.valueOf(savingValue.toDouble())
+                    is String -> savingValue.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                    else -> BigDecimal.ZERO
                 }
-            } else if (viewType == "Mortgage") {
+
                 _uiState.update { currentState ->
                     currentState.copy(
-                        account = currentUser,
-                        mortgageCardNumber = getFieldFromDocument("users", accountId, "mortgage.cardNumber").toString()
+                        checkingBalance = checkingBalance,
+                        savingBalance = savingBalance
                     )
                 }
             }
-            observeBalance(accountId, viewType)
+        }
+    }
+
+    // Load Customer Information
+    fun loadCustomerInformation(currentUser: User) {
+        val accountId = currentUser.accountId
+        viewModelScope.launch {
+            val (savingExists, mortgageExists) = checkSubAccountsExistence(accountId)
+            hasSaving = savingExists
+            hasMortgage = mortgageExists
+
+            val userDocSnapshot = db.collection("users").document(accountId).get().await()
+            val checkingCardNumber = userDocSnapshot.get("checking.cardNumber")
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    account = currentUser,
+                    checkingCardNumber = checkingCardNumber.toString(),
+                    savingCardNumber = if (savingExists) userDocSnapshot.get("saving.cardNumber").toString() else "",
+                    mortgageCardNumber = if (mortgageExists) userDocSnapshot.get("mortgage.cardNumber").toString() else ""
+                )
+            }
+
             observeSubAccountsExistence(accountId)
+            observeBalance(accountId)
             observeTransactionHistory(accountId)
         }
     }
+
 
     // Edit Information
     // Error Messages

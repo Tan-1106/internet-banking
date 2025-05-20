@@ -199,7 +199,8 @@ fun BalanceInformation(
 @Composable
 fun PagerBalanceInformation(
     pages: List<@Composable () -> Unit>,
-    onAddAccountClick: () -> Unit
+    onAddAccountClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val pageCount = pages.size + 1
     val pagerState = rememberPagerState { pageCount }
@@ -207,9 +208,8 @@ fun PagerBalanceInformation(
     Column {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
-                .height(140.dp) // chỉnh chiều cao cho phù hợp
         ) { page ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -231,7 +231,9 @@ fun PagerBalanceInformation(
                             stop = 1f,
                             fraction = 1f - pageOffset.coerceIn(0f, 1f)
                         )
-                    }) {
+                    }
+            ) {
+                // Create Card
                 if (page == pageCount - 1) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -274,14 +276,16 @@ fun PagerBalanceInformation(
                             color = Color.Gray
                         )
                     }
-                }
-                else {
+                } else {
+                    // Cards
                     pages[page]()
                 }
             }
         }
+
         //indicator
         Row(
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()

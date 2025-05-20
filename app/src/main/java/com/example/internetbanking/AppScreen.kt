@@ -50,7 +50,7 @@ fun AppScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppScreen.BuyFlightTickets.name                     // TODO: CHANGE TO login.name when done
+        startDestination = AppScreen.Login.name                     // TODO: CHANGE TO login.name when done
     ) {
         // Login
         composable(route = AppScreen.Login.name) {

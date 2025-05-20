@@ -64,7 +64,9 @@ import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
 import com.example.internetbanking.data.CustomerUiState
 import com.example.internetbanking.data.User
+import com.example.internetbanking.ui.shared.BalanceInformation
 import com.example.internetbanking.ui.shared.LogoutDialog
+import com.example.internetbanking.ui.shared.PagerBalanceInformation
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
@@ -169,14 +171,21 @@ fun CustomerHome(
                     .padding(innerPadding)
                     .padding(20.dp)
             ) {
-                UserCardsInformation(
-                    account = customerUiState.account,
-                    currentViewType = currentViewType,
-                    cardNumber = cardNumber,
-                    checkingBalance = customerUiState.checkingBalance,
-                    savingBalance = customerUiState.savingBalance,
-                    navController = navController,
-                    snackbarHostState = snackbarHostState
+                PagerBalanceInformation(
+                    pages = listOf({
+//                        BalanceInformation()
+                        UserCardsInformation(
+                            account = customerUiState.account,
+                            currentViewType = currentViewType,
+                            cardNumber = cardNumber,
+                            checkingBalance = customerUiState.checkingBalance,
+                            savingBalance = customerUiState.savingBalance,
+                            navController = navController,
+                            snackbarHostState = snackbarHostState
+                        )
+                    }
+                    ),
+                    onAddAccountClick = {}
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 Text(
@@ -366,7 +375,6 @@ fun UserCardsInformation(
     } else {
         Modifier.fillMaxHeight(0.15f)
     }
-
     Box(
         modifier = Modifier
             .then(boxHeight)

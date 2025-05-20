@@ -274,7 +274,8 @@ fun PagerBalanceInformation(
                             color = Color.Gray
                         )
                     }
-                } else {
+                }
+                else {
                     pages[page]()
                 }
             }

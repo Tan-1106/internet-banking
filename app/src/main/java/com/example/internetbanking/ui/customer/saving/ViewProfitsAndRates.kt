@@ -13,6 +13,7 @@ fun ViewProfitsAndRatesScreen(
     navController: NavHostController
 ) {
 
+    
 }
 
 @Preview(

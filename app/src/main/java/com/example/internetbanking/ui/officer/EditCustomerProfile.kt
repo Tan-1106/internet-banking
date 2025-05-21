@@ -224,7 +224,12 @@ fun EditCustomerProfile(
                                     address = address
                                 )
                             },
-                            buttonText = "Save",
+                            buttonCustom = {
+                                Text(
+                                    text = "Save",
+                                    fontSize = 20.sp
+                                )
+                            },
                             modifier = Modifier
                                 .height(50.dp)
                                 .fillMaxWidth()

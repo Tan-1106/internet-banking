@@ -72,7 +72,7 @@ import java.math.BigDecimal
 @Composable
 fun DepositAndWithdrawScreen(
     customerViewModel: CustomerViewModel,
-    customerViewModelDT: CustomerViewModelDT,
+//    customerViewModelDT: CustomerViewModelDT,
     userSelect: Int = 0,
     navController: NavHostController
 ) {
@@ -131,9 +131,9 @@ fun DepositAndWithdrawScreen(
 
                         ElevatedButton(
                             onClick = {
-                                customerViewModelDT.depositAmount= amount
-                                navController.navigate(
-                                    AppScreen.Transaction.name
+                                customerViewModel.onStartDeposit(
+                                    amount = amount,
+                                    navController = navController
                                 )
                             },
                             modifier = Modifier
@@ -145,7 +145,7 @@ fun DepositAndWithdrawScreen(
                             )
                         ) {
                             Text(
-                                text = "Deposit",
+                                text = "Continue",
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
                             )

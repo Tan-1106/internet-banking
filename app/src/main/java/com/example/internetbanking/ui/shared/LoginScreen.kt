@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.LockPerson
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -62,7 +64,6 @@ fun LoginScreen(
     var idInput by remember { mutableStateOf("test") }
     var passwordInput by remember { mutableStateOf("test123") }
     var isPasswordShowing by remember { mutableStateOf(false) }
-
     AppBackground(
         modifier = Modifier
             .fillMaxSize()
@@ -147,7 +148,20 @@ fun LoginScreen(
                             navController = navController
                         )
                     },
-                    buttonText = "Sign In",
+                    buttonCustom = {
+                        if (loginUiState.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = Color.White
+                            )
+                        } else {
+
+                            Text(
+                                text = "Sign in",
+                                fontSize = 20.sp
+                            )
+                        }
+                    },
                     modifier = Modifier
                         .height(50.dp)
                         .fillMaxWidth()
@@ -244,7 +258,7 @@ fun LoginTextField(
     showBackground = true
 )
 @Composable
-fun ScreenPreview(){
+fun ScreenPreview() {
     val fakeViewModel: LoginViewModel = viewModel()
     val fakeNavController: NavHostController = rememberNavController()
 

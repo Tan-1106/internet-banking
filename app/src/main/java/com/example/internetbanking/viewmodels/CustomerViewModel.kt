@@ -11,14 +11,17 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.internetbanking.AppScreen
 import com.example.internetbanking.data.CustomerUiState
+import com.example.internetbanking.data.Deposit
 import com.example.internetbanking.data.TransactionDetail
 import com.example.internetbanking.data.TransactionRecord
 import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.addDocumentToCollection
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.shared.generateUniqueTransactionId
+import com.example.internetbanking.ui.shared.updateFieldInDocument
 import com.example.internetbanking.ui.shared.updateUserFieldByAccountId
 import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentReference
@@ -31,6 +34,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.math.BigDecimal
+import java.util.UUID
 
 class CustomerViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CustomerUiState())
@@ -414,7 +418,7 @@ class CustomerViewModel : ViewModel() {
                 val timestamp = when (timestampValue) {
                     is Number -> timestampValue.toLong()
                     is String -> timestampValue.toLongOrNull() ?: 0L
-                    is com.google.firebase.Timestamp -> timestampValue.toDate().time
+                    is Timestamp -> timestampValue.toDate().time
                     else -> 0L
                 }
 
@@ -501,7 +505,8 @@ class CustomerViewModel : ViewModel() {
             val newTransactionId = generateUniqueTransactionId()
             val timestamp: Long = System.currentTimeMillis()
             val cate = if (category.isEmpty()) "Transfer" else category
-            val summaryContent = "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
+            val summaryContent =
+                "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
 
             val newTransferRecord = TransactionRecord(
                 transactionId = newTransactionId,
@@ -602,7 +607,8 @@ class CustomerViewModel : ViewModel() {
                         ),
                         documentId = transactionDetail.transaction.transactionId,
                         onSuccess = {
-                            Toast.makeText(context, "Transfer successful", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Transfer successful", Toast.LENGTH_SHORT)
+                                .show()
                             navController.navigate(AppScreen.CustomerHome.name)
                         }
                     )
@@ -614,5 +620,92 @@ class CustomerViewModel : ViewModel() {
                 Toast.makeText(context, "Confirm failed", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    //deposit
+    fun onStartDeposit(
+        amount: BigDecimal, navController: NavHostController
+    ) {
+
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentTransaction = TransactionRecord(
+                    transactionId = UUID.randomUUID().toString(),
+                    amount = amount,
+                    fee = BigDecimal.ZERO,
+                    timestamp = System.currentTimeMillis(),
+                    sourceCard = "",
+                    destinationCard = uiState.value.checkingCardNumber,
+                    type = "Deposit"
+                )
+            )
+        }
+        navController.navigate(AppScreen.Transaction.name)
+    }
+
+    fun onConfirmDeposit(
+        cardNumber: String,
+        bank: String,
+        ownerName: String, context: Context,
+        navController: NavHostController
+    ) {
+
+        val transaction = uiState.value.currentTransaction?.copy(
+            sourceCard = cardNumber
+        )
+        val depositDetail = Deposit(
+            transactionID = transaction!!.transactionId,
+            fromCardNumber = cardNumber,
+            fromUserName = ownerName,
+            fromBank = bank
+        )
+        addDocumentToCollection(
+            documentId = UUID.randomUUID().toString(),
+            collectionName = "transactionHistories",
+            data = mapOf(
+                "amount" to transaction.amount.toLong(),
+                "fee" to transaction.fee.toLong(),
+                "timestamp" to transaction.timestamp,
+                "sourceCard" to transaction.sourceCard,
+                "destinationCard" to transaction.destinationCard,
+                "type" to transaction.type
+            ),
+            onSuccess = {
+                addDocumentToCollection(
+                    documentId = UUID.randomUUID().toString(),
+                    collectionName = "depositDetails",
+                    data = mapOf(
+                        "transactionID" to transaction.transactionId,
+                        "fromCardNumber" to cardNumber,
+                        "fromUserName" to ownerName,
+                        "fromBank" to bank
+                    ),
+                    onSuccess = {
+                        viewModelScope.launch {
+                            val checkingCardNumber = uiState.value.checkingCardNumber
+                            val checkingDocRef = db.collection("checking").document(checkingCardNumber)
+                            try {
+                                val snapshot = checkingDocRef.get().await()
+                                val currentBalance = snapshot.getLong("balance")?:0
+                                val newBalance = currentBalance.plus(transaction.amount.toLong())
+                                updateFieldInDocument(
+                                    collectionName = "checking",
+                                    documentId = checkingCardNumber,
+                                    fieldName = "balance",
+                                    value = newBalance
+                                )
+                                Toast.makeText(context, "Deposit successful!", Toast.LENGTH_SHORT).show()
+                                navController.navigate(AppScreen.CustomerHome.name) {
+                                    popUpTo(AppScreen.CustomerHome.name) { inclusive = true }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("Deposit", "Failed to update balance: ${e.message}")
+                            }
+                        }
+
+                    }
+                )
+            }
+        )
     }
 }

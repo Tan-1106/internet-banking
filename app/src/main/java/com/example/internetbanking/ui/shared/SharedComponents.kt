@@ -103,7 +103,8 @@ fun AppBackground(
 @Composable
 fun GreenGradientButton(
     onButtonClick: () -> Unit,
-    buttonText: String,
+    buttonCustom:@Composable ()-> Unit,
+//    buttonText: String,
     modifier: Modifier = Modifier
 ) {
     Button(
@@ -118,10 +119,11 @@ fun GreenGradientButton(
                 brush = GradientColors.Green_DarkToLight
             )
     ) {
-        Text(
-            text = buttonText,
-            fontSize = 20.sp
-        )
+//        Text(
+//            text = buttonText,
+//            fontSize = 20.sp
+//        )
+        buttonCustom()
     }
 }
 

@@ -4,24 +4,33 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.ui.shared.InformationLine
+import com.example.internetbanking.ui.shared.InformationSelect
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
+import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
 import java.math.BigDecimal
@@ -34,13 +43,13 @@ val LightDarkMintGreen = Color(0xFF4CAF50)
 fun TransactionScreen(
     navController: NavHostController,
     customerViewModel: CustomerViewModel,
-    customerViewModelDT: CustomerViewModelDT
 ) {
-    var amount by remember { mutableStateOf(BigDecimal.valueOf(50000)) }
+    val banks = listOf<String>("Vietcombank", "Sacombank", "Techcombank", "Agribank", "VietinBank")
+val context=LocalContext.current
     var cardNumber by remember { mutableStateOf("") }
     var bankName by remember { mutableStateOf("") }
-    var cardHolderName by remember { mutableStateOf("") }
-
+    var ownerName by remember { mutableStateOf("") }
+    val customerUiState by customerViewModel.uiState.collectAsState()
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -73,6 +82,40 @@ fun TransactionScreen(
                         brush = GradientColors.Green_DarkToLight
                     )
             )
+        },bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.White)
+            ) {
+
+                ElevatedButton(
+                    onClick = {
+                        customerViewModel.onConfirmDeposit(
+                            cardNumber = cardNumber,
+                            bank = bankName,
+                            ownerName = ownerName,
+                            context = context,
+                            navController = navController,
+                        )
+                    },
+                    modifier = Modifier
+                        .padding(vertical = 5.dp, horizontal = 10.dp)
+                        .fillMaxSize(),
+                    shape = RoundedCornerShape(corner = CornerSize(10.dp)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = custom_light_green1
+                    )
+                ) {
+                    Text(
+                        text = "Continue",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+            }
         },
         modifier = Modifier.systemBarsPadding()
     ) { innerPadding ->
@@ -94,61 +137,45 @@ fun TransactionScreen(
                     .padding(top = 16.dp)
             )
 
-            OutlinedTextField(
+            InformationLine(
+                label = "Card Number",
+                placeholder = "Enter card number",
                 value = cardNumber,
-                onValueChange = { cardNumber = it },
-                label = { Text("Card number") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedLabelColor = DarkMintGreen,
-                    unfocusedLabelColor = Color.Black,
-                    focusedIndicatorColor = DarkMintGreen,
-                    unfocusedIndicatorColor = Color.LightGray
-                )
+                onValueChange = {
+                    cardNumber=it
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
-
-            OutlinedTextField(
-                value = bankName,
-                onValueChange = { bankName = it },
-                label = { Text("Bank") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedLabelColor = DarkMintGreen,
-                    unfocusedLabelColor = Color.Black,
-                    focusedIndicatorColor = DarkMintGreen,
-                    unfocusedIndicatorColor = Color.LightGray
-                )
+            Spacer(Modifier.height(10.dp))
+            InformationSelect(
+                label = "Bank",
+                placeholder = "Select bank",
+                options =banks,
+                onOptionSelected ={
+                    bankName=it
+                },
+                suffix = {
+                    VerticalDivider(
+                        modifier = Modifier.fillMaxHeight(0.8f),
+                        color = Color.Gray
+                    )
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription =null)
+                },
             )
+            Spacer(Modifier.height(10.dp))
+            InformationLine(
+                label = "Owner's name",
+                placeholder = "Enter owner's name",
+                value = ownerName,
+                onValueChange = {
+                    ownerName=it
+                },
 
-            OutlinedTextField(
-                value = cardHolderName,
-                onValueChange = { cardHolderName = it },
-                label = { Text("Owner's name") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedLabelColor = DarkMintGreen,
-                    unfocusedLabelColor = Color.Black,
-                    focusedIndicatorColor = DarkMintGreen,
-                    unfocusedIndicatorColor = Color.LightGray
-                )
             )
 
             Text(
@@ -204,7 +231,7 @@ fun TransactionScreen(
                     ) {
                         Text("Amount", fontSize = 16.sp, color = Color.Black)
                         Text(
-                            text = "${formatCurrencyVN(amount)} đ",
+                            text = "${formatCurrencyVN(customerUiState.currentTransaction!!.amount)} đ",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = DarkMintGreen
@@ -236,48 +263,13 @@ fun TransactionScreen(
             ) {
                 Text("Total amount", fontSize = 16.sp, color = Color.Black)
                 Text(
-                    text = "${formatCurrencyVN(amount)} đ",
+                    text = "${formatCurrencyVN(customerUiState.currentTransaction!!.amount+customerUiState.currentTransaction!!.fee)}đ",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkMintGreen
                 )
             }
 
-            Button(
-                onClick = {
-                   customerViewModelDT.onDepositClick(
-                       cardNumber = cardNumber,
-                       bank = bankName,
-                       ownerName = cardHolderName
-                   )
-
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .padding(top = 16.dp, bottom = 16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = DarkMintGreen),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = "Lock",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Confirm",
-                        fontSize = 16.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
         }
     }
 }

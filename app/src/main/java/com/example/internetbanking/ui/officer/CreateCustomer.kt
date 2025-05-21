@@ -263,7 +263,12 @@ fun CreateCustomerScreen(
                                     address = address
                                 )
                             },
-                            buttonText = "Create",
+                            buttonCustom = {
+                                Text(
+                                    text = "Save",
+                                    fontSize = 20.sp
+                                )
+                            },
                             modifier = Modifier
                                 .height(50.dp)
                                 .fillMaxWidth()

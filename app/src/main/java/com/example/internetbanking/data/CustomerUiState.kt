@@ -32,8 +32,12 @@ data class CustomerUiState(
     val mortgage2WeeksPayment: BigDecimal = BigDecimal.ZERO,
     val mortgageLoadDate: Long = 0L,
     val mortgagePayDate: Long = 0L,
-    val mortgageStatus: String = ""
-)
+    val mortgageStatus: String = "",
+
+    //deposit
+    val currentTransaction: TransactionRecord? = null,
+
+    )
 
 data class TransactionRecord(
     val transactionId: String = "",
@@ -50,21 +54,9 @@ data class TransactionDetail(
     val content: String = "",
     val category: String = ""
 )
-data class TransactionDT(
-    val id :String  = UUID.randomUUID().toString(),
-    val cardNumber:String ="",
-    val fee:Long= 0,
-    val time: Long = System.currentTimeMillis(),
-    val amount: Long= 0,
-    val type:String =""
-)
-data class DepositDT(
+data class Deposit(
     val transactionID :String  ="",
     val fromCardNumber:String ="",
     val fromUserName: String= "",
     val fromBank: String = "",
-)
-data class  CustomerUiStateDT(
-    val currentTransaction: TransactionDT? = null,
-    val currentDeposit: DepositDT? =null,
 )

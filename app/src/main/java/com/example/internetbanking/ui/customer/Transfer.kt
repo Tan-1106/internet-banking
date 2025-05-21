@@ -298,7 +298,12 @@ fun TransferScreen(
                                     }
                                 }
                             },
-                            buttonText = "Continue",
+                            buttonCustom = {
+                                Text(
+                                    text = "Continue",
+                                    fontSize = 20.sp
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }

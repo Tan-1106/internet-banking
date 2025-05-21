@@ -589,6 +589,7 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
+    // Transfer Money
     fun transferBetweenCard(
         sourceCard: String,
         destinationCard: String,
@@ -633,7 +634,6 @@ class CustomerViewModel : ViewModel() {
                 val sourceBalance = extractBalance(sourceSnap)
                 val destBalance = extractBalance(destSnap)
 
-
                 val newSourceBalance = (sourceBalance - amount).toDouble()
                 val newDestBalance = (destBalance + amount).toDouble()
 
@@ -643,12 +643,11 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    // Transfer Event
     companion object {
         private const val TAG = "TransferConfirm"
     }
 
-    fun onTransferPasswordConfirm(
+    fun passwordConfirm(
         transactionDetail: TransactionDetail,
         password: String,
         context: Context,
@@ -671,63 +670,8 @@ class CustomerViewModel : ViewModel() {
                 val category = transactionDetail.category
                 val totalDeduct = amount + fee
 
-                suspend fun findAccount(cardNumber: String): DocumentReference? {
-                    val checkingDoc = db.collection("checking").document(cardNumber)
-                    val savingDoc = db.collection("saving").document(cardNumber)
-
-                    val checkingSnap = checkingDoc.get().await()
-                    if (checkingSnap.exists()) return checkingDoc
-
-                    val savingSnap = savingDoc.get().await()
-                    return if (savingSnap.exists()) savingDoc else null
-                }
-
-                val sourceRef = findAccount(sourceCard)
-                val destRef = findAccount(destinationCard)
-                if (sourceRef == null || destRef == null) {
-                    Log.e(
-                        TAG,
-                        "Invalid source or destination account. sourceRef=$sourceRef, destRef=$destRef"
-                    )
-                    Toast.makeText(
-                        context,
-                        "Invalid source or destination account",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@launch
-                }
-
-                db.runTransaction { transactionFirebase ->
-                    val sourceSnap = transactionFirebase.get(sourceRef)
-                    val destSnap = transactionFirebase.get(destRef)
-
-                    fun extractBalance(snapshot: DocumentSnapshot): BigDecimal {
-                        return snapshot.get("balance")?.let { value ->
-                            when (value) {
-                                is Number -> BigDecimal.valueOf(value.toDouble())
-                                is String -> value.toBigDecimalOrNull() ?: BigDecimal.ZERO
-                                else -> BigDecimal.ZERO
-                            }
-                        } ?: BigDecimal.ZERO
-                    }
-
-                    val sourceBalance = extractBalance(sourceSnap)
-                    val destBalance = extractBalance(destSnap)
-
-                    if (sourceBalance < totalDeduct) {
-                        Log.e(
-                            TAG,
-                            "Insufficient funds: sourceBalance=$sourceBalance, required=$totalDeduct"
-                        )
-                        throw Exception("Insufficient funds")
-                    }
-
-                    val newSourceBalance = (sourceBalance - totalDeduct).toDouble()
-                    val newDestBalance = (destBalance + amount).toDouble()
-
-                    transactionFirebase.update(sourceRef, "balance", newSourceBalance)
-                    transactionFirebase.update(destRef, "balance", newDestBalance)
-                }
+                
+                transferBetweenCard(sourceCard, destinationCard, totalDeduct)
 
                 val history = mapOf(
                     "amount" to amount.toDouble(),

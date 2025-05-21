@@ -103,8 +103,9 @@ fun DepositPhoneMoneyScreen(
                         )
                     },
                     navigationIcon = {
-
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = {
+                            navController.navigateUp()
+                        }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = null,

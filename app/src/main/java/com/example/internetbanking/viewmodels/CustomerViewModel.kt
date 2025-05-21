@@ -12,7 +12,6 @@ import androidx.navigation.NavHostController
 import com.example.internetbanking.AppScreen
 import com.example.internetbanking.Service
 import com.example.internetbanking.data.CustomerUiState
-import com.example.internetbanking.data.Deposit
 import com.example.internetbanking.data.TransactionDetail
 import com.example.internetbanking.data.TransactionRecord
 import com.example.internetbanking.data.User
@@ -38,7 +37,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.math.BigDecimal
-import java.util.UUID
 
 class CustomerViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CustomerUiState())
@@ -553,26 +551,50 @@ class CustomerViewModel : ViewModel() {
     }
 
     // Transfer Continue Button Click
-    fun onContinueTransferClick(
-        bank: String, sourceCard: String,
-        amount: BigDecimal, content: String, category: String,
-        destinationCard: String = "",
+    fun onContinueTransactionClick(
+        bank: String = "", amount: BigDecimal = BigDecimal.ZERO, fee: BigDecimal = BigDecimal.ZERO,
+        sourceCard: String = "", destinationCard: String = "",
+        type: String = "", startTime: String = "", seats: List<String> = emptyList(),
+        destinationPhoneNumber: String = "", network: String = "",
+        customerCode: String = "", provider: String = "",
+        flightProvider: String = "", numberOfPassengers: Int = 0,
+        movieName: String = "", cinema: String = "",
+        hotelName: String = "", room: String = "",
+        content: String = "", category: String = "",
         navController: NavHostController
     ) {
         viewModelScope.launch {
             val newTransactionId = generateUniqueTransactionId()
             val timestamp: Long = System.currentTimeMillis()
-            val cate = if (category.isEmpty()) "Transfer" else category
-            val summaryContent =
-                "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
+            val cate = if (category.isEmpty()) "Transaction" else category
+            val summaryContent = "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
 
             val newTransferRecord = TransactionRecord(
                 transactionId = newTransactionId,
                 amount = amount,
+                fee = fee,
                 timestamp = timestamp,
                 sourceCard = sourceCard,
                 destinationCard = destinationCard,
-                type = "Transfer"
+                type = type,
+
+                startTime = startTime,
+                seats = seats,
+
+                destinationPhoneNumber = destinationPhoneNumber,
+                network = network,
+
+                customerCode = customerCode,
+                provider = provider,
+
+                flightProvider = flightProvider,
+                numberOfPassengers = numberOfPassengers,
+
+                movieName = movieName,
+                cinema = cinema,
+
+                hotelName = hotelName,
+                room = room
             )
             val newTransferDetail = TransactionDetail(
                 transaction = newTransferRecord,
@@ -912,7 +934,7 @@ class CustomerViewModel : ViewModel() {
                     collectionName = "checking",
                     documentId = checkingCardNumber,
                     fieldName = "balance",
-                    value = newBalance
+                    newValue = newBalance
                 )
                 _uiState.update {
                         currentUiState->
@@ -959,6 +981,7 @@ class CustomerViewModel : ViewModel() {
     }
 
 
+    // Saving
     fun onSavingClick(
         cardNumber: String,
         navController: NavHostController

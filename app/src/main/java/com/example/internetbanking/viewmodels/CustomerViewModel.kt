@@ -573,7 +573,7 @@ class CustomerViewModel : ViewModel() {
 
             var newTransferRecord = TransactionRecord(
                 transactionId = newTransactionId,
-                amount = if (!customerCode.isEmpty()) billAmount.toBigDecimal() else amount,
+                amount =  amount,
                 fee = fee,
                 timestamp = timestamp,
                 sourceCard = sourceCard,
@@ -789,6 +789,8 @@ class CustomerViewModel : ViewModel() {
                         fieldName = "transactionId",
                         newValue = transactionId
                     )
+                    transferBetweenCard(sourceCard, destinationCard, totalDeduct)
+
                     addDocumentToCollection(
                         collectionName = "transactionHistories",
                         data = history,

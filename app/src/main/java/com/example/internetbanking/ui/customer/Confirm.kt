@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -48,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
+import com.example.internetbanking.Service
 import com.example.internetbanking.ui.shared.PasswordConfirmationDialog
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
@@ -148,7 +150,7 @@ fun ConfirmScreen(
                     .padding(10.dp)
             ) {
                 Spacer(Modifier.height(30.dp))
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .background(
                             color = custom_mint_green,
@@ -158,48 +160,61 @@ fun ConfirmScreen(
                         )
                         .padding(all = 20.dp)
                 ) {
-                    LineConfirm(
-                        label = "Service Type: ",
-                        data = "Transfer"
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    LineConfirm(
-                        label = "Customer Card: ",
-                        data = customerUiState.checkingCardNumber
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    LineConfirm(
-                        label = "Customer Name: ",
-                        data = customerUiState.account.fullName
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    LineConfirm(
-                        label = "Amount: ",
-                        data = "${formatCurrencyVN(transaction.amount)} VND"
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    LineConfirm(
-                        label = "Fee Amount: ",
-                        data = "${formatCurrencyVN(transaction.fee)} VND"
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    LineConfirm(
-                        label = "Content: ",
-                        data = currentTransaction.content
-                    )
+                    item { LineConfirm("Service", currentTransaction.transaction.type) }
+                    item { LineConfirm("Amount", "${formatCurrencyVN(currentTransaction.transaction.amount)} VND") }
+                    item { LineConfirm("Fee", "${formatCurrencyVN(currentTransaction.transaction.fee)} VND") }
+                    item { LineConfirm("Customer card", currentTransaction.transaction.sourceCard) }
 
-                    PasswordConfirmationDialog(
-                        showDialog = showDialog,
-                        onDismiss = { showDialog = false },
-                        onConfirm = { password ->
-                            customerViewModel.passwordConfirm(
-                                transactionDetail = currentTransaction,
-                                password = password,
-                                context = context,
-                                navController = navController
-                            )
-                        }
-                    )
+                    if (currentTransaction.transaction.type == Service.Transfer.name) {
+                        item { LineConfirm("Beneficiary card", currentTransaction.transaction.destinationCard) }
+                        item { LineConfirm("Content", currentTransaction.content) }
+                        item { LineConfirm("Category", currentTransaction.category) }
+                    }
+
+                    if (currentTransaction.transaction.type == Service.Paybill.name) {
+                        item { LineConfirm("Bill type", currentTransaction.transaction.billType) }
+                        item { LineConfirm("Customer code", currentTransaction.transaction.customerCode) }
+                        item { LineConfirm("Provider", currentTransaction.transaction.provider) }
+                    }
+
+                    if (currentTransaction.transaction.type == Service.DepositPhoneMoney.name) {
+                        item { LineConfirm("Phone number", currentTransaction.transaction.destinationPhoneNumber) }
+                        item { LineConfirm("Network", currentTransaction.transaction.network) }
+                    }
+
+                    if (currentTransaction.transaction.type == Service.BookFlightTicket.name) {
+                        item { LineConfirm("Takeoff time", currentTransaction.transaction.startTime) }
+                        item { LineConfirm("Seat(s)", currentTransaction.transaction.seats.joinToString(", ")) }
+                        item { LineConfirm("Provider", currentTransaction.transaction.flightProvider) }
+                        item { LineConfirm("Number of passengers", currentTransaction.transaction.numberOfPassengers.toString()) }
+                    }
+
+                    if (currentTransaction.transaction.type == Service.BookMovieTicket.name) {
+                        item { LineConfirm("Movie", currentTransaction.transaction.movieName) }
+                        item { LineConfirm("Seat(s)", currentTransaction.transaction.seats.joinToString(", ")) }
+                        item { LineConfirm("Start time", currentTransaction.transaction.startTime) }
+                        item { LineConfirm("Cinema", currentTransaction.transaction.cinema) }
+                    }
+
+                    if (currentTransaction.transaction.type == Service.BookHotelRooms.name) {
+                        item { LineConfirm("Hotel", currentTransaction.transaction.hotelName) }
+                        item { LineConfirm("Room", currentTransaction.transaction.room) }
+                    }
+
+                    item {
+                        PasswordConfirmationDialog(
+                            showDialog = showDialog,
+                            onDismiss = { showDialog = false },
+                            onConfirm = { password ->
+                                customerViewModel.passwordConfirm(
+                                    transactionDetail = currentTransaction,
+                                    password = password,
+                                    context = context,
+                                    navController = navController
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

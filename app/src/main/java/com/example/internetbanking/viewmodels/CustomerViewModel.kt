@@ -715,7 +715,7 @@ class CustomerViewModel : ViewModel() {
                 val category = transactionDetail.category
                 val totalDeduct = amount + fee
 
-                if (type == "Transfer") {
+                if (type == Service.Transfer.name) {
                     transferBetweenCard(sourceCard, destinationCard, totalDeduct)
                     val history = mapOf(
                         "amount" to amount.toDouble(),
@@ -816,7 +816,7 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    fun payBillTrasaction() {
+    fun payBillTransaction() {
 
     }
 

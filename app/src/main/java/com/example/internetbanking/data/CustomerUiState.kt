@@ -46,6 +46,7 @@ data class TransactionRecord(
     val destinationCard: String = "",
     val type: String = "",
 
+    // Movie $ Flight
     val startTime: String = "",
     val seats: List<String> = emptyList(),
 

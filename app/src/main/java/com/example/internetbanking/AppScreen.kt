@@ -34,8 +34,8 @@ enum class BillType {
     Electricity, Water, Internet, SchoolFee, HospitalFee
 }
 enum class Service(){
-    Deposit,Withdraw,Transfer,Paybill,DepositPhoneMoney,BookFlightTicket,BookMovieTicket,BookHotelRooms,
-    OpenSavingAccount,OpenMortgageAccount
+    Deposit, Withdraw, Transfer, Paybill, DepositPhoneMoney, BookFlightTicket, BookMovieTicket, BookHotelRooms,
+    OpenSavingAccount, OpenMortgageAccount
 }
 enum class AppScreen() {
     Login,

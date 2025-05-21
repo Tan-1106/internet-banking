@@ -573,7 +573,7 @@ class CustomerViewModel : ViewModel() {
 
             var newTransferRecord = TransactionRecord(
                 transactionId = newTransactionId,
-                amount = amount,
+                amount = if (!customerCode.isEmpty()) billAmount.toBigDecimal() else amount,
                 fee = fee,
                 timestamp = timestamp,
                 sourceCard = sourceCard,
@@ -608,7 +608,9 @@ class CustomerViewModel : ViewModel() {
 //            }
             val newTransferDetail = TransactionDetail(
                 transaction = newTransferRecord,
-                content = summaryContent,
+                content = if (!destinationPhoneNumber.isEmpty()) {
+                    "[Phone TopUp] Top up ${formatCurrencyVN(amount)} VND to phone number $destinationPhoneNumber"
+                } else summaryContent,
                 category = cate
             )
 
@@ -723,16 +725,16 @@ class CustomerViewModel : ViewModel() {
                 val category = transactionDetail.category
                 val totalDeduct = amount + fee
 
-                transferBetweenCard(sourceCard, destinationCard, totalDeduct)
-                    val history = mapOf(
-                        "amount" to amount.toDouble(),
-                        "fee" to fee.toDouble(),
-                        "sourceCard" to sourceCard,
-                        "destinationCard" to destinationCard,
-                        "timestamp" to timestamp,
-                        "type" to type
-                    )
                 if (type == Service.Transfer.name) {
+                    transferBetweenCard(sourceCard, destinationCard, totalDeduct)
+                        val history = mapOf(
+                            "amount" to amount.toDouble(),
+                            "fee" to fee.toDouble(),
+                            "sourceCard" to sourceCard,
+                            "destinationCard" to destinationCard,
+                            "timestamp" to timestamp,
+                            "type" to type
+                        )
                     val detail = mapOf(
                         "transactionId" to transactionId,
                         "amount" to amount.toDouble(),
@@ -756,9 +758,12 @@ class CustomerViewModel : ViewModel() {
                         data = history,
                         documentId = transactionId,
                         onSuccess = {
-                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT)
-                                .show()
-                            navController.popBackStack()
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                            navController.navigate(AppScreen.CustomerHome.name) {
+                                popUpTo(AppScreen.CustomerHome.name) {
+                                    inclusive = true
+                                }
+                            }
                         }
                     )
                 } else if (type == Service.Paybill.name) {
@@ -804,13 +809,55 @@ class CustomerViewModel : ViewModel() {
                     )
 
 
-                } else if (type == "Phone") {
+                } 
+                 // PHONE TOP UP
+                else if (type == Service.DepositPhoneMoney.name) {
+                    transferBetweenCard(sourceCard, destinationCard, totalDeduct)
+                    val history = mapOf(
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "timestamp" to timestamp,
+                        "type" to type
+                    )
+                    val detail = mapOf(
+                        "transactionId" to transactionId,
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "timestamp" to timestamp,
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "type" to type,
+                        "content" to content,
+                        "category" to category
+                    )
 
-                } else if (type == "Flight") {
+                    addDocumentToCollection(
+                        collectionName = "transferDetails",
+                        data = detail,
+                        documentId = transactionId,
+                        onSuccess = {}
+                    )
+                    addDocumentToCollection(
+                        collectionName = "transactionHistories",
+                        data = history,
+                        documentId = transactionId,
+                        onSuccess = {
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                            navController.navigate(AppScreen.CustomerHome.name) {
+                                popUpTo(AppScreen.CustomerHome.name) {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    )
+                }
+                else if (type == "Flight") {
 
-                } else if (type == "Movie") {
-
-                } else if (type == "Hotel") {
+                }
+                // HOTEL ROOM BOOKING
+                else if (type == Service.BookHotelRooms.name) {
 
                 }
             } catch (e: Exception) {

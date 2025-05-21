@@ -160,45 +160,46 @@ fun ConfirmScreen(
                         )
                         .padding(all = 20.dp)
                 ) {
-                    item { LineConfirm("Service", currentTransaction.transaction.type) }
-                    item { LineConfirm("Amount", "${formatCurrencyVN(currentTransaction.transaction.amount)} VND") }
-                    item { LineConfirm("Fee", "${formatCurrencyVN(currentTransaction.transaction.fee)} VND") }
-                    item { LineConfirm("Customer card", currentTransaction.transaction.sourceCard) }
+                    item { LineConfirm("Service: ", currentTransaction.transaction.type) }
+                    item { LineConfirm("Amount: ", "${formatCurrencyVN(currentTransaction.transaction.amount)} VND") }
+                    item { LineConfirm("Fee: ", "${formatCurrencyVN(currentTransaction.transaction.fee)} VND") }
+                    item { LineConfirm("Customer card: ", currentTransaction.transaction.sourceCard) }
+                    item { LineConfirm("Content: ", currentTransaction.content) }
+
 
                     if (currentTransaction.transaction.type == Service.Transfer.name) {
-                        item { LineConfirm("Beneficiary card", currentTransaction.transaction.destinationCard) }
-                        item { LineConfirm("Content", currentTransaction.content) }
-                        item { LineConfirm("Category", currentTransaction.category) }
+                        item { LineConfirm("Beneficiary card: ", currentTransaction.transaction.destinationCard) }
+                        item { LineConfirm("Category: ", currentTransaction.category) }
                     }
 
                     if (currentTransaction.transaction.type == Service.Paybill.name) {
-                        item { LineConfirm("Bill type", currentTransaction.transaction.billType) }
-                        item { LineConfirm("Customer code", currentTransaction.transaction.customerCode) }
-                        item { LineConfirm("Provider", currentTransaction.transaction.provider) }
+                        item { LineConfirm("Bill type: ", currentTransaction.transaction.billType) }
+                        item { LineConfirm("Customer code: ", currentTransaction.transaction.customerCode) }
+                        item { LineConfirm("Provider: ", currentTransaction.transaction.provider) }
                     }
 
                     if (currentTransaction.transaction.type == Service.DepositPhoneMoney.name) {
-                        item { LineConfirm("Phone number", currentTransaction.transaction.destinationPhoneNumber) }
-                        item { LineConfirm("Network", currentTransaction.transaction.network) }
+                        item { LineConfirm("Phone number: ", currentTransaction.transaction.destinationPhoneNumber) }
+                        item { LineConfirm("Network: ", currentTransaction.transaction.network) }
                     }
 
                     if (currentTransaction.transaction.type == Service.BookFlightTicket.name) {
-                        item { LineConfirm("Takeoff time", currentTransaction.transaction.startTime) }
-                        item { LineConfirm("Seat(s)", currentTransaction.transaction.seats.joinToString(", ")) }
-                        item { LineConfirm("Provider", currentTransaction.transaction.flightProvider) }
-                        item { LineConfirm("Number of passengers", currentTransaction.transaction.numberOfPassengers.toString()) }
+                        item { LineConfirm("Takeoff time: ", currentTransaction.transaction.startTime) }
+                        item { LineConfirm("Seat(s): ", currentTransaction.transaction.seats.joinToString(", ")) }
+                        item { LineConfirm("Provider: ", currentTransaction.transaction.flightProvider) }
+                        item { LineConfirm("Number of passengers: ", currentTransaction.transaction.numberOfPassengers.toString()) }
                     }
 
                     if (currentTransaction.transaction.type == Service.BookMovieTicket.name) {
-                        item { LineConfirm("Movie", currentTransaction.transaction.movieName) }
-                        item { LineConfirm("Seat(s)", currentTransaction.transaction.seats.joinToString(", ")) }
-                        item { LineConfirm("Start time", currentTransaction.transaction.startTime) }
-                        item { LineConfirm("Cinema", currentTransaction.transaction.cinema) }
+                        item { LineConfirm("Movie: ", currentTransaction.transaction.movieName) }
+                        item { LineConfirm("Seat(s): ", currentTransaction.transaction.seats.joinToString(", ")) }
+                        item { LineConfirm("Start time: ", currentTransaction.transaction.startTime) }
+                        item { LineConfirm("Cinema: ", currentTransaction.transaction.cinema) }
                     }
 
                     if (currentTransaction.transaction.type == Service.BookHotelRooms.name) {
-                        item { LineConfirm("Hotel", currentTransaction.transaction.hotelName) }
-                        item { LineConfirm("Room", currentTransaction.transaction.room) }
+                        item { LineConfirm("Hotel: ", currentTransaction.transaction.hotelName) }
+                        item { LineConfirm("Room: ", currentTransaction.transaction.room) }
                     }
 
                     item {
@@ -223,14 +224,18 @@ fun ConfirmScreen(
 
 @Composable
 fun LineConfirm(label: String, data: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp)
+    ) {
         Text(
             label, fontWeight = FontWeight.Bold,
             fontSize = 15.sp
         )
         Text(data, fontSize = 15.sp)
     }
-    Spacer(Modifier.height(10.dp))
     HorizontalDivider(color = Color.Gray)
 }
 

@@ -1,6 +1,8 @@
 package com.example.internetbanking.ui.customer
 
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.Service
 import com.example.internetbanking.ui.shared.DatePicker
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
@@ -73,21 +77,20 @@ fun FindFlightScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
-    // Danh sách sân bay mẫu
+    val context: Context = LocalContext.current
+
     val airports = listOf(
         Airport("SGN", "Tan Son Nhat, Ho Chi Minh City"),
         Airport("HAN", "Noi Bai, Hanoi"),
         Airport("DAD", "Da Nang International, Da Nang")
     )
 
-    // Danh sách chuyến bay mẫu
     val flights = listOf(
         Flight("Vietnam Airlines", "08:00", "10:00", 120.0, "2h"),
         Flight("VietJet Air", "09:30", "11:30", 90.0, "2h"),
         Flight("Bamboo Airways", "12:00", "14:00", 110.0, "2h")
     )
 
-    // Trạng thái UI
     var departureAirport by remember { mutableStateOf<Airport?>(null) }
     var arrivalAirport by remember { mutableStateOf<Airport?>(null) }
     var departureDate by remember { mutableStateOf("") }
@@ -139,13 +142,13 @@ fun FindFlightScreen(
                     label = "Departure Airport",
                     placeholder = "Select departure airport",
                     options = airports.map { it.name },
-                    onOptionSelected = {
+                    onOptionSelected = { selectedAirport ->
+                        departureAirport = airports.find { it.name == selectedAirport }
                     },
                     suffix = {
                         VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
                         Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
-
-                    },
+                    }
                 )
             }
             item {
@@ -153,25 +156,25 @@ fun FindFlightScreen(
                     label = "Arrival Airport",
                     placeholder = "Select arrival airport",
                     options = airports.map { it.name },
-                    onOptionSelected = {},
+                    onOptionSelected = { selectedAirport ->
+                        arrivalAirport = airports.find { it.name == selectedAirport }
+                    },
                     suffix = {
                         VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
                         Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
-
-                    },
+                    }
                 )
             }
             item {
                 DatePicker(
                     label = "Departure Date",
                     placeholder = "Select departure date",
-                    onDatePick = {},
+                    onDatePick = { departureDate = it },
                     canSelectFuture = true,
                     suffix = {
                         VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
                         Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
-
-                    },
+                    }
                 )
             }
             item {
@@ -182,21 +185,19 @@ fun FindFlightScreen(
                     onValueChange = { numberOfPassengers = it },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number
-                    ),
+                    )
                 )
             }
             item {
                 InformationSelect(
                     label = "Ticket Class",
                     placeholder = ticketClass,
-
                     options = listOf("Economy", "Business", "First Class"),
                     onOptionSelected = { ticketClass = it },
                     suffix = {
                         VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
                         Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
-
-                    },
+                    }
                 )
             }
             item {
@@ -206,7 +207,6 @@ fun FindFlightScreen(
                     fontWeight = FontWeight.Bold
                 )
             }
-
             item {
                 FlightList(
                     flights = flights,
@@ -215,14 +215,21 @@ fun FindFlightScreen(
                 )
             }
             item {
-                // Nút xác nhận
                 Button(
                     onClick = {
                         if (departureAirport != null && arrivalAirport != null &&
                             departureDate.isNotEmpty() && selectedFlight != null
                         ) {
-                            // Xử lý đặt vé (gửi dữ liệu đến ViewModel hoặc navigation)
-                            navController.navigate("confirmation")
+                            if (departureAirport == arrivalAirport) {
+                                Toast.makeText(context, "Invalid airport selected", Toast.LENGTH_SHORT).show()
+                            } else {
+                                customerViewModel.onContinueTransactionClick(
+                                    type = Service.BookFlightTicket.name,
+                                    // TODO: FLIGHT
+
+                                    navController = navController
+                                )
+                            }
                         }
                     },
                     modifier = Modifier

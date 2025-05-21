@@ -35,7 +35,7 @@ enum class AppScreen() {
     OfficerHome, CreateCustomer, EditCustomerProfile,
     CustomerHome, Profile,
     Deposit, Withdraw, TransactionHistory,
-    Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, SeatSelection, Transaction,
+    Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, SeatSelection,Transaction,
     LocateUserAndBank,
     ViewMortgageMoney,
     Saving, Confirm
@@ -108,16 +108,14 @@ fun AppScreen(
             DepositAndWithdrawScreen(
                 customerViewModel = customerViewModel,
                 userSelect = 0,
-                navController = navController,
-//                customerViewModelDT = customerViewModelDT
+                navController = navController
             )
         }
         composable(route = AppScreen.Withdraw.name) {
             DepositAndWithdrawScreen(
                 customerViewModel = customerViewModel,
                 userSelect = 1,
-                navController = navController,
-//                customerViewModelDT = customerViewModelDT
+                navController = navController
             )
         }
         composable(route = AppScreen.TransactionHistory.name) {
@@ -138,7 +136,7 @@ fun AppScreen(
         composable(route = AppScreen.Transaction.name) {
             TransactionScreen(
                 navController = navController,
-                customerViewModel = customerViewModel,
+                customerViewModel = customerViewModel
             )
         }
         composable(route = AppScreen.PayBills.name) {
@@ -202,12 +200,7 @@ fun AppScreen(
                 navController = navController
             )
         }
-        composable(route = AppScreen.CreateSavingAccount.name) {
-            CreateSaveAccountScreen(
-                customerViewModel = customerViewModel,
-                navController = navController
-            )
-        }
+
         composable(route = AppScreen.Confirm.name) {
             ConfirmScreen(
                 customerViewModel = customerViewModel,

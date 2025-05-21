@@ -152,6 +152,7 @@ class CustomerViewModel : ViewModel() {
         private set
     var mortgageCardNumber by mutableStateOf("")
         private set
+
     fun observeCardNumbers(accountId: String) {
         // Observe checking card
         db.collection("checking")
@@ -607,7 +608,10 @@ class CustomerViewModel : ViewModel() {
             val sourceRef = findAccount(sourceCard)
             val destRef = findAccount(destinationCard)
             if (sourceRef == null || destRef == null) {
-                Log.e(TAG, "Invalid source or destination account. sourceRef=$sourceRef, destRef=$destRef")
+                Log.e(
+                    TAG,
+                    "Invalid source or destination account. sourceRef=$sourceRef, destRef=$destRef"
+                )
                 return@launch
             }
 
@@ -627,7 +631,6 @@ class CustomerViewModel : ViewModel() {
 
                 val sourceBalance = extractBalance(sourceSnap)
                 val destBalance = extractBalance(destSnap)
-
 
 
                 val newSourceBalance = (sourceBalance - amount).toDouble()
@@ -681,8 +684,15 @@ class CustomerViewModel : ViewModel() {
                 val sourceRef = findAccount(sourceCard)
                 val destRef = findAccount(destinationCard)
                 if (sourceRef == null || destRef == null) {
-                    Log.e(TAG, "Invalid source or destination account. sourceRef=$sourceRef, destRef=$destRef")
-                    Toast.makeText(context, "Invalid source or destination account", Toast.LENGTH_SHORT).show()
+                    Log.e(
+                        TAG,
+                        "Invalid source or destination account. sourceRef=$sourceRef, destRef=$destRef"
+                    )
+                    Toast.makeText(
+                        context,
+                        "Invalid source or destination account",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@launch
                 }
 
@@ -704,7 +714,10 @@ class CustomerViewModel : ViewModel() {
                     val destBalance = extractBalance(destSnap)
 
                     if (sourceBalance < totalDeduct) {
-                        Log.e(TAG, "Insufficient funds: sourceBalance=$sourceBalance, required=$totalDeduct")
+                        Log.e(
+                            TAG,
+                            "Insufficient funds: sourceBalance=$sourceBalance, required=$totalDeduct"
+                        )
                         throw Exception("Insufficient funds")
                     }
 
@@ -722,7 +735,7 @@ class CustomerViewModel : ViewModel() {
                     "destinationCard" to destinationCard,
                     "timestamp" to timestamp,
                     "type" to type
-                    )
+                )
                 val detail = mapOf(
                     "transactionId" to transactionId,
                     "amount" to amount.toDouble(),
@@ -772,7 +785,8 @@ class CustomerViewModel : ViewModel() {
                 ),
                 documentId = newCardNumber,
                 onSuccess = {
-                    Toast.makeText(context, "Created saving card successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Created saving card successfully", Toast.LENGTH_SHORT)
+                        .show()
                 }
             )
         }
@@ -795,7 +809,11 @@ class CustomerViewModel : ViewModel() {
                 ),
                 documentId = newCardNumber,
                 onSuccess = {
-                    Toast.makeText(context, "Created mortgage card successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Created mortgage card successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             )
         }
@@ -862,18 +880,20 @@ class CustomerViewModel : ViewModel() {
                     onSuccess = {
                         viewModelScope.launch {
                             val checkingCardNumber = uiState.value.checkingCardNumber
-                            val checkingDocRef = db.collection("checking").document(checkingCardNumber)
+                            val checkingDocRef =
+                                db.collection("checking").document(checkingCardNumber)
                             try {
                                 val snapshot = checkingDocRef.get().await()
-                                val currentBalance = snapshot.getLong("balance")?:0
+                                val currentBalance = snapshot.getLong("balance") ?: 0
                                 val newBalance = currentBalance.plus(transaction.amount.toLong())
                                 updateFieldInDocument(
                                     collectionName = "checking",
                                     documentId = checkingCardNumber,
                                     fieldName = "balance",
-                                    value = newBalance
+                                    newValue = newBalance
                                 )
-                                Toast.makeText(context, "Deposit successful!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Deposit successful!", Toast.LENGTH_SHORT)
+                                    .show()
                                 navController.navigate(AppScreen.CustomerHome.name) {
                                     popUpTo(AppScreen.CustomerHome.name) { inclusive = true }
                                 }
@@ -886,91 +906,95 @@ class CustomerViewModel : ViewModel() {
                 )
             }
         )
-    fun onSavingClick(
-        cardNumber: String,
-        navController: NavHostController
-    ) {
-        viewModelScope.launch {
-            val isSavingActive = getFieldValueFromDocument("saving", cardNumber, "status") == "Active"
+        fun onSavingClick(
+            cardNumber: String,
+            navController: NavHostController
+        ) {
+            viewModelScope.launch {
+                val isSavingActive =
+                    getFieldValueFromDocument("saving", cardNumber, "status") == "Active"
 
-            if (isSavingActive) {
-                // TODO: SHOW DIALOG
-            } else {
-                navController.navigate(AppScreen.Saving.name)
+                if (isSavingActive) {
+                    // TODO: SHOW DIALOG
+                } else {
+                    navController.navigate(AppScreen.Saving.name)
+                }
             }
         }
-    }
 
-    fun onConfirmSavingClick(
-        term: Int,
-        amount: BigDecimal,
-        password: String,
-        context: Context,
-        navController: NavHostController
-    ) {
-        viewModelScope.launch {
-            val email = uiState.value.account.email
-            try {
-                auth.signInWithEmailAndPassword(email, password).await()
-                transferBetweenCard(
-                    sourceCard = uiState.value.checkingCardNumber,
-                    destinationCard = uiState.value.savingCardNumber,
-                    amount = amount
-                )
-                updateFieldInDocument(
-                    collectionName = "saving",
-                    documentId = uiState.value.savingCardNumber,
-                    fieldName = "status",
-                    newValue = "Active"
-                )
-                val withdrawDate = getMillisAfterMonths(term)
-                updateFieldInDocument(
-                    collectionName = "saving",
-                    documentId = uiState.value.savingCardNumber,
-                    fieldName = "withdrawDate",
-                    newValue = withdrawDate
-                )
+        fun onConfirmSavingClick(
+            term: Int,
+            amount: BigDecimal,
+            password: String,
+            context: Context,
+            navController: NavHostController
+        ) {
+            viewModelScope.launch {
+                val email = uiState.value.account.email
+                try {
+                    auth.signInWithEmailAndPassword(email, password).await()
+                    transferBetweenCard(
+                        sourceCard = uiState.value.checkingCardNumber,
+                        destinationCard = uiState.value.savingCardNumber,
+                        amount = amount
+                    )
+                    updateFieldInDocument(
+                        collectionName = "saving",
+                        documentId = uiState.value.savingCardNumber,
+                        fieldName = "status",
+                        newValue = "Active"
+                    )
+                    val withdrawDate = getMillisAfterMonths(term)
+                    updateFieldInDocument(
+                        collectionName = "saving",
+                        documentId = uiState.value.savingCardNumber,
+                        fieldName = "withdrawDate",
+                        newValue = withdrawDate
+                    )
 
-                val transactionId = generateUniqueTransactionId()
-                val timestamp = System.currentTimeMillis()
-                val history = mapOf(
-                    "amount" to amount.toDouble(),
-                    "fee" to 0,
-                    "sourceCard" to uiState.value.checkingCardNumber,
-                    "destinationCard" to uiState.value.savingCardNumber,
-                    "timestamp" to timestamp,
-                    "type" to "Saving"
-                )
-                val detail = mapOf(
-                    "transactionId" to transactionId,
-                    "amount" to amount.toDouble(),
-                    "fee" to 0,
-                    "timestamp" to timestamp,
-                    "sourceCard" to uiState.value.checkingCardNumber,
-                    "destinationCard" to uiState.value.savingCardNumber,
-                    "type" to "Saving",
-                    "content" to "Transfer to saving",
-                    "category" to "Saving"
-                )
+                    val transactionId = generateUniqueTransactionId()
+                    val timestamp = System.currentTimeMillis()
+                    val history = mapOf(
+                        "amount" to amount.toDouble(),
+                        "fee" to 0,
+                        "sourceCard" to uiState.value.checkingCardNumber,
+                        "destinationCard" to uiState.value.savingCardNumber,
+                        "timestamp" to timestamp,
+                        "type" to "Saving"
+                    )
+                    val detail = mapOf(
+                        "transactionId" to transactionId,
+                        "amount" to amount.toDouble(),
+                        "fee" to 0,
+                        "timestamp" to timestamp,
+                        "sourceCard" to uiState.value.checkingCardNumber,
+                        "destinationCard" to uiState.value.savingCardNumber,
+                        "type" to "Saving",
+                        "content" to "Transfer to saving",
+                        "category" to "Saving"
+                    )
 
-                addDocumentToCollection(
-                    collectionName = "transferDetails",
-                    data = detail,
-                    documentId = transactionId,
-                    onSuccess = {}
-                )
-                addDocumentToCollection(
-                    collectionName = "transactionHistories",
-                    data = history,
-                    documentId = transactionId,
-                    onSuccess = {
-                        Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
-                        navController.popBackStack()
-                    }
-                )
-            }catch (e: Exception) {
-                Log.e(TAG, "Transaction confirm failed", e)
-                Toast.makeText(context, "Confirm failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    addDocumentToCollection(
+                        collectionName = "transferDetails",
+                        data = detail,
+                        documentId = transactionId,
+                        onSuccess = {}
+                    )
+                    addDocumentToCollection(
+                        collectionName = "transactionHistories",
+                        data = history,
+                        documentId = transactionId,
+                        onSuccess = {
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT)
+                                .show()
+                            navController.popBackStack()
+                        }
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Transaction confirm failed", e)
+                    Toast.makeText(context, "Confirm failed: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
     }

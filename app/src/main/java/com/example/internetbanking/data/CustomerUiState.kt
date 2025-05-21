@@ -34,7 +34,8 @@ data class CustomerUiState(
 
     //deposit
     val currentTransaction: TransactionRecord? = null,
-
+    //paybill
+    val currentPayBill: Bill? = null
 )
 
 data class TransactionRecord(
@@ -76,6 +77,18 @@ data class TransactionDetail(
     val transaction: TransactionRecord = TransactionRecord(),
     val content: String = "",
     val category: String = ""
+)
+
+data class Bill(
+    val transactionID: String = "",
+    val billType: String = "",
+    val customerCode: String = "",
+    val provider: String = "",
+    val amount: BigDecimal = BigDecimal.ZERO,
+    val fee: BigDecimal = BigDecimal.ZERO,
+    val cardNumber: String = "",
+    val description: String = "",
+    val status: Boolean = false,
 )
 
 data class Deposit(

@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.internetbanking.AppScreen
 import com.example.internetbanking.Service
+import com.example.internetbanking.data.Bill
 import com.example.internetbanking.data.CustomerUiState
 import com.example.internetbanking.data.TransactionDetail
 import com.example.internetbanking.data.TransactionRecord
@@ -570,7 +571,7 @@ class CustomerViewModel : ViewModel() {
             val summaryContent =
                 "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
 
-            val newTransferRecord = TransactionRecord(
+            var newTransferRecord = TransactionRecord(
                 transactionId = newTransactionId,
                 amount = amount,
                 fee = fee,
@@ -598,6 +599,13 @@ class CustomerViewModel : ViewModel() {
                 hotelName = hotelName,
                 room = room
             )
+//            if (type == Service.Paybill.name) {
+//
+//                newTransferRecord = newTransferRecord.copy(
+//                    amount = uiState.value.currentPayBill?.amount ?: BigDecimal.ZERO,
+//                    destinationCard = uiState.value.currentPayBill?.cardNumber ?: ""
+//                )
+//            }
             val newTransferDetail = TransactionDetail(
                 transaction = newTransferRecord,
                 content = summaryContent,
@@ -715,8 +723,7 @@ class CustomerViewModel : ViewModel() {
                 val category = transactionDetail.category
                 val totalDeduct = amount + fee
 
-                if (type == Service.Transfer.name) {
-                    transferBetweenCard(sourceCard, destinationCard, totalDeduct)
+                transferBetweenCard(sourceCard, destinationCard, totalDeduct)
                     val history = mapOf(
                         "amount" to amount.toDouble(),
                         "fee" to fee.toDouble(),
@@ -725,6 +732,7 @@ class CustomerViewModel : ViewModel() {
                         "timestamp" to timestamp,
                         "type" to type
                     )
+                if (type == Service.Transfer.name) {
                     val detail = mapOf(
                         "transactionId" to transactionId,
                         "amount" to amount.toDouble(),
@@ -754,51 +762,47 @@ class CustomerViewModel : ViewModel() {
                         }
                     )
                 } else if (type == Service.Paybill.name) {
-                    val billDocument = db.collection("bills").document(customerCode)
-                    try {
-                        val billSnapshot = billDocument.get().await()
-                        val destinationCard = billSnapshot.getString("cardNumber") ?: ""
-                        val amount = (billSnapshot.getLong("amount") ?: 0L)
-                        val totalDeduct = BigDecimal.valueOf(amount) + fee
-                        Log.i("Paybill", destinationCard)
-                        transferBetweenCard(sourceCard, destinationCard, totalDeduct)
-                        val history = mapOf(
-                            "amount" to amount,
-                            "fee" to fee.toDouble(),
-                            "sourceCard" to uiState.value.checkingCardNumber,
-                            "destinationCard" to destinationCard,
-                            "timestamp" to System.currentTimeMillis(),
-                            "type" to type
-                        )
-                        updateFieldInDocument(
-                            collectionName = "bills",
-                            documentId = customerCode,
-                            fieldName = "status",
-                            newValue = true
-                        )
-                        addDocumentToCollection(
-                            collectionName = "transactionHistories",
-                            data = history,
-                            documentId = transactionId,
-                            onSuccess = {
-                                Toast.makeText(
-                                    context,
-                                    "Transaction successful",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
-                                navController.navigate(AppScreen.CustomerHome.name) {
-                                    popUpTo(AppScreen.CustomerHome.name) {
-                                        inclusive = true
-                                    }
+
+
+                    val history = mapOf(
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "timestamp" to System.currentTimeMillis(),
+                        "type" to type
+                    )
+                    updateFieldInDocument(
+                        collectionName = "bills",
+                        documentId = customerCode,
+                        fieldName = "status",
+                        newValue = true
+                    )
+                    updateFieldInDocument(
+                        collectionName = "bills",
+                        documentId = customerCode,
+                        fieldName = "transactionId",
+                        newValue = transactionId
+                    )
+                    addDocumentToCollection(
+                        collectionName = "transactionHistories",
+                        data = history,
+                        documentId = transactionId,
+                        onSuccess = {
+                            Toast.makeText(
+                                context,
+                                "Transaction successful",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            navController.navigate(AppScreen.CustomerHome.name) {
+                                popUpTo(AppScreen.CustomerHome.name) {
+                                    inclusive = true
                                 }
                             }
-                        )
+                        }
+                    )
 
-
-                    } catch (e: Exception) {
-                        Log.e("PayBill", e.message.toString())
-                    }
 
                 } else if (type == "Phone") {
 
@@ -816,8 +820,59 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    fun payBillTransaction() {
-
+    suspend fun findCheckingCardByCustomerCode(
+        customerCode: String,
+        billType: String
+    ): Boolean {
+//        viewModelScope.launch {
+        val snapshot = db.collection("bills").whereEqualTo("billType", billType)
+            .whereEqualTo("customerCode", customerCode)
+            .whereEqualTo("status", false)
+            .get().await()
+        if (snapshot.isEmpty) {
+            return false
+        }
+        for (document in snapshot.documents) {
+            val cardNumber = document.getString("cardNumber")
+            val amount = document.getLong("amount") ?: 0L
+            if (cardNumber != null) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        currentPayBill = Bill(
+                            provider = document.getString("provider") ?: "",
+                            amount = BigDecimal.valueOf(amount),
+                            cardNumber = cardNumber,
+                            description = document.getString("description") ?: "",
+                        )
+                    )
+                }
+            }
+        }
+        return true
+//                .addOnSuccessListener { documents ->
+//                    if (documents.isEmpty) {
+//                        Log.d(TAG, "No matching documents")
+//                    } else {
+//                        for (document in documents) {
+//                            val cardNumber = document.getString("cardNumber")
+//                            val amount = document.getLong("amount") ?: 0L
+//                            if (cardNumber != null) {
+//                                _uiState.update { currentState ->
+//                                    currentState.copy(
+//                                        currentTransaction = TransactionRecord(
+//                                            amount = BigDecimal.valueOf(amount),
+//                                            destinationCard = cardNumber,
+//                                        )
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                .addOnFailureListener { exception ->
+//                    Log.d(TAG, "Error getting documents: ", exception)
+//                }
+//        }
     }
 
     fun createSavingAccount(context: Context) {

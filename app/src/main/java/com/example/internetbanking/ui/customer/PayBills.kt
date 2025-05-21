@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +56,9 @@ import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +69,7 @@ fun PayBillsScreen(
     val customerUiState by customerViewModel.uiState.collectAsState()
     var billType by remember { mutableStateOf("") }
     var customerCode by remember { mutableStateOf("") }
-
+    var errorMessage by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -110,38 +114,68 @@ fun PayBillsScreen(
                         )
                 )
             }, bottomBar = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .background(Color.White)
-                ) {
-
-                    ElevatedButton(
-                        onClick = {
-                            customerViewModel.onContinueTransactionClick(
-                                billType = billType,
-                                customerCode = customerCode,
-                                type = Service.Paybill.name,
-                                sourceCard = customerUiState.checkingCardNumber,
-                                navController = navController
-                            )
-                        },
-                        modifier = Modifier
-                            .padding(vertical = 5.dp, horizontal = 10.dp)
-                            .fillMaxSize(),
-                        shape = RoundedCornerShape(corner = CornerSize(10.dp)),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = custom_light_green1
-                        )
-                    ) {
+                Column {
+                    if (!errorMessage.isEmpty()) {
                         Text(
-                            text = "Continue",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
+                            errorMessage,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(horizontal = 10.dp)
                         )
                     }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .background(Color.White)
+                    ) {
+                        val coroutineScope = rememberCoroutineScope()
 
+                        ElevatedButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    if (customerViewModel.findCheckingCardByCustomerCode(
+                                            customerCode = customerCode,
+                                            billType = billType
+                                        )
+                                    ) {    val payBill = customerViewModel.uiState.value.currentPayBill
+
+                                        customerViewModel.onContinueTransactionClick(
+                                            billType = billType,
+                                            customerCode = customerCode,
+                                            type = Service.Paybill.name,
+                                            fee = BigDecimal.ZERO,
+                                            provider = payBill?.provider
+                                                ?: "",
+                                            amount = payBill?.amount
+                                                ?: BigDecimal.ZERO,
+                                            destinationCard = payBill?.cardNumber
+                                                ?: "",
+                                            sourceCard = customerUiState.checkingCardNumber,
+                                            navController = navController
+                                        )
+                                    } else {
+                                        errorMessage = "Customer code not found"
+                                    }
+                                }
+
+                            },
+                            modifier = Modifier
+                                .padding(vertical = 5.dp, horizontal = 10.dp)
+                                .fillMaxSize(),
+                            shape = RoundedCornerShape(corner = CornerSize(10.dp)),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = custom_light_green1
+                            )
+                        ) {
+                            Text(
+                                text = "Continue",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                    }
                 }
             },
 

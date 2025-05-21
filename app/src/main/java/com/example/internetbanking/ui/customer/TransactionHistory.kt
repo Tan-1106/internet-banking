@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +55,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.DatePicker
 import com.example.internetbanking.ui.shared.dateStringToTimestamp
+import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.shared.toReadableDateTime
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
@@ -70,12 +72,16 @@ fun TransactionHistoryScreen(
     val customerUiState by customerViewModel.uiState.collectAsState()
 
     var fromDate by remember { mutableStateOf("Pick a date") }
-    var from = 0L
+    var from: Long? by remember { mutableStateOf(null) }
     var toDate by remember { mutableStateOf("Pick a date") }
-    var to = 0L
+    var to: Long? by remember { mutableStateOf(null) }
 
     val transactionTypeOptions: List<String> = listOf("All", "In", "Out")
     var selectedType by remember { mutableStateOf("All") }
+
+    LaunchedEffect(Unit) {
+        customerViewModel.loadTransactionHistory(customerUiState.currentCardView)
+    }
 
     Box(
         modifier = Modifier
@@ -214,7 +220,7 @@ fun TransactionHistoryScreen(
                     ElevatedButton(
                         shape = RoundedCornerShape(percent = 20),
                         onClick = {
-                            customerViewModel.filterTransactions(selectedType, from, to)
+                            customerViewModel.filterTransactions(selectedType, customerUiState.currentCardView, from, to)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
@@ -259,7 +265,7 @@ fun TransactionHistoryScreen(
                             modifier = Modifier
                                 .padding(5.dp)
                                 .clickable {
-                                    customerViewModel.onTransactionHistoryClick(
+                                    customerViewModel.onTransactionDetailClick(
                                         transaction,
                                         navController
                                     )
@@ -274,24 +280,16 @@ fun TransactionHistoryScreen(
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column(
-                                        modifier = Modifier.weight(6f)
-                                    ) {
-                                        Text(
-                                            text = transaction.content,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
                                     Spacer(Modifier.width(5.dp))
                                     Column(
                                         modifier = Modifier.weight(3f),
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Text(
-                                            text = if (transaction.type == "In") {
-                                                "+${transaction.amount} VND"
+                                            text = if (transaction.destinationCard == customerUiState.currentCardView) {
+                                                "+${formatCurrencyVN(transaction.amount)} VND"
                                             } else {
-                                                "-${transaction.amount} VND"
+                                                "-${formatCurrencyVN(transaction.amount)} VND"
                                             }
                                         )
                                     }

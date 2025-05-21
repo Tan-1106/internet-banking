@@ -766,18 +766,23 @@ fun generateTransactionId(): String {
         .joinToString("")
     return "LB-$datePart-$randomPart"
 }
+
 suspend fun generateUniqueTransactionId(): String {
     var transactionId: String
     do {
         transactionId = generateTransactionId()
-    } while (
-        checkExistData(
-            collectionName = "transactionHistories",
-            fieldName = "transactionId",
-            value = transactionId
-        )
-    )
+    } while (checkTransactionIdExists(transactionId))
     return transactionId
+}
+
+suspend fun checkTransactionIdExists(transactionId: String): Boolean {
+    val docSnapshot = Firebase.firestore
+        .collection("transactionHistories")
+        .document(transactionId)
+        .get()
+        .await()
+
+    return docSnapshot.exists()
 }
 
 // Check Existing Card Number

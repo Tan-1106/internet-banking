@@ -188,10 +188,7 @@ fun ConfirmScreen(
                         data = "${formatCurrencyVN(currentTransaction.fee)} VND"
                     )
                     Spacer(Modifier.height(20.dp))
-                    LineConfirm(
-                        label = "Content: ",
-                        data = currentTransaction.content
-                    )
+
 
 
 
@@ -199,13 +196,7 @@ fun ConfirmScreen(
                         showDialog = showDialog,
                         onDismiss = { showDialog = false },
                         onConfirm = { password ->
-                            customerViewModel.confirmPassword(
-                                context = context,
-                                currentTransferRecord = currentTransaction,
-                                accountId = customerUiState.account.accountId,
-                                password = password,
-                                navController = navController
-                            )
+
                         }
                     )
                 }

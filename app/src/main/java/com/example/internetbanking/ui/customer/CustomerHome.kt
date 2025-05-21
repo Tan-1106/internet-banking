@@ -65,9 +65,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
-import com.example.internetbanking.data.CustomerUiState
 import com.example.internetbanking.data.User
-import com.example.internetbanking.ui.shared.BalanceInformation
 import com.example.internetbanking.ui.shared.LogoutDialog
 import com.example.internetbanking.ui.shared.PagerBalanceInformation
 import com.example.internetbanking.ui.shared.formatCurrencyVN
@@ -114,6 +112,9 @@ fun CustomerHome(
                 cardNumber = customerUiState.checkingCardNumber,
                 balance = customerUiState.checkingBalance,
                 navController = navController,
+                onViewTransaction = {
+                    customerViewModel.onTransactionHistoryClick(customerUiState.checkingCardNumber, navController)
+                },
                 onCopyClick = {
                     val accountNumber = customerUiState.checkingCardNumber
                     clipboardManager.setText(AnnotatedString(accountNumber))
@@ -132,6 +133,9 @@ fun CustomerHome(
                     cardNumber = customerUiState.savingCardNumber,
                     balance = customerUiState.savingBalance,
                     navController = navController,
+                    onViewTransaction = {
+                        customerViewModel.onTransactionHistoryClick(customerUiState.savingCardNumber, navController)
+                    },
                     onCopyClick = {
                         val accountNumber = customerUiState.savingCardNumber
                         clipboardManager.setText(AnnotatedString(accountNumber))
@@ -151,6 +155,7 @@ fun CustomerHome(
                     cardNumber = customerUiState.mortgageCardNumber,
                     balance = BigDecimal.ZERO,
                     navController = navController,
+                    onViewTransaction = { },
                     onCopyClick = {
                         val accountNumber = customerUiState.mortgageCardNumber
                         clipboardManager.setText(AnnotatedString(accountNumber))
@@ -411,8 +416,9 @@ fun UserCardsInformation(
     currentViewType: String,
     cardNumber: String,
     balance: BigDecimal,
-    navController: NavHostController,
+    onViewTransaction: (String) -> Unit,
     onCopyClick: () -> Unit,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     var isHiddenBalance by remember { mutableStateOf(true) }
@@ -612,7 +618,7 @@ fun UserCardsInformation(
                 )
                 .clickable {
                     // Transaction History
-                    navController.navigate(AppScreen.TransactionHistory.name)
+                    onViewTransaction(currentViewType)
                 }
         ) {
             Row(

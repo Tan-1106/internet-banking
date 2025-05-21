@@ -4,6 +4,7 @@ import java.math.BigDecimal
 
 data class CustomerUiState(
     val currentViewType: String = "Checking",
+    val currentCardView: String = "",
 
     // All Customer
     val account: User = User(), // accountId, fullName, gender, identificationNumber, phoneNumber, email, birthday, address, role
@@ -34,10 +35,10 @@ data class CustomerUiState(
 
 data class TransactionRecord(
     val transactionId: String = "",
-    val content: String = "",
     val amount: BigDecimal = BigDecimal.ZERO,
     val fee: BigDecimal = BigDecimal.ZERO,
-    val type: String = "",
     val timestamp: Long = 0L,
-    val beneficiaryAccount: String = ""
+    val sourceCard: String = "",
+    val destinationCard: String = "",
+    val type: String = ""
 )

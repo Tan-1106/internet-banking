@@ -288,14 +288,12 @@ fun TransferScreen(
                                         beneficiaryBankEM = ""
                                         beneficiaryAccountEM = ""
                                         amountEM = ""
+
                                         customerViewModel.onContinueTransferClick(
-                                            navController = navController,
-                                            bank = beneficiaryBank,
-                                            card = beneficiaryAccount,
-                                            amount = amount,
-                                            content = content,
-                                            category = category,
-                                            beneficiaryAccount = beneficiaryAccount
+                                            bank = beneficiaryBank, sourceCard = customerUiState.checkingCardNumber,
+                                            amount = amount, content = content, category = category,
+                                            destinationCard = beneficiaryAccount,
+                                            navControler = navController
                                         )
                                     }
                                 }

@@ -12,7 +12,6 @@ import androidx.navigation.NavHostController
 import com.example.internetbanking.AppScreen
 import com.example.internetbanking.Service
 import com.example.internetbanking.data.CustomerUiState
-import com.example.internetbanking.data.Deposit
 import com.example.internetbanking.data.TransactionDetail
 import com.example.internetbanking.data.TransactionRecord
 import com.example.internetbanking.data.User
@@ -38,7 +37,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.math.BigDecimal
-import java.util.UUID
 
 class CustomerViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CustomerUiState())
@@ -553,26 +551,50 @@ class CustomerViewModel : ViewModel() {
     }
 
     // Transfer Continue Button Click
-    fun onContinueTransferClick(
-        bank: String, sourceCard: String,
-        amount: BigDecimal, content: String, category: String,
-        destinationCard: String = "",
+    fun onContinueTransactionClick(
+        bank: String = "", amount: BigDecimal = BigDecimal.ZERO, fee: BigDecimal = BigDecimal.ZERO,
+        sourceCard: String = "", destinationCard: String = "",
+        type: String = "", startTime: String = "", seats: List<String> = emptyList(),
+        destinationPhoneNumber: String = "", network: String = "",
+        customerCode: String = "", provider: String = "",
+        flightProvider: String = "", numberOfPassengers: Int = 0,
+        movieName: String = "", cinema: String = "",
+        hotelName: String = "", room: String = "",
+        content: String = "", category: String = "",
         navController: NavHostController
     ) {
         viewModelScope.launch {
             val newTransactionId = generateUniqueTransactionId()
             val timestamp: Long = System.currentTimeMillis()
-            val cate = if (category.isEmpty()) "Transfer" else category
-            val summaryContent =
-                "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
+            val cate = if (category.isEmpty()) "Transaction" else category
+            val summaryContent = "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
 
             val newTransferRecord = TransactionRecord(
                 transactionId = newTransactionId,
                 amount = amount,
+                fee = fee,
                 timestamp = timestamp,
                 sourceCard = sourceCard,
                 destinationCard = destinationCard,
-                type = "Transfer"
+                type = type,
+
+                startTime = startTime,
+                seats = seats,
+
+                destinationPhoneNumber = destinationPhoneNumber,
+                network = network,
+
+                customerCode = customerCode,
+                provider = provider,
+
+                flightProvider = flightProvider,
+                numberOfPassengers = numberOfPassengers,
+
+                movieName = movieName,
+                cinema = cinema,
+
+                hotelName = hotelName,
+                room = room
             )
             val newTransferDetail = TransactionDetail(
                 transaction = newTransferRecord,
@@ -589,6 +611,7 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
+    // Transfer Money
     fun transferBetweenCard(
         sourceCard: String,
         destinationCard: String,
@@ -633,7 +656,6 @@ class CustomerViewModel : ViewModel() {
                 val sourceBalance = extractBalance(sourceSnap)
                 val destBalance = extractBalance(destSnap)
 
-
                 val newSourceBalance = (sourceBalance - amount).toDouble()
                 val newDestBalance = (destBalance + amount).toDouble()
 
@@ -643,12 +665,11 @@ class CustomerViewModel : ViewModel() {
         }
     }
 
-    // Transfer Event
     companion object {
         private const val TAG = "TransferConfirm"
     }
 
-    fun onTransferPasswordConfirm(
+    fun passwordConfirm(
         transactionDetail: TransactionDetail,
         password: String,
         context: Context,
@@ -660,110 +681,86 @@ class CustomerViewModel : ViewModel() {
             try {
                 auth.signInWithEmailAndPassword(email, password).await()
 
-                val transactionId = transactionDetail.transaction.transactionId
-                val amount = transactionDetail.transaction.amount
-                val fee = transactionDetail.transaction.fee
-                val timestamp = transactionDetail.transaction.timestamp
-                val sourceCard = transactionDetail.transaction.sourceCard
-                val destinationCard = transactionDetail.transaction.destinationCard
-                val type = transactionDetail.transaction.type
+                val transaction = uiState.value.checkingCurrentTransfer.transaction
+
+                val transactionId =transaction.transactionId
+                val amount = transaction.amount
+                val fee = transaction.fee
+                val timestamp = transaction.timestamp
+                val sourceCard = transaction.sourceCard
+                val destinationCard = transaction.destinationCard
+                val type = transaction.type
+
+                val startTime = transaction.startTime
+                val seats = transaction.seats
+
+                val destinationPhoneNumber = transaction.destinationPhoneNumber
+                val network = transaction.network
+
+                val customerCode = transaction.customerCode
+                val provider = transaction.provider
+
+                val flightProvider = transaction.flightProvider
+                val numberOfPassengers = transaction.numberOfPassengers
+
+                val movieName = transaction.movieName
+                val cinema = transaction.cinema
+
+                val hotelName = transaction.hotelName
+                val room = transaction.room
+
                 val content = transactionDetail.content
                 val category = transactionDetail.category
                 val totalDeduct = amount + fee
 
-                suspend fun findAccount(cardNumber: String): DocumentReference? {
-                    val checkingDoc = db.collection("checking").document(cardNumber)
-                    val savingDoc = db.collection("saving").document(cardNumber)
-
-                    val checkingSnap = checkingDoc.get().await()
-                    if (checkingSnap.exists()) return checkingDoc
-
-                    val savingSnap = savingDoc.get().await()
-                    return if (savingSnap.exists()) savingDoc else null
-                }
-
-                val sourceRef = findAccount(sourceCard)
-                val destRef = findAccount(destinationCard)
-                if (sourceRef == null || destRef == null) {
-                    Log.e(
-                        TAG,
-                        "Invalid source or destination account. sourceRef=$sourceRef, destRef=$destRef"
+                transferBetweenCard(sourceCard, destinationCard, totalDeduct)
+                if (type == "Transfer") {
+                    val history = mapOf(
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "timestamp" to timestamp,
+                        "type" to type
                     )
-                    Toast.makeText(
-                        context,
-                        "Invalid source or destination account",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@launch
+                    val detail = mapOf(
+                        "transactionId" to transactionId,
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "timestamp" to timestamp,
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "type" to type,
+                        "content" to content,
+                        "category" to category
+                    )
+
+                    addDocumentToCollection(
+                        collectionName = "transferDetails",
+                        data = detail,
+                        documentId = transactionId,
+                        onSuccess = {}
+                    )
+                    addDocumentToCollection(
+                        collectionName = "transactionHistories",
+                        data = history,
+                        documentId = transactionId,
+                        onSuccess = {
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                            navController.popBackStack()
+                        }
+                    )
+                } else if (type == "Phone") {
+
+                } else if (type === "PayBill") {
+
+                } else if (type == "Flight") {
+
+                } else if (type == "Movie") {
+
+                } else if (type == "Hotel") {
+
                 }
-
-                db.runTransaction { transactionFirebase ->
-                    val sourceSnap = transactionFirebase.get(sourceRef)
-                    val destSnap = transactionFirebase.get(destRef)
-
-                    fun extractBalance(snapshot: DocumentSnapshot): BigDecimal {
-                        return snapshot.get("balance")?.let { value ->
-                            when (value) {
-                                is Number -> BigDecimal.valueOf(value.toDouble())
-                                is String -> value.toBigDecimalOrNull() ?: BigDecimal.ZERO
-                                else -> BigDecimal.ZERO
-                            }
-                        } ?: BigDecimal.ZERO
-                    }
-
-                    val sourceBalance = extractBalance(sourceSnap)
-                    val destBalance = extractBalance(destSnap)
-
-                    if (sourceBalance < totalDeduct) {
-                        Log.e(
-                            TAG,
-                            "Insufficient funds: sourceBalance=$sourceBalance, required=$totalDeduct"
-                        )
-                        throw Exception("Insufficient funds")
-                    }
-
-                    val newSourceBalance = (sourceBalance - totalDeduct).toDouble()
-                    val newDestBalance = (destBalance + amount).toDouble()
-
-                    transactionFirebase.update(sourceRef, "balance", newSourceBalance)
-                    transactionFirebase.update(destRef, "balance", newDestBalance)
-                }
-
-                val history = mapOf(
-                    "amount" to amount.toDouble(),
-                    "fee" to fee.toDouble(),
-                    "sourceCard" to sourceCard,
-                    "destinationCard" to destinationCard,
-                    "timestamp" to timestamp,
-                    "type" to type
-                )
-                val detail = mapOf(
-                    "transactionId" to transactionId,
-                    "amount" to amount.toDouble(),
-                    "fee" to fee.toDouble(),
-                    "timestamp" to timestamp,
-                    "sourceCard" to sourceCard,
-                    "destinationCard" to destinationCard,
-                    "type" to type,
-                    "content" to content,
-                    "category" to category
-                )
-
-                addDocumentToCollection(
-                    collectionName = "transferDetails",
-                    data = detail,
-                    documentId = transactionId,
-                    onSuccess = {}
-                )
-                addDocumentToCollection(
-                    collectionName = "transactionHistories",
-                    data = history,
-                    documentId = transactionId,
-                    onSuccess = {
-                        Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
-                        navController.popBackStack()
-                    }
-                )
             } catch (e: Exception) {
                 Log.e(TAG, "Transaction confirm failed", e)
                 Toast.makeText(context, "Confirm failed: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -1016,6 +1013,7 @@ class CustomerViewModel : ViewModel() {
     }
 
 
+    // Saving
     fun onSavingClick(
         cardNumber: String,
         navController: NavHostController

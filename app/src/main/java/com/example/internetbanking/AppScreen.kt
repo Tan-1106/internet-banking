@@ -13,6 +13,7 @@ import com.example.internetbanking.ui.customer.ConfirmScreen
 import com.example.internetbanking.ui.customer.CustomerHome
 import com.example.internetbanking.ui.customer.DepositAndWithdrawScreen
 import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
+import com.example.internetbanking.ui.customer.FindFlightScreen
 import com.example.internetbanking.ui.customer.LocateUserAndBankScreen
 import com.example.internetbanking.ui.customer.PayBillsScreen
 import com.example.internetbanking.ui.customer.ProfileScreen
@@ -155,7 +156,7 @@ fun AppScreen(
             )
         }
         composable(route = AppScreen.BuyFlightTickets.name) {
-            BuyFlightTicketsScreen(
+            FindFlightScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )

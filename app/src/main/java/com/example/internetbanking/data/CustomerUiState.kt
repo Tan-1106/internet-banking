@@ -44,7 +44,30 @@ data class TransactionRecord(
     val timestamp: Long = 0L,
     val sourceCard: String = "",
     val destinationCard: String = "",
-    val type: String = ""
+    val type: String = "",
+
+    val startTime: String = "",
+    val seats: List<String> = emptyList(),
+
+    // Phone TopUp
+    val destinationPhoneNumber: String = "",
+    val network: String = "",
+
+    // Pay Bill
+    val customerCode: String = "",
+    val provider: String = "",
+
+    // Flight
+    val flightProvider: String = "",
+    val numberOfPassengers: Int = 0,
+
+    // Movie
+    val movieName: String = "",
+    val cinema: String = "",
+
+    // Hotel
+    val hotelName: String = "",
+    val room: String = ""
 )
 
 data class TransactionDetail(

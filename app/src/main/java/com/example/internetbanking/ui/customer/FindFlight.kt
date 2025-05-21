@@ -91,7 +91,7 @@ fun FindFlightScreen(
     var departureAirport by remember { mutableStateOf<Airport?>(null) }
     var arrivalAirport by remember { mutableStateOf<Airport?>(null) }
     var departureDate by remember { mutableStateOf("") }
-    var numberOfPassengers by remember { mutableIntStateOf(1) }
+    var numberOfPassengers by remember { mutableStateOf("") }
     var ticketClass by remember { mutableStateOf("Economy") }
     var selectedFlight by remember { mutableStateOf<Flight?>(null) }
 
@@ -127,98 +127,113 @@ fun FindFlightScreen(
             )
         },
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            InformationSelect(
-                label = "Departure Airport",
-                placeholder = "Select departure airport",
-                options = airports.map { it.name },
-                onOptionSelected = {},
-                suffix = {
-                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
+            item {
+                InformationSelect(
+                    label = "Departure Airport",
+                    placeholder = "Select departure airport",
+                    options = airports.map { it.name },
+                    onOptionSelected = {
+                    },
+                    suffix = {
+                        VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                        Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
 
-                },
-            )
-            InformationSelect(
-                label = "Arrival Airport",
-                placeholder = "Select arrival airport",
-                options = airports.map { it.name },
-                onOptionSelected = {},
-                suffix = {
-                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
+                    },
+                )
+            }
+            item {
+                InformationSelect(
+                    label = "Arrival Airport",
+                    placeholder = "Select arrival airport",
+                    options = airports.map { it.name },
+                    onOptionSelected = {},
+                    suffix = {
+                        VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                        Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
 
-                },
-            )
-            DatePicker(
-                label = "Departure Date",
-                placeholder = "Select departure date",
-                onDatePick = {},
-                canSelectFuture = true,
-                suffix = {
-                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                    Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
+                    },
+                )
+            }
+            item {
+                DatePicker(
+                    label = "Departure Date",
+                    placeholder = "Select departure date",
+                    onDatePick = {},
+                    canSelectFuture = true,
+                    suffix = {
+                        VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                        Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
 
-                },
-            )
-            InformationLine(
-                label = "Number passenger",
-                placeholder = "Enter number passenger",
-                value = "",
-                onValueChange = {},
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number
-                ),
-            )
+                    },
+                )
+            }
+            item {
+                InformationLine(
+                    label = "Number passenger",
+                    placeholder = "Enter number passenger",
+                    value = numberOfPassengers,
+                    onValueChange = { numberOfPassengers = it },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    ),
+                )
+            }
+            item {
+                InformationSelect(
+                    label = "Ticket Class",
+                    placeholder = ticketClass,
 
-            InformationSelect(
-                label = "Ticket Class",
-                placeholder = "Select ticket class",
+                    options = listOf("Economy", "Business", "First Class"),
+                    onOptionSelected = { ticketClass = it },
+                    suffix = {
+                        VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
+                        Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
 
-                options = listOf("Economy", "Business", "First Class"),
-                onOptionSelected = { },
-                suffix = {
-                    VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
+                    },
+                )
+            }
+            item {
+                Text(
+                    text = "Available Flights",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-                },
-            )
-
-            Text(
-                text = "Available Flights",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            FlightList(
-                flights = flights,
-                selectedFlight = selectedFlight,
-                onFlightSelected = { flight -> selectedFlight = flight }
-            )
-
-            // Nút xác nhận
-            Button(
-                onClick = {
-                    if (departureAirport != null && arrivalAirport != null &&
-                        departureDate.isNotEmpty() && selectedFlight != null
-                    ) {
-                        // Xử lý đặt vé (gửi dữ liệu đến ViewModel hoặc navigation)
-                        navController.navigate("confirmation")
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                enabled = departureAirport != null && arrivalAirport != null &&
-                        departureDate.isNotEmpty() && selectedFlight != null
-            ) {
-                Text("Book Now", fontSize = 16.sp)
+            item {
+                FlightList(
+                    flights = flights,
+                    selectedFlight = selectedFlight,
+                    onFlightSelected = { flight -> selectedFlight = flight }
+                )
+            }
+            item {
+                // Nút xác nhận
+                Button(
+                    onClick = {
+                        if (departureAirport != null && arrivalAirport != null &&
+                            departureDate.isNotEmpty() && selectedFlight != null
+                        ) {
+                            // Xử lý đặt vé (gửi dữ liệu đến ViewModel hoặc navigation)
+                            navController.navigate("confirmation")
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    enabled = departureAirport != null && arrivalAirport != null &&
+                            departureDate.isNotEmpty() && selectedFlight != null
+                ) {
+                    Text("Book Now", fontSize = 16.sp)
+                }
             }
         }
     }

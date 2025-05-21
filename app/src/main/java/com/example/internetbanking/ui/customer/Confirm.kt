@@ -70,6 +70,7 @@ fun ConfirmScreen(
     val context: Context = LocalContext.current
     val customerUiState by customerViewModel.uiState.collectAsState()
     val currentTransaction = customerUiState.checkingCurrentTransfer
+    val transaction = currentTransaction.transaction
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -180,23 +181,29 @@ fun ConfirmScreen(
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
                         label = "Amount: ",
-                        data = "${formatCurrencyVN(currentTransaction.amount)} VND"
+                        data = "${formatCurrencyVN(transaction.amount)} VND"
                     )
                     Spacer(Modifier.height(20.dp))
                     LineConfirm(
                         label = "Fee Amount: ",
-                        data = "${formatCurrencyVN(currentTransaction.fee)} VND"
+                        data = "${formatCurrencyVN(transaction.fee)} VND"
                     )
                     Spacer(Modifier.height(20.dp))
-
-
-
+                    LineConfirm(
+                        label = "Content: ",
+                        data = currentTransaction.content
+                    )
 
                     PasswordConfirmationDialog(
                         showDialog = showDialog,
                         onDismiss = { showDialog = false },
                         onConfirm = { password ->
-
+                            customerViewModel.onPasswordConfirm(
+                                transactionDetail = currentTransaction,
+                                password = password,
+                                context = context,
+                                navController = navController
+                            )
                         }
                     )
                 }

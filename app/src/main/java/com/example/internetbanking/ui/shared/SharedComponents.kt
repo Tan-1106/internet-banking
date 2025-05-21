@@ -786,33 +786,28 @@ suspend fun checkTransactionIdExists(transactionId: String): Boolean {
 }
 
 // Check Existing Card Number
-suspend fun checkCardNumberExistsInAllDocuments(
-    collectionName: String,
+suspend fun checkCardNumberExistsInCollections(
     cardNumber: String
 ): Boolean {
     return try {
-        val collectionSnapshot = Firebase.firestore
-            .collection(collectionName)
-            .get()
-            .await()
+        val db = Firebase.firestore
 
-        for (document in collectionSnapshot.documents) {
-            val checking = document.get("checking") as? Map<*, *>
-            val saving = document.get("saving") as? Map<*, *>
-            val mortgage = document.get("mortgage") as? Map<*, *>
+        val collectionsToCheck = listOf("checking", "saving", "mortgage")
 
-            val allAccounts = listOfNotNull(checking, saving, mortgage)
+        for (collection in collectionsToCheck) {
+            val docSnapshot = db.collection(collection)
+                .document(cardNumber)
+                .get()
+                .await()
 
-            for (accountMap in allAccounts) {
-                if (accountMap["cardNumber"] == cardNumber) {
-                    return true
-                }
+            if (docSnapshot.exists()) {
+                return true
             }
         }
 
         false
     } catch (e: Exception) {
-        Log.e("CheckCardNumber", "Error checking cardNumber: ${e.message}")
+        Log.e("CheckCardNumber", "Error checking documentId: ${e.message}")
         false
     }
 }
@@ -859,4 +854,22 @@ fun updateUserFieldByAccountId(
             Log.e("FirestoreUpdate", "Failed to update $fieldName", exception)
             onFailure(exception)
         }
+}
+
+// Update A Field In Collection
+suspend fun updateFieldInDocument(
+    collectionName: String,
+    documentId: String,
+    fieldName: String,
+    value: Any
+): Boolean {
+    return try {
+        val db = Firebase.firestore
+        val docRef = db.collection(collectionName).document(documentId)
+        docRef.update(fieldName, value).await()
+        true
+    } catch (e: Exception) {
+        Log.e("FirestoreUpdate", "Error updating field: ${e.message}")
+        false
+    }
 }

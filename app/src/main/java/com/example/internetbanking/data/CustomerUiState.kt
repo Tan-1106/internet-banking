@@ -11,16 +11,17 @@ data class CustomerUiState(
     val transactionHistory: List<TransactionRecord> = emptyList(),
     val transactionHistoryToView: TransactionRecord = TransactionRecord(),
 
+
     // Checking
     val checkingCardNumber: String = "",
     val checkingBalance: BigDecimal = BigDecimal.ZERO,
-    val checkingCurrentTransfer: TransactionRecord = TransactionRecord(),
+    val checkingCurrentTransfer: TransactionDetail = TransactionDetail(),
 
     // Saving
     val savingCardNumber: String = "",
     val savingBalance: BigDecimal = BigDecimal.ZERO,
     val savingProfits: BigDecimal = BigDecimal.ZERO,
-    val savingWithdrawDate: String = "",
+    val savingWithdrawDate: Long = 0L,
     val savingStatus: String = "",
 
     // Mortgage
@@ -41,4 +42,10 @@ data class TransactionRecord(
     val sourceCard: String = "",
     val destinationCard: String = "",
     val type: String = ""
+)
+
+data class TransactionDetail(
+    val transaction: TransactionRecord = TransactionRecord(),
+    val content: String = "",
+    val category: String = ""
 )

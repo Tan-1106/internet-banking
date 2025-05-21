@@ -51,7 +51,7 @@ import com.example.internetbanking.ui.shared.BalanceInformation
 import com.example.internetbanking.ui.shared.GreenGradientButton
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
-import com.example.internetbanking.ui.shared.checkCardNumberExistsInAllDocuments
+import com.example.internetbanking.ui.shared.checkCardNumberExistsInCollections
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_mint_green
@@ -271,7 +271,7 @@ fun TransferScreen(
                         GreenGradientButton(
                             onButtonClick = {
                                 coroutineScope.launch {
-                                    val existCard = checkCardNumberExistsInAllDocuments("users", beneficiaryAccount)
+                                    val existCard = checkCardNumberExistsInCollections(beneficiaryAccount)
                                     if (beneficiaryBank == "") {
                                         beneficiaryBankEM = "Please select beneficiary bank"
                                     } else if (beneficiaryAccount == customerUiState.checkingCardNumber) {
@@ -293,7 +293,7 @@ fun TransferScreen(
                                             bank = beneficiaryBank, sourceCard = customerUiState.checkingCardNumber,
                                             amount = amount, content = content, category = category,
                                             destinationCard = beneficiaryAccount,
-                                            navControler = navController
+                                            navController = navController
                                         )
                                     }
                                 }

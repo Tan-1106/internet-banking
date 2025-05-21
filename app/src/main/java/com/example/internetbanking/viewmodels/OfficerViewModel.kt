@@ -13,7 +13,7 @@ import com.example.internetbanking.AppScreen
 import com.example.internetbanking.data.OfficerUiState
 import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.addDocumentToCollection
-import com.example.internetbanking.ui.shared.checkCardNumberExistsInAllDocuments
+import com.example.internetbanking.ui.shared.checkCardNumberExistsInCollections
 import com.example.internetbanking.ui.shared.checkExistData
 import com.example.internetbanking.ui.shared.updateUserFieldByAccountId
 import com.google.firebase.Firebase
@@ -211,7 +211,7 @@ class OfficerViewModel : ViewModel() {
         var cardNumber: String
         while (true) {
             cardNumber = (1000000000..9999999999).random().toString()
-            val isCardNumberExist = checkCardNumberExistsInAllDocuments("users", cardNumber)
+            val isCardNumberExist = checkCardNumberExistsInCollections(cardNumber)
             if (!isCardNumberExist) {
                 return cardNumber
             }

@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.internetbanking.AppScreen
 import com.example.internetbanking.data.CustomerUiState
+import com.example.internetbanking.data.TransactionDetail
 import com.example.internetbanking.data.TransactionRecord
 import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.addDocumentToCollection
@@ -20,6 +21,7 @@ import com.example.internetbanking.ui.shared.updateUserFieldByAccountId
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -509,14 +511,108 @@ class CustomerViewModel : ViewModel() {
                 destinationCard = destinationCard,
                 type = "Transfer"
             )
+            val newTransferDetail = TransactionDetail(
+                transaction = newTransferRecord,
+                content = summaryContent,
+                category = cate
+            )
 
             _uiState.update { currentState ->
                 currentState.copy(
-                    checkingCurrentTransfer = newTransferRecord
+                    checkingCurrentTransfer = newTransferDetail
                 )
             }
-
             navController.navigate(AppScreen.Confirm.name)
+        }
+    }
+
+    // Transfer Event
+    fun getCardDocRef(cardNumber: String): DocumentReference {
+        val collections = listOf("checking", "saving", "mortgage")
+        for (collection in collections) {
+            val docRef = db.collection(collection).document(cardNumber)
+            return docRef
+        }
+        throw IllegalArgumentException("Card number $cardNumber not found in any collection")
+    }
+
+    suspend fun transferAmountBetweenAccounts(
+        sourceCardNumber: String,
+        destinationCardNumber: String,
+        amount: BigDecimal
+    ): Boolean {
+        return try {
+            db.runTransaction { transaction ->
+
+                val sourceDocRef = getCardDocRef(sourceCardNumber)
+                val destDocRef = getCardDocRef(destinationCardNumber)
+
+                // Check source
+                val sourceSnapshot = transaction.get(sourceDocRef)
+                val sourceBalance = sourceSnapshot.getString("balance")?.toBigDecimalOrNull()
+
+                val newSourceBalance = sourceBalance?.minus(amount)
+                transaction.update(sourceDocRef, "balance", newSourceBalance)
+
+                // Update destination
+                val destSnapshot = transaction.get(destDocRef)
+                val destBalance = destSnapshot.getString("balance")?.toBigDecimalOrNull()
+
+                val newDestBalance = destBalance?.plus(amount)
+                transaction.update(destDocRef, "balance", newDestBalance)
+
+            }.await()
+            true
+        } catch (e: Exception) {
+            Log.e("Transfer", "Error during transfer: ${e.message}")
+            false
+        }
+    }
+
+
+    // Password Confirm
+    fun onPasswordConfirm(
+        transactionDetail: TransactionDetail,
+        password: String,
+        context: Context,
+        navController: NavHostController
+    ) {
+        viewModelScope.launch {
+            val email = uiState.value.account.email
+            try {
+                auth.signInWithEmailAndPassword(email, password).await()
+                val sourceCard = transactionDetail.transaction.sourceCard
+                val destCard = transactionDetail.transaction.destinationCard
+                val amount = transactionDetail.transaction.amount
+
+                val success = transferAmountBetweenAccounts(sourceCard, destCard, amount)
+                if (success) {
+                    addDocumentToCollection(
+                        collectionName = "transferDetails",
+                        data = mapOf(
+                            "transactionId" to transactionDetail.transaction.transactionId,
+                            "amount" to amount,
+                            "fee" to transactionDetail.transaction.fee,
+                            "timestamp" to transactionDetail.transaction.timestamp,
+                            "sourceCard" to sourceCard,
+                            "destinationCard" to destCard,
+                            "type" to transactionDetail.transaction.type,
+                            "content" to transactionDetail.content,
+                            "category" to transactionDetail.category
+                        ),
+                        documentId = transactionDetail.transaction.transactionId,
+                        onSuccess = {
+                            Toast.makeText(context, "Transfer successful", Toast.LENGTH_SHORT).show()
+                            navController.navigate(AppScreen.CustomerHome.name)
+                        }
+                    )
+                } else {
+                    Toast.makeText(context, "Transfer failed", Toast.LENGTH_SHORT).show()
+                }
+
+            } catch (_: Exception) {
+                Toast.makeText(context, "Confirm failed", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

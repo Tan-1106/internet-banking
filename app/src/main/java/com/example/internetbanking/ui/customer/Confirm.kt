@@ -198,7 +198,7 @@ fun ConfirmScreen(
                         showDialog = showDialog,
                         onDismiss = { showDialog = false },
                         onConfirm = { password ->
-                            customerViewModel.onPasswordConfirm(
+                            customerViewModel.onTransferPasswordConfirm(
                                 transactionDetail = currentTransaction,
                                 password = password,
                                 context = context,

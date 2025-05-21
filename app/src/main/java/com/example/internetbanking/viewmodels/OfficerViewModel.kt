@@ -15,6 +15,7 @@ import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.addDocumentToCollection
 import com.example.internetbanking.ui.shared.checkCardNumberExistsInCollections
 import com.example.internetbanking.ui.shared.checkExistData
+import com.example.internetbanking.ui.shared.generateUniqueCardNumber
 import com.example.internetbanking.ui.shared.updateUserFieldByAccountId
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -206,18 +207,6 @@ class OfficerViewModel : ViewModel() {
             .addOnFailureListener { e -> onFailure(e) }
     }
 
-    // Generate Random Card Number
-    private suspend fun generateUniqueAccountId(): String {
-        var cardNumber: String
-        while (true) {
-            cardNumber = (1000000000..9999999999).random().toString()
-            val isCardNumberExist = checkCardNumberExistsInCollections(cardNumber)
-            if (!isCardNumberExist) {
-                return cardNumber
-            }
-        }
-    }
-
     // Create Customer
     fun onCreateCustomerButtonClick(
         context: Context,
@@ -260,7 +249,7 @@ class OfficerViewModel : ViewModel() {
                 )
 
                 // Add User's Checking Data
-                val checkingCardNumber = generateUniqueAccountId()
+                val checkingCardNumber = generateUniqueCardNumber()
                 val checkingData = mapOf(
                     "accountId" to accountId,
                     "cardNumber" to checkingCardNumber,

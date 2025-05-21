@@ -556,7 +556,7 @@ class CustomerViewModel : ViewModel() {
         sourceCard: String = "", destinationCard: String = "",
         type: String = "", startTime: String = "", seats: List<String> = emptyList(),
         destinationPhoneNumber: String = "", network: String = "",
-        customerCode: String = "", provider: String = "",
+        customerCode: String = "", billType: String = "", provider: String = "",
         flightProvider: String = "", numberOfPassengers: Int = 0,
         movieName: String = "", cinema: String = "",
         hotelName: String = "", room: String = "",
@@ -567,7 +567,8 @@ class CustomerViewModel : ViewModel() {
             val newTransactionId = generateUniqueTransactionId()
             val timestamp: Long = System.currentTimeMillis()
             val cate = if (category.isEmpty()) "Transaction" else category
-            val summaryContent = "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
+            val summaryContent =
+                "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
 
             val newTransferRecord = TransactionRecord(
                 transactionId = newTransactionId,
@@ -584,6 +585,7 @@ class CustomerViewModel : ViewModel() {
                 destinationPhoneNumber = destinationPhoneNumber,
                 network = network,
 
+                billType = billType,
                 customerCode = customerCode,
                 provider = provider,
 
@@ -683,7 +685,7 @@ class CustomerViewModel : ViewModel() {
 
                 val transaction = uiState.value.checkingCurrentTransfer.transaction
 
-                val transactionId =transaction.transactionId
+                val transactionId = transaction.transactionId
                 val amount = transaction.amount
                 val fee = transaction.fee
                 val timestamp = transaction.timestamp
@@ -713,8 +715,8 @@ class CustomerViewModel : ViewModel() {
                 val category = transactionDetail.category
                 val totalDeduct = amount + fee
 
-                transferBetweenCard(sourceCard, destinationCard, totalDeduct)
                 if (type == "Transfer") {
+                    transferBetweenCard(sourceCard, destinationCard, totalDeduct)
                     val history = mapOf(
                         "amount" to amount.toDouble(),
                         "fee" to fee.toDouble(),
@@ -746,13 +748,59 @@ class CustomerViewModel : ViewModel() {
                         data = history,
                         documentId = transactionId,
                         onSuccess = {
-                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT)
+                                .show()
                             navController.popBackStack()
                         }
                     )
-                } else if (type == "Phone") {
+                } else if (type == Service.Paybill.name) {
+                    val billDocument = db.collection("bills").document(customerCode)
+                    try {
+                        val billSnapshot = billDocument.get().await()
+                        val destinationCard = billSnapshot.getString("cardNumber") ?: ""
+                        val amount = (billSnapshot.getLong("amount") ?: 0L)
+                        val totalDeduct = BigDecimal.valueOf(amount) + fee
+                        Log.i("Paybill", destinationCard)
+                        transferBetweenCard(sourceCard, destinationCard, totalDeduct)
+                        val history = mapOf(
+                            "amount" to amount,
+                            "fee" to fee.toDouble(),
+                            "sourceCard" to uiState.value.checkingCardNumber,
+                            "destinationCard" to destinationCard,
+                            "timestamp" to System.currentTimeMillis(),
+                            "type" to type
+                        )
+                        updateFieldInDocument(
+                            collectionName = "bills",
+                            documentId = customerCode,
+                            fieldName = "status",
+                            newValue = true
+                        )
+                        addDocumentToCollection(
+                            collectionName = "transactionHistories",
+                            data = history,
+                            documentId = transactionId,
+                            onSuccess = {
+                                Toast.makeText(
+                                    context,
+                                    "Transaction successful",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                                navController.navigate(AppScreen.CustomerHome.name) {
+                                    popUpTo(AppScreen.CustomerHome.name) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                        )
 
-                } else if (type === "PayBill") {
+
+                    } catch (e: Exception) {
+                        Log.e("PayBill", e.message.toString())
+                    }
+
+                } else if (type == "Phone") {
 
                 } else if (type == "Flight") {
 
@@ -766,6 +814,10 @@ class CustomerViewModel : ViewModel() {
                 Toast.makeText(context, "Confirm failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun payBillTrasaction() {
+
     }
 
     fun createSavingAccount(context: Context) {

@@ -44,7 +44,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.BillType
 import com.example.internetbanking.R
+import com.example.internetbanking.Service
 import com.example.internetbanking.ui.shared.BalanceInformation
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
@@ -61,8 +63,7 @@ fun PayBillsScreen(
     navController: NavHostController
 ) {
     val customerUiState by customerViewModel.uiState.collectAsState()
-
-    var service by remember { mutableStateOf("") }
+    var billType by remember { mutableStateOf("") }
     var customerCode by remember { mutableStateOf("") }
 
     Box(
@@ -118,7 +119,13 @@ fun PayBillsScreen(
 
                     ElevatedButton(
                         onClick = {
-                            // TODO: PAY BILL
+                            customerViewModel.onContinueTransactionClick(
+                                billType = billType,
+                                customerCode = customerCode,
+                                type = Service.Paybill.name,
+                                sourceCard = customerUiState.checkingCardNumber,
+                                navController = navController
+                            )
                         },
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 10.dp)
@@ -154,10 +161,10 @@ fun PayBillsScreen(
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 InformationSelect(
-                    label = "Service",
-                    placeholder = "Select Service",
-                    options = listOf("Electricity", "Water"),
-                    onOptionSelected = { service = it }
+                    label = "Bill Type",
+                    placeholder = "Select bill type",
+                    options = BillType.entries.map { it.name },
+                    onOptionSelected = { billType = it }
                 )
                 InformationLine(
                     label = "Customer code ",

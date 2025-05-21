@@ -34,7 +34,7 @@ data class CustomerUiState(
 
     //deposit
     val currentTransaction: TransactionRecord? = null,
-    //withdraw
+
 )
 
 data class TransactionRecord(
@@ -54,6 +54,7 @@ data class TransactionRecord(
     val network: String = "",
 
     // Pay Bill
+    val billType: String = "",
     val customerCode: String = "",
     val provider: String = "",
 

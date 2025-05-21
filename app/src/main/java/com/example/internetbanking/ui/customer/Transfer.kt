@@ -271,13 +271,16 @@ fun TransferScreen(
                         GreenGradientButton(
                             onButtonClick = {
                                 coroutineScope.launch {
-                                    val existCard = checkCardNumberExistsInCollections(beneficiaryAccount)
+                                    val existCard =
+                                        checkCardNumberExistsInCollections(beneficiaryAccount)
                                     if (beneficiaryBank == "") {
                                         beneficiaryBankEM = "Please select beneficiary bank"
                                     } else if (beneficiaryAccount == customerUiState.checkingCardNumber) {
-                                        beneficiaryAccountEM = "Cannot transfer money in the same card"
-                                    } else if(beneficiaryAccount == ""){
-                                        beneficiaryAccountEM = "Please enter beneficiary card number"
+                                        beneficiaryAccountEM =
+                                            "Cannot transfer money in the same card"
+                                    } else if (beneficiaryAccount == "") {
+                                        beneficiaryAccountEM =
+                                            "Please enter beneficiary card number"
                                     } else if (!existCard) {
                                         beneficiaryAccountEM = "Card does not exist"
                                     } else if (amount <= BigDecimal.valueOf(5000.0)) {
@@ -290,8 +293,11 @@ fun TransferScreen(
                                         amountEM = ""
 
                                         customerViewModel.onContinueTransactionClick(
-                                            bank = beneficiaryBank, sourceCard = customerUiState.checkingCardNumber,
-                                            amount = amount, content = content, category = category,
+                                            bank = beneficiaryBank,
+                                            sourceCard = customerUiState.checkingCardNumber,
+                                            amount = amount,
+                                            content = content,
+                                            category = category,
                                             destinationCard = beneficiaryAccount,
                                             navController = navController
                                         )

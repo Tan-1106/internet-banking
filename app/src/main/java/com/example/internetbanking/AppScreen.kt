@@ -30,6 +30,9 @@ import com.example.internetbanking.ui.shared.LoginScreen
 import com.example.internetbanking.viewmodels.CustomerViewModel
 import com.example.internetbanking.viewmodels.LoginViewModel
 import com.example.internetbanking.viewmodels.OfficerViewModel
+enum class BillType {
+    Electricity, Water, Internet, SchoolFee, HospitalFee
+}
 enum class Service(){
     Deposit,Withdraw,Transfer,Paybill,DepositPhoneMoney,BookFlightTicket,BookMovieTicket,BookHotelRooms,
     OpenSavingAccount,OpenMortgageAccount

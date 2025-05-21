@@ -1,7 +1,11 @@
 package com.example.internetbanking.ui.customer
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +36,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -44,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,6 +63,7 @@ import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.BalanceInformation
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
+import com.example.internetbanking.ui.theme.custom_dark_green
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_light_green2
 import com.example.internetbanking.ui.theme.custom_mint_green
@@ -68,16 +75,19 @@ fun DepositPhoneMoneyScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
+    val context: Context = LocalContext.current
     val customerUiState by customerViewModel.uiState.collectAsState()
 
     var phoneNumber by remember { mutableStateOf("") }
+    var phoneMoney by remember { mutableStateOf("") }
+    var selectedAmount by remember { mutableStateOf<String?>(null) }
     val amounts = listOf(
-        "50.0000đ",
-        "100.0000đ",
-        "200.0000đ",
-        "500.0000đ",
-        "1.000.0000đ",
-        "2.000.0000đ",
+        "20.000đ",
+        "50.000đ",
+        "100.000đ",
+        "200.000đ",
+        "500.000đ",
+        "1.000.000đ",
     )
     Box(
         modifier = Modifier
@@ -92,7 +102,6 @@ fun DepositPhoneMoneyScreen(
         Scaffold(
             containerColor = Color.Transparent,
             topBar = {
-
                 TopAppBar(
                     title = {
                         Text(
@@ -103,9 +112,11 @@ fun DepositPhoneMoneyScreen(
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = {
-                            navController.navigateUp()
-                        }) {
+                        IconButton(
+                            onClick = {
+                                navController.navigateUp()
+                            }
+                        ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = null,
@@ -129,9 +140,24 @@ fun DepositPhoneMoneyScreen(
                         .height(50.dp)
                         .background(Color.White)
                 ) {
-
                     ElevatedButton(
-                        onClick = {},
+                        onClick = {
+                            if (phoneNumber.length < 10 || phoneNumber.length > 11) {
+                                Toast.makeText(context, "Invalid phone number", Toast.LENGTH_SHORT).show()
+                            } else if (phoneMoney.isEmpty()) {
+                                Toast.makeText(context, "Please enter top up value", Toast.LENGTH_SHORT).show()
+                            } else {
+                                customerViewModel.onContinueTransactionClick(
+                                    type = "Phone",
+                                    amount = phoneMoney.toBigDecimal(),
+                                    sourceCard = customerUiState.checkingCardNumber,
+                                    destinationCard = "9659054023",
+                                    network = "Vinaphone",
+                                    destinationPhoneNumber = phoneNumber,
+                                    navController = navController
+                                )
+                            }
+                        },
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 10.dp)
                             .fillMaxSize(),
@@ -140,7 +166,11 @@ fun DepositPhoneMoneyScreen(
                             containerColor = custom_light_green1
                         )
                     ) {
-                        Text("Continue", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "Continue",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
 
                 }
@@ -167,26 +197,31 @@ fun DepositPhoneMoneyScreen(
                 )
                 Spacer(Modifier.height(20.dp))
                 Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
                             color = Color.White,
-
                             shape = RoundedCornerShape(
                                 corner = CornerSize(20)
                             )
-                        ),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        )
                 ) {
                     Column(modifier = Modifier.fillMaxWidth(0.8f)) {
                         TextField(
-                            phoneNumber,
+                            value = phoneNumber,
                             onValueChange = { phoneNumber = it },
                             keyboardOptions = KeyboardOptions.Default.copy(
                                 keyboardType = KeyboardType.Number
+                            ),
+                            singleLine = true,
+                            colors = TextFieldDefaults.colors(
+                                unfocusedContainerColor = Color.White,
+                                focusedContainerColor = Color.White,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent
                             )
-
                         )
                     }
                     Column(
@@ -195,7 +230,8 @@ fun DepositPhoneMoneyScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            Icons.Default.Contacts, contentDescription = null,
+                            imageVector = Icons.Default.Contacts,
+                            contentDescription = null,
                             tint = Color.Black,
                             modifier = Modifier
                                 .size(30.dp)
@@ -220,25 +256,56 @@ fun DepositPhoneMoneyScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-
-                        ) {
-
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
                         items(items = amounts) { amount ->
-                            OutlinedButton(
-                                onClick = {},
-                                shape = RoundedCornerShape(corner = CornerSize(10.dp)),
-                                contentPadding = PaddingValues(all = 0.dp),
+                            AmountOption(
+                                amount = amount,
+                                isSelected = selectedAmount == amount,
+                                onClick = {
+                                    selectedAmount = amount
+                                    val raw = amount.replace(".", "").replace("đ", "").trim()
+                                    phoneMoney = raw
+                                },
                                 modifier = Modifier.padding(5.dp)
-                            ) {
-                                Text(amount, fontSize = 15.sp, color = Color.Black)
-                            }
+                            )
                         }
                     }
-
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AmountOption(
+    amount: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .border(
+                width = 1.dp,
+                color = if (isSelected) custom_dark_green else Color.Gray,
+                shape = RoundedCornerShape(corner = CornerSize(10.dp))
+            )
+            .clickable { onClick() }
+            .background(
+                color = if (isSelected) custom_dark_green.copy(alpha = 0.1f) else Color.Transparent,
+                shape = RoundedCornerShape(corner = CornerSize(10.dp))
+            )
+            .padding(10.dp)
+    ) {
+        Text(
+            text = amount,
+            fontSize = 12.sp,
+            color = if (isSelected) custom_dark_green else Color.Black,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .background(Color.Transparent)
+        )
     }
 }
 

@@ -601,7 +601,9 @@ class CustomerViewModel : ViewModel() {
             )
             val newTransferDetail = TransactionDetail(
                 transaction = newTransferRecord,
-                content = summaryContent,
+                content = if (!destinationPhoneNumber.isEmpty()) {
+                    "[Phone TopUp] Top up ${formatCurrencyVN(amount)} VND to phone number $destinationPhoneNumber"
+                } else summaryContent,
                 category = cate
             )
 
@@ -800,7 +802,46 @@ class CustomerViewModel : ViewModel() {
                 }
                 // PHONE TOP UP
                 else if (type == "Phone") {
+                    transferBetweenCard(sourceCard, destinationCard, totalDeduct)
+                    val history = mapOf(
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "timestamp" to timestamp,
+                        "type" to type
+                    )
+                    val detail = mapOf(
+                        "transactionId" to transactionId,
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "timestamp" to timestamp,
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "type" to type,
+                        "content" to content,
+                        "category" to category
+                    )
 
+                    addDocumentToCollection(
+                        collectionName = "transferDetails",
+                        data = detail,
+                        documentId = transactionId,
+                        onSuccess = {}
+                    )
+                    addDocumentToCollection(
+                        collectionName = "transactionHistories",
+                        data = history,
+                        documentId = transactionId,
+                        onSuccess = {
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                            navController.navigate(AppScreen.CustomerHome.name) {
+                                popUpTo(AppScreen.CustomerHome.name) {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    )
                 }
                 // FLIGHT BOOKING
                 else if (type == "Flight") {

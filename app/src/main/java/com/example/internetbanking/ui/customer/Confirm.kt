@@ -223,14 +223,18 @@ fun ConfirmScreen(
 
 @Composable
 fun LineConfirm(label: String, data: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp)
+    ) {
         Text(
             label, fontWeight = FontWeight.Bold,
             fontSize = 15.sp
         )
         Text(data, fontSize = 15.sp)
     }
-    Spacer(Modifier.height(10.dp))
     HorizontalDivider(color = Color.Gray)
 }
 

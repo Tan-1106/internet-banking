@@ -293,6 +293,7 @@ fun TransferScreen(
                                         amountEM = ""
 
                                         customerViewModel.onContinueTransactionClick(
+                                            type = "Transfer",
                                             bank = beneficiaryBank,
                                             sourceCard = customerUiState.checkingCardNumber,
                                             amount = amount,

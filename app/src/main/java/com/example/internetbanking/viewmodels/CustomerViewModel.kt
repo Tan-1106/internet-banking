@@ -570,9 +570,10 @@ class CustomerViewModel : ViewModel() {
             val summaryContent =
                 "[$cate] ${formatCurrencyVN(amount)} has been transferred by $sourceCard to ${destinationCard}($bank) with message:\"$content\""
 
+            val billAmount = getFieldValueFromDocument("bills", customerCode, "amount").toString()
             val newTransferRecord = TransactionRecord(
                 transactionId = newTransactionId,
-                amount = amount,
+                amount = if (!customerCode.isEmpty()) billAmount.toBigDecimal() else amount,
                 fee = fee,
                 timestamp = timestamp,
                 sourceCard = sourceCard,
@@ -715,6 +716,7 @@ class CustomerViewModel : ViewModel() {
                 val category = transactionDetail.category
                 val totalDeduct = amount + fee
 
+                // TRANSFER
                 if (type == Service.Transfer.name) {
                     transferBetweenCard(sourceCard, destinationCard, totalDeduct)
                     val history = mapOf(
@@ -748,12 +750,17 @@ class CustomerViewModel : ViewModel() {
                         data = history,
                         documentId = transactionId,
                         onSuccess = {
-                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT)
-                                .show()
-                            navController.popBackStack()
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                            navController.navigate(AppScreen.CustomerHome.name) {
+                                popUpTo(AppScreen.CustomerHome.name) {
+                                    inclusive = true
+                                }
+                            }
                         }
                     )
-                } else if (type == Service.Paybill.name) {
+                }
+                // PAY BILL
+                else if (type == Service.Paybill.name) {
                     val billDocument = db.collection("bills").document(customerCode)
                     try {
                         val billSnapshot = billDocument.get().await()
@@ -781,12 +788,7 @@ class CustomerViewModel : ViewModel() {
                             data = history,
                             documentId = transactionId,
                             onSuccess = {
-                                Toast.makeText(
-                                    context,
-                                    "Transaction successful",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
+                                Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
                                 navController.navigate(AppScreen.CustomerHome.name) {
                                     popUpTo(AppScreen.CustomerHome.name) {
                                         inclusive = true
@@ -794,19 +796,22 @@ class CustomerViewModel : ViewModel() {
                                 }
                             }
                         )
+                    } catch (e: Exception) { Log.e("PayBill", e.message.toString()) }
+                }
+                // PHONE TOP UP
+                else if (type == "Phone") {
 
+                }
+                // FLIGHT BOOKING
+                else if (type == "Flight") {
 
-                    } catch (e: Exception) {
-                        Log.e("PayBill", e.message.toString())
-                    }
+                }
+                // MOVIE TICKET
+                else if (type == "Movie") {
 
-                } else if (type == "Phone") {
-
-                } else if (type == "Flight") {
-
-                } else if (type == "Movie") {
-
-                } else if (type == "Hotel") {
+                }
+                // HOTEL ROOM BOOKING
+                else if (type == "Hotel") {
 
                 }
             } catch (e: Exception) {

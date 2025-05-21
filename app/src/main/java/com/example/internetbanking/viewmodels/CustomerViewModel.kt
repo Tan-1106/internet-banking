@@ -848,6 +848,7 @@ class CustomerViewModel : ViewModel() {
             navController.navigate(AppScreen.Transaction.name)
         }
     }
+
     fun onConfirmDeposit(
         cardNumber: String,
         bank: String,
@@ -899,8 +900,7 @@ class CustomerViewModel : ViewModel() {
                                     fieldName = "balance",
                                     newValue = newBalance
                                 )
-                                _uiState.update {
-                                        currentUiState->
+                                _uiState.update { currentUiState ->
                                     currentUiState.copy(
                                         currentTransaction = null
                                     )
@@ -941,6 +941,7 @@ class CustomerViewModel : ViewModel() {
             navController.navigate(AppScreen.Transaction.name)
         }
     }
+
     fun onConfirmWithdraw(
         cardNumber: String,
         bank: String,
@@ -963,24 +964,19 @@ class CustomerViewModel : ViewModel() {
             try {
                 val snapshot = checkingDocRef.get().await()
                 val currentBalance = snapshot.getLong("balance") ?: 0
-                val newBalance = currentBalance.plus(transaction.amount.toLong())
+                val newBalance = currentBalance.minus(transaction.amount.toLong())
                 updateFieldInDocument(
                     collectionName = "checking",
                     documentId = checkingCardNumber,
                     fieldName = "balance",
-                    value = newBalance
+                    newValue = newBalance
                 )
-                _uiState.update {
-                        currentUiState->
+                _uiState.update { currentUiState ->
                     currentUiState.copy(
                         currentTransaction = null
                     )
                 }
-                Toast.makeText(context, "Deposit successful!", Toast.LENGTH_SHORT)
-                    .show()
-                navController.navigate(AppScreen.CustomerHome.name) {
-                    popUpTo(AppScreen.CustomerHome.name) { inclusive = true }
-                }
+
             } catch (e: Exception) {
                 Log.e("Deposit", "Failed to update balance: ${e.message}")
             }
@@ -1008,6 +1004,11 @@ class CustomerViewModel : ViewModel() {
                         "toBank" to bank
                     ),
                     onSuccess = {
+                        Toast.makeText(context, "Withdraw successful!", Toast.LENGTH_SHORT)
+                            .show()
+                        navController.navigate(AppScreen.CustomerHome.name) {
+                            popUpTo(AppScreen.CustomerHome.name) { inclusive = true }
+                        }
                     }
                 )
             }
@@ -1112,4 +1113,5 @@ class CustomerViewModel : ViewModel() {
             }
         }
     }
+
 }

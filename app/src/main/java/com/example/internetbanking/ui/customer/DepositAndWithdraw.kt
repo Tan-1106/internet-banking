@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,13 +54,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
@@ -72,15 +69,16 @@ import java.math.BigDecimal
 @Composable
 fun DepositAndWithdrawScreen(
     customerViewModel: CustomerViewModel,
-//    customerViewModelDT: CustomerViewModelDT,
     userSelect: Int = 0,
     navController: NavHostController
 ) {
+    val uiState by customerViewModel.uiState.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(userSelect) }
     val tabs = listOf("Deposit", "Withdraw")
     var amount by remember { mutableStateOf(BigDecimal.ZERO) }
     var isDepositError by remember { mutableStateOf(false) }
     var isWithdrawError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -134,6 +132,7 @@ fun DepositAndWithdrawScreen(
                             onClick = {
                                 if (amount == BigDecimal.ZERO) {
                                     isDepositError = true
+                                    errorMessage = "Please enter an amount"
                                 } else {
 
                                     customerViewModel.onStartDeposit(
@@ -158,7 +157,17 @@ fun DepositAndWithdrawScreen(
                         }
                     } else {
                         ElevatedButton(
-                            onClick = {},
+                            onClick = {
+                                if (amount > uiState.checkingBalance) {
+                                    errorMessage = "Not enough balance"
+                                    isWithdrawError = true
+                                } else {
+                                    customerViewModel.onStartWithdraw(
+                                        amount = amount,
+                                        navController = navController
+                                    )
+                                }
+                            },
                             modifier = Modifier
                                 .padding(vertical = 5.dp, horizontal = 10.dp)
                                 .fillMaxSize(),
@@ -236,6 +245,7 @@ fun DepositAndWithdrawScreen(
                         amount = amount,
                         label = "Enter the amount to deposit",
                         isError = isDepositError,
+                        errorMessage = errorMessage,
                         onAmountChange = {
                             amount = if (it.isEmpty()) {
                                 BigDecimal.ZERO
@@ -249,6 +259,7 @@ fun DepositAndWithdrawScreen(
                         amount = amount,
                         label = "Enter the amount to withdraw",
                         isError = isWithdrawError,
+                        errorMessage = errorMessage,
                         onAmountChange = {
                             amount = if (it.isEmpty()) {
                                 BigDecimal.ZERO
@@ -322,6 +333,7 @@ fun TabScreen(
     onAmountChange: (String) -> Unit,
     label: String,
     isError: Boolean = false,
+    errorMessage: String = "",
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -352,23 +364,29 @@ fun TabScreen(
                 Text(label, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(5.dp))
-                OutlinedTextField(
-                    isError = isError,
+            OutlinedTextField(
+                isError = isError,
 
-                    value = "${formatCurrencyVN(amount)}đ",
-                    onValueChange = {
-                        val raw = it.replace(".", "").replace("đ", "").trim()
-                        onAmountChange(raw)
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    shape = OutlinedTextFieldDefaults.shape,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.Gray,
-                        focusedBorderColor = custom_mint_green,
-                        focusedLabelColor = custom_light_green1,
-                    ),
-                    placeholder = { Text("0đ") }, modifier = Modifier.fillMaxWidth(0.8f)
+                value = "${formatCurrencyVN(amount)}đ",
+                onValueChange = {
+                    val raw = it.replace(".", "").replace("đ", "").trim()
+                    onAmountChange(raw)
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                shape = OutlinedTextFieldDefaults.shape,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.Gray,
+                    focusedBorderColor = custom_mint_green,
+                    focusedLabelColor = custom_light_green1,
+                ),
+                placeholder = { Text("0đ") }, modifier = Modifier.fillMaxWidth(0.8f)
+            )
+            if (isError) {
+                Spacer(Modifier.height(5.dp))
+                Text(
+                    errorMessage, color = Color.Red, fontSize = 12.sp
                 )
+            }
         }
     }
 }

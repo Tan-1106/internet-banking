@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.Service
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
 import com.example.internetbanking.ui.shared.formatCurrencyVN
@@ -87,7 +88,12 @@ fun TransactionScreen(
         bottomBar = {
             Column(horizontalAlignment = Alignment.Start) {
                 if (!errorMessage.isEmpty()) {
-                    Text(errorMessage, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 10.dp))
+                    Text(
+                        errorMessage,
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(horizontal = 10.dp)
+                    )
                 }
                 Row(
                     modifier = Modifier
@@ -103,7 +109,10 @@ fun TransactionScreen(
                                 bankName = bankName,
                                 ownerName = ownerName
                             )
-                            if (errorMessage.isEmpty()) {
+                            if (!errorMessage.isEmpty()) {
+                                return@ElevatedButton
+                            }
+                            if (customerUiState.currentTransaction?.type == Service.Deposit.name) {
                                 customerViewModel.onConfirmDeposit(
                                     cardNumber = cardNumber,
                                     bank = bankName,
@@ -111,7 +120,17 @@ fun TransactionScreen(
                                     context = context,
                                     navController = navController,
                                 )
+                            } else {
+                                customerViewModel.onConfirmWithdraw(
+                                    cardNumber = cardNumber,
+                                    bank = bankName,
+                                    ownerName = ownerName,
+                                    context = context,
+                                    navController = navController,
+                                )
+
                             }
+
                         },
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 10.dp)
@@ -246,7 +265,7 @@ fun TransactionScreen(
                     ) {
                         Text("Amount", fontSize = 16.sp, color = Color.Black)
                         Text(
-                            text = "${formatCurrencyVN(customerUiState.currentTransaction!!.amount)} đ",
+                            text = "${formatCurrencyVN(customerUiState.currentTransaction?.amount ?: BigDecimal.ZERO)} đ",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = DarkMintGreen
@@ -278,7 +297,11 @@ fun TransactionScreen(
             ) {
                 Text("Total amount", fontSize = 16.sp, color = Color.Black)
                 Text(
-                    text = "${formatCurrencyVN(customerUiState.currentTransaction!!.amount + customerUiState.currentTransaction!!.fee)}đ",
+                    text = "${
+                    formatCurrencyVN(
+                        customerUiState.currentTransaction?.let { it.amount + it.fee } ?: BigDecimal.ZERO
+                    )
+                }đ",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkMintGreen

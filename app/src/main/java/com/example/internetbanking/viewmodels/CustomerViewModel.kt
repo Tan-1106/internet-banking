@@ -801,7 +801,7 @@ class CustomerViewModel : ViewModel() {
                     } catch (e: Exception) { Log.e("PayBill", e.message.toString()) }
                 }
                 // PHONE TOP UP
-                else if (type == "Phone") {
+                else if (type == Service.DepositPhoneMoney.name) {
                     transferBetweenCard(sourceCard, destinationCard, totalDeduct)
                     val history = mapOf(
                         "amount" to amount.toDouble(),
@@ -844,15 +844,15 @@ class CustomerViewModel : ViewModel() {
                     )
                 }
                 // FLIGHT BOOKING
-                else if (type == "Flight") {
+                else if (type == Service.BookFlightTicket.name) {
 
                 }
                 // MOVIE TICKET
-                else if (type == "Movie") {
+                else if (type == Service.BookMovieTicket.name) {
 
                 }
                 // HOTEL ROOM BOOKING
-                else if (type == "Hotel") {
+                else if (type == Service.BookHotelRooms.name) {
 
                 }
             } catch (e: Exception) {

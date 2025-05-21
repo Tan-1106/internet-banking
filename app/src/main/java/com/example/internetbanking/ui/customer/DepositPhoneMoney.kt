@@ -60,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
+import com.example.internetbanking.Service
 import com.example.internetbanking.ui.shared.BalanceInformation
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
@@ -148,7 +149,7 @@ fun DepositPhoneMoneyScreen(
                                 Toast.makeText(context, "Please enter top up value", Toast.LENGTH_SHORT).show()
                             } else {
                                 customerViewModel.onContinueTransactionClick(
-                                    type = "Phone",
+                                    type = Service.DepositPhoneMoney.name,
                                     amount = phoneMoney.toBigDecimal(),
                                     sourceCard = customerUiState.checkingCardNumber,
                                     destinationCard = "9659054023",

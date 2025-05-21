@@ -29,7 +29,7 @@ data class CustomerUiState(
     val mortgageLoan: BigDecimal = BigDecimal.ZERO,
     val mortgageMonthPayment: BigDecimal = BigDecimal.ZERO,
     val mortgage2WeeksPayment: BigDecimal = BigDecimal.ZERO,
-    val mortgageLoadDate: Long = 0L,
+    val mortgageLoanDate: Long = 0L,
     val mortgagePayDate: Long = 0L,
     val mortgageStatus: String = ""
 )

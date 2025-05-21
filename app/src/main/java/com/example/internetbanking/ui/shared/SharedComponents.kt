@@ -812,6 +812,18 @@ suspend fun checkCardNumberExistsInCollections(
     }
 }
 
+// Generate Random Card Number
+suspend fun generateUniqueCardNumber(): String {
+    var cardNumber: String
+    while (true) {
+        cardNumber = (1000000000..9999999999).random().toString()
+        val isCardNumberExist = checkCardNumberExistsInCollections(cardNumber)
+        if (!isCardNumberExist) {
+            return cardNumber
+        }
+    }
+}
+
 // Add A Document To Collection
 fun addDocumentToCollection(
     collectionName: String,

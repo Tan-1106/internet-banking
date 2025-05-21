@@ -30,6 +30,8 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -89,8 +92,9 @@ fun CustomerHome(
     val customerUiState by customerViewModel.uiState.collectAsState()
     val loginUiState by loginViewModel.uiState.collectAsState()
 
-    // Logout Dialog
+    // Dialog
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showCreateCardDialog by remember { mutableStateOf(false) }
 
     // Load Data
     val context: Context = LocalContext.current
@@ -155,7 +159,9 @@ fun CustomerHome(
                     cardNumber = customerUiState.mortgageCardNumber,
                     balance = BigDecimal.ZERO,
                     navController = navController,
-                    onViewTransaction = { },
+                    onViewTransaction = {
+                        customerViewModel.onTransactionHistoryClick(customerUiState.mortgageCardNumber, navController)
+                    },
                     onCopyClick = {
                         val accountNumber = customerUiState.mortgageCardNumber
                         clipboardManager.setText(AnnotatedString(accountNumber))
@@ -184,6 +190,26 @@ fun CustomerHome(
             onConfirmLogout = {
                 showLogoutDialog = false
                 loginViewModel.logout(navController)
+            }
+        )
+        CreateCardsDialog(
+            isShow = showCreateCardDialog,
+            onDismiss = { showCreateCardDialog = false },
+            onCreateSaving = {
+                if (customerViewModel.hasSaving) {
+                    Toast.makeText(context, "This account already has saving card", Toast.LENGTH_SHORT).show()
+                } else {
+                    customerViewModel.createSavingAccount(context)
+                    showCreateCardDialog = false
+                }
+            },
+            onCreateMortgage = {
+                if (customerViewModel.hasMortgage) {
+                    Toast.makeText(context, "This account already has mortgage card", Toast.LENGTH_SHORT).show()
+                } else {
+                    customerViewModel.createMortgageAccount(context)
+                    showCreateCardDialog = false
+                }
             }
         )
         Scaffold(
@@ -238,6 +264,8 @@ fun CustomerHome(
                     onAddAccountClick = {
                         if (pages.size == 3) {
                             Toast.makeText(context, "Cannot create more cards", Toast.LENGTH_SHORT).show()
+                        } else {
+                            showCreateCardDialog = true
                         }
                     },
                     modifier = Modifier.fillMaxHeight(0.3f)
@@ -641,6 +669,62 @@ fun UserCardsInformation(
         }
     }
 }
+
+@Composable
+fun CreateCardsDialog(
+    isShow: Boolean,
+    onCreateSaving: () -> Unit,
+    onCreateMortgage: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (isShow) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Text(
+                    text = "Create Account Card",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column {
+                    Text("Please choose the type of account you want to create:")
+                }
+            },
+            confirmButton = {
+                Column {
+                    Button (
+                        onClick = {
+                            onCreateSaving()
+                            onDismiss()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    ) {
+                        Text("Create Saving Account")
+                    }
+
+                    Button(
+                        onClick = {
+                            onCreateMortgage()
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Create Mortgage Account")
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
 
 @Preview(
     showBackground = true

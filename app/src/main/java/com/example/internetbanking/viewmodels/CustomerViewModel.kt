@@ -16,6 +16,7 @@ import com.example.internetbanking.data.TransactionRecord
 import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.addDocumentToCollection
 import com.example.internetbanking.ui.shared.formatCurrencyVN
+import com.example.internetbanking.ui.shared.generateUniqueCardNumber
 import com.example.internetbanking.ui.shared.generateUniqueTransactionId
 import com.example.internetbanking.ui.shared.updateUserFieldByAccountId
 import com.google.firebase.Firebase
@@ -138,6 +139,58 @@ class CustomerViewModel : ViewModel() {
             }
     }
 
+    // OBSERVE CARD NUMBER
+    var checkingCardNumber by mutableStateOf("")
+        private set
+    var savingCardNumber by mutableStateOf("")
+        private set
+    var mortgageCardNumber by mutableStateOf("")
+        private set
+    fun observeCardNumbers(accountId: String) {
+        // Observe checking card
+        db.collection("checking")
+            .whereEqualTo("accountId", accountId)
+            .limit(1)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("CardObserver", "Checking card: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                val card = snapshot?.documents?.firstOrNull()?.getString("cardNumber") ?: ""
+                checkingCardNumber = card
+            }
+
+        // Observe saving card
+        db.collection("saving")
+            .whereEqualTo("accountId", accountId)
+            .limit(1)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("CardObserver", "Saving card: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                val card = snapshot?.documents?.firstOrNull()?.getString("cardNumber") ?: ""
+                savingCardNumber = card
+            }
+
+        // Observe mortgage card
+        db.collection("mortgage")
+            .whereEqualTo("accountId", accountId)
+            .limit(1)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("CardObserver", "Mortgage card: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                val card = snapshot?.documents?.firstOrNull()?.getString("cardNumber") ?: ""
+                mortgageCardNumber = card
+            }
+    }
+
+
     // LOAD CUSTOMER INFORMATION
     fun loadCustomerInformation(currentUser: User) {
         val accountId = currentUser.accountId
@@ -193,6 +246,7 @@ class CustomerViewModel : ViewModel() {
             // Bắt đầu lắng nghe các dữ liệu realtime
             observeSubAccountsExistence(accountId)
             observeBalance(accountId)
+            observeCardNumbers(accountId)
         }
     }
 
@@ -527,51 +581,11 @@ class CustomerViewModel : ViewModel() {
     }
 
     // Transfer Event
-    fun getCardDocRef(cardNumber: String): DocumentReference {
-        val collections = listOf("checking", "saving", "mortgage")
-        for (collection in collections) {
-            val docRef = db.collection(collection).document(cardNumber)
-            return docRef
-        }
-        throw IllegalArgumentException("Card number $cardNumber not found in any collection")
+    companion object {
+        private const val TAG = "TransferConfirm"
     }
 
-    suspend fun transferAmountBetweenAccounts(
-        sourceCardNumber: String,
-        destinationCardNumber: String,
-        amount: BigDecimal
-    ): Boolean {
-        return try {
-            db.runTransaction { transaction ->
-
-                val sourceDocRef = getCardDocRef(sourceCardNumber)
-                val destDocRef = getCardDocRef(destinationCardNumber)
-
-                // Check source
-                val sourceSnapshot = transaction.get(sourceDocRef)
-                val sourceBalance = sourceSnapshot.getString("balance")?.toBigDecimalOrNull()
-
-                val newSourceBalance = sourceBalance?.minus(amount)
-                transaction.update(sourceDocRef, "balance", newSourceBalance)
-
-                // Update destination
-                val destSnapshot = transaction.get(destDocRef)
-                val destBalance = destSnapshot.getString("balance")?.toBigDecimalOrNull()
-
-                val newDestBalance = destBalance?.plus(amount)
-                transaction.update(destDocRef, "balance", newDestBalance)
-
-            }.await()
-            true
-        } catch (e: Exception) {
-            Log.e("Transfer", "Error during transfer: ${e.message}")
-            false
-        }
-    }
-
-
-    // Password Confirm
-    fun onPasswordConfirm(
+    fun onTransferPasswordConfirm(
         transactionDetail: TransactionDetail,
         password: String,
         context: Context,
@@ -579,40 +593,152 @@ class CustomerViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             val email = uiState.value.account.email
+
             try {
                 auth.signInWithEmailAndPassword(email, password).await()
-                val sourceCard = transactionDetail.transaction.sourceCard
-                val destCard = transactionDetail.transaction.destinationCard
-                val amount = transactionDetail.transaction.amount
 
-                val success = transferAmountBetweenAccounts(sourceCard, destCard, amount)
-                if (success) {
-                    addDocumentToCollection(
-                        collectionName = "transferDetails",
-                        data = mapOf(
-                            "transactionId" to transactionDetail.transaction.transactionId,
-                            "amount" to amount,
-                            "fee" to transactionDetail.transaction.fee,
-                            "timestamp" to transactionDetail.transaction.timestamp,
-                            "sourceCard" to sourceCard,
-                            "destinationCard" to destCard,
-                            "type" to transactionDetail.transaction.type,
-                            "content" to transactionDetail.content,
-                            "category" to transactionDetail.category
-                        ),
-                        documentId = transactionDetail.transaction.transactionId,
-                        onSuccess = {
-                            Toast.makeText(context, "Transfer successful", Toast.LENGTH_SHORT).show()
-                            navController.navigate(AppScreen.CustomerHome.name)
-                        }
-                    )
-                } else {
-                    Toast.makeText(context, "Transfer failed", Toast.LENGTH_SHORT).show()
+                val transactionId = transactionDetail.transaction.transactionId
+                val amount = transactionDetail.transaction.amount
+                val fee = transactionDetail.transaction.fee
+                val timestamp = transactionDetail.transaction.timestamp
+                val sourceCard = transactionDetail.transaction.sourceCard
+                val destinationCard = transactionDetail.transaction.destinationCard
+                val type = transactionDetail.transaction.type
+                val content = transactionDetail.content
+                val category = transactionDetail.category
+                val totalDeduct = amount + fee
+
+                suspend fun findAccount(cardNumber: String): DocumentReference? {
+                    val checkingDoc = db.collection("checking").document(cardNumber)
+                    val savingDoc = db.collection("saving").document(cardNumber)
+
+                    val checkingSnap = checkingDoc.get().await()
+                    if (checkingSnap.exists()) return checkingDoc
+
+                    val savingSnap = savingDoc.get().await()
+                    return if (savingSnap.exists()) savingDoc else null
                 }
 
-            } catch (_: Exception) {
-                Toast.makeText(context, "Confirm failed", Toast.LENGTH_SHORT).show()
+                val sourceRef = findAccount(sourceCard)
+                val destRef = findAccount(destinationCard)
+                if (sourceRef == null || destRef == null) {
+                    Log.e(TAG, "Invalid source or destination account. sourceRef=$sourceRef, destRef=$destRef")
+                    Toast.makeText(context, "Invalid source or destination account", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                db.runTransaction { transactionFirebase ->
+                    val sourceSnap = transactionFirebase.get(sourceRef)
+                    val destSnap = transactionFirebase.get(destRef)
+
+                    fun extractBalance(snapshot: DocumentSnapshot): BigDecimal {
+                        return snapshot.get("balance")?.let { value ->
+                            when (value) {
+                                is Number -> BigDecimal.valueOf(value.toDouble())
+                                is String -> value.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                                else -> BigDecimal.ZERO
+                            }
+                        } ?: BigDecimal.ZERO
+                    }
+
+                    val sourceBalance = extractBalance(sourceSnap)
+                    val destBalance = extractBalance(destSnap)
+
+                    if (sourceBalance < totalDeduct) {
+                        Log.e(TAG, "Insufficient funds: sourceBalance=$sourceBalance, required=$totalDeduct")
+                        throw Exception("Insufficient funds")
+                    }
+
+                    val newSourceBalance = (sourceBalance - totalDeduct).toDouble()
+                    val newDestBalance = (destBalance + amount).toDouble()
+
+                    transactionFirebase.update(sourceRef, "balance", newSourceBalance)
+                    transactionFirebase.update(destRef, "balance", newDestBalance)
+                }
+
+                val history = mapOf(
+                    "amount" to amount.toDouble(),
+                    "fee" to fee.toDouble(),
+                    "sourceCard" to sourceCard,
+                    "destinationCard" to destinationCard,
+                    "timestamp" to timestamp,
+                    "type" to type
+                    )
+                val detail = mapOf(
+                    "transactionId" to transactionId,
+                    "amount" to amount.toDouble(),
+                    "fee" to fee.toDouble(),
+                    "timestamp" to timestamp,
+                    "sourceCard" to sourceCard,
+                    "destinationCard" to destinationCard,
+                    "type" to type,
+                    "content" to content,
+                    "category" to category
+                )
+
+                addDocumentToCollection(
+                    collectionName = "transferDetails",
+                    data = detail,
+                    documentId = transactionId,
+                    onSuccess = {}
+                )
+                addDocumentToCollection(
+                    collectionName = "transactionHistories",
+                    data = history,
+                    documentId = transactionId,
+                    onSuccess = {
+                        Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                        navController.popBackStack()
+                    }
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Transaction confirm failed", e)
+                Toast.makeText(context, "Confirm failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    fun createSavingAccount(context: Context) {
+        viewModelScope.launch {
+            val newCardNumber = generateUniqueCardNumber()
+            addDocumentToCollection(
+                collectionName = "saving",
+                data = mapOf(
+                    "accountId" to uiState.value.account.accountId,
+                    "balance" to 0,
+                    "cardNumber" to newCardNumber,
+                    "profit" to 0,
+                    "status" to "Inactive",
+                    "withdrawDate" to 0
+                ),
+                documentId = newCardNumber,
+                onSuccess = {
+                    Toast.makeText(context, "Created saving card successfully", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+    }
+
+    fun createMortgageAccount(context: Context) {
+        viewModelScope.launch {
+            val newCardNumber = generateUniqueCardNumber()
+            addDocumentToCollection(
+                collectionName = "mortgage",
+                data = mapOf(
+                    "accountId" to uiState.value.account.accountId,
+                    "loan" to 0,
+                    "cardNumber" to newCardNumber,
+                    "monthPayment" to 0,
+                    "twoWeeksPayment" to 0,
+                    "loanDate" to 0,
+                    "payDate" to 0,
+                    "status" to "Inactive"
+                ),
+                documentId = newCardNumber,
+                onSuccess = {
+                    Toast.makeText(context, "Created mortgage card successfully", Toast.LENGTH_SHORT).show()
+                }
+            )
         }
     }
 }

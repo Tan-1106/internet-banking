@@ -35,6 +35,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -56,9 +57,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import androidx.compose.ui.window.DialogProperties
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.customer.LineConfirm
 import com.example.internetbanking.ui.theme.GradientColors
@@ -66,6 +70,7 @@ import com.example.internetbanking.ui.theme.custom_dark_red
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 import java.math.BigDecimal
@@ -76,6 +81,7 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Locale
 import kotlin.math.absoluteValue
 
@@ -772,6 +778,13 @@ fun formatCurrencyVN(amount: BigDecimal): String {
     return formatter.format(amount)
 }
 
+fun getMillisAfterMonths(monthsToAdd: Int): Long {
+    val calendar = Calendar.getInstance()
+    calendar.add(Calendar.MONTH, monthsToAdd)
+    return calendar.timeInMillis
+}
+
+
 
 // FUNCTION - FIREBASE
 // Check Exist Data From A Collection
@@ -907,20 +920,96 @@ fun updateUserFieldByAccountId(
         }
 }
 
-// Update A Field In Collection
+// Get Field
+suspend fun getFieldValueFromDocument(
+    collectionName: String,
+    documentId: String,
+    fieldName: String
+): Any? {
+    return try {
+        val snapshot = Firebase.firestore
+            .collection(collectionName)
+            .document(documentId)
+            .get()
+            .await()
+
+        if (snapshot.exists()) {
+            snapshot.get(fieldName)
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        Log.e("GetFieldValue", "Error getting field '$fieldName' from $collectionName/$documentId: ${e.message}")
+        null
+    }
+}
+
+// Password Confirm
+@Composable
+fun PasswordConfirmationDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(
+                    shape = RoundedCornerShape(CornerSize(10.dp)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = custom_light_green1
+                    ),
+                    onClick = {
+                        onConfirm(password)
+                        onDismiss()
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onDismiss
+                ) {
+                    Text("Cancel", color = Color.Black)
+                }
+            },
+            title = { Text("Password Authentication") },
+            text = {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Ascii
+                    )
+                )
+            },
+            properties = DialogProperties(dismissOnClickOutside = false)
+        )
+    }
+}
+
+// Update A Field
 suspend fun updateFieldInDocument(
     collectionName: String,
     documentId: String,
     fieldName: String,
-    value: Any
+    newValue: Any
 ): Boolean {
     return try {
         val db = Firebase.firestore
-        val docRef = db.collection(collectionName).document(documentId)
-        docRef.update(fieldName, value).await()
+        db.collection(collectionName)
+            .document(documentId)
+            .update(fieldName, newValue)
+            .await()
         true
     } catch (e: Exception) {
-        Log.e("FirestoreUpdate", "Error updating field: ${e.message}")
+        Log.e("UpdateField", "Error updating field '$fieldName' in $collectionName/$documentId: ${e.message}")
         false
     }
 }

@@ -21,8 +21,7 @@ import com.example.internetbanking.ui.customer.TransactionHistoryScreen
 import com.example.internetbanking.ui.customer.TransactionScreen
 import com.example.internetbanking.ui.customer.TransferScreen
 import com.example.internetbanking.ui.customer.mortgage.ViewMortgageMoneyScreen
-import com.example.internetbanking.ui.customer.saving.CreateSaveAccountScreen
-import com.example.internetbanking.ui.customer.saving.ViewProfitsAndRatesScreen
+import com.example.internetbanking.ui.customer.saving.CreateSavingScreen
 import com.example.internetbanking.ui.officer.CreateCustomerScreen
 import com.example.internetbanking.ui.officer.EditCustomerProfile
 import com.example.internetbanking.ui.officer.OfficerHome
@@ -39,7 +38,7 @@ enum class AppScreen() {
     Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, SeatSelection, Transaction,
     LocateUserAndBank,
     ViewMortgageMoney,
-    ViewProfitsAndRates, Confirm, CreateSavingAccount
+    Saving, Confirm
 
 }
 
@@ -197,8 +196,8 @@ fun AppScreen(
 
 
         // Saving Account Only
-        composable(route = AppScreen.ViewProfitsAndRates.name) {
-            ViewProfitsAndRatesScreen(
+        composable(route = AppScreen.Saving.name) {
+            CreateSavingScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )

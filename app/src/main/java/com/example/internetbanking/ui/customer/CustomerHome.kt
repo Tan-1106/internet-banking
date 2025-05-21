@@ -399,10 +399,9 @@ fun CustomerHome(
                         item {
                             FunctionComponent(
                                 functionIcon = R.drawable.profits,
-                                functionName = "Rates & profits",
+                                functionName = "Saving",
                                 onFunctionClick = {
-                                    expandedProfitAndRate = true
-//                                    navController.navigate(AppScreen.ViewProfitsAndRates.name)
+                                    customerViewModel.onSavingClick(customerUiState.savingCardNumber, navController)
                                 }
                             )
                         }

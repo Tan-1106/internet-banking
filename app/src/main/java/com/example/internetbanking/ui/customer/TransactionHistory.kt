@@ -262,52 +262,47 @@ fun TransactionHistoryScreen(
                     items(customerUiState.transactionHistory.size) { index ->
                         val transaction = customerUiState.transactionHistory[index]
                         Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
+                                .fillMaxSize()
                                 .padding(5.dp)
                                 .clickable {
-                                    customerViewModel.onTransactionDetailClick(
-                                        transaction,
-                                        navController
-                                    )
+                                    customerViewModel.onTransactionDetailClick(transaction, navController)
                                 }
                         ) {
-                            Column {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(0.8f)
+                            ) {
                                 Text(
                                     text = transaction.timestamp.toReadableDateTime(),
                                     fontSize = 12.sp,
                                     color = Color.Gray
                                 )
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Spacer(Modifier.width(5.dp))
-                                    Column(
-                                        modifier = Modifier.weight(3f),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = if (transaction.destinationCard == customerUiState.currentCardView) {
-                                                "+${formatCurrencyVN(transaction.amount)} VND"
-                                            } else {
-                                                "-${formatCurrencyVN(transaction.amount)} VND"
-                                            }
-                                        )
-                                    }
-                                    Spacer(Modifier.width(5.dp))
-                                    Column(
-                                        modifier = Modifier.weight(1f),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Icon(
-                                            Icons.AutoMirrored.Filled.ArrowRight,
-                                            contentDescription = null
-                                        )
-                                    }
-                                }
-                                Spacer(Modifier.height(5.dp))
-                                HorizontalDivider()
+                                Spacer(Modifier.width(5.dp))
+                                Text(
+                                    text = if (transaction.destinationCard == customerUiState.currentCardView) {
+                                        "+${formatCurrencyVN(transaction.amount)} VND"
+                                    } else {
+                                        "-${formatCurrencyVN(transaction.amount)} VND"
+                                    },
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            }
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .weight(1f)
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowRight,
+                                    contentDescription = null
+                                )
                             }
                         }
+                        HorizontalDivider()
                     }
                 }
             }

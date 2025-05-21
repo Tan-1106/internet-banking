@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.customer.saving
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +32,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,11 +49,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.internetbanking.R
-import com.example.internetbanking.ui.customer.LineConfirm
-import com.example.internetbanking.ui.customer.PasswordConfirmationDialog
 import com.example.internetbanking.ui.shared.BalanceInformation
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
+import com.example.internetbanking.ui.shared.PasswordConfirmationDialog
+import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_mint_green
@@ -58,10 +61,17 @@ import com.example.internetbanking.viewmodels.CustomerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateSaveAccountScreen(
+fun CreateSavingScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
+    val context: Context = LocalContext.current
+    val customerUiState by customerViewModel.uiState.collectAsState()
+
+    var term by remember { mutableStateOf("Select deposit term") }
+    var amount by remember { mutableStateOf("") }
+
+    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -116,6 +126,7 @@ fun CreateSaveAccountScreen(
 
                     ElevatedButton(
                         onClick = {
+                            showDialog = true
                         },
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 10.dp)
@@ -133,6 +144,19 @@ fun CreateSaveAccountScreen(
 
             modifier = Modifier.systemBarsPadding()
         ) { innerPadding ->
+            PasswordConfirmationDialog(
+                showDialog = showDialog,
+                onDismiss = { showDialog = false },
+                onConfirm = { password ->
+                    customerViewModel.onConfirmSavingClick(
+                        term = term.toInt(),
+                        amount = amount.toBigDecimal(),
+                        password = password,
+                        context = context,
+                        navController = navController
+                    )
+                }
+            )
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -141,19 +165,18 @@ fun CreateSaveAccountScreen(
                     .padding(innerPadding)
                     .padding(10.dp)
             ) {
-                BalanceInformation()
+                BalanceInformation(
+                    cardNumber = customerUiState.checkingCardNumber,
+                    balance = formatCurrencyVN(customerUiState.checkingBalance)
+                )
                 Spacer(modifier = Modifier.height(10.dp))
                 InformationSelect(
                     label = "Deposit term",
-                    placeholder = "Select deposit term",
-                    options = listOf(
-                        "1 month(1.1%/month)",
-                        "3 months(3.5%/month)",
-                        "6 months(5.5%/month",
-                        "12 months(6.9%/month)",
-                        "24 months(9%/month)",
-                    ),
-                    onOptionSelected ={},
+                    placeholder = term,
+                    options = listOf("1", "3", "6", "12", "24"),
+                    onOptionSelected ={
+                        term = it
+                    },
                     suffix = {
                         VerticalDivider(
                             modifier = Modifier.fillMaxHeight(0.8f),
@@ -167,7 +190,11 @@ fun CreateSaveAccountScreen(
                     },
                 )
                 InformationLine(
-                    "Deposit Amount", "Enter deposit amount", "", {}, isEnable = true,
+                    label = "Deposit Amount",
+                    placeholder = "Enter deposit amount",
+                    value = amount,
+                    onValueChange = { amount = it },
+                    isEnable = true,
                     suffix ={
                         VerticalDivider(
                             modifier = Modifier
@@ -179,7 +206,6 @@ fun CreateSaveAccountScreen(
                             fontSize = 10.sp,
                             color = Color.Gray
                         )
-
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number

@@ -681,55 +681,86 @@ class CustomerViewModel : ViewModel() {
             try {
                 auth.signInWithEmailAndPassword(email, password).await()
 
-                val transactionId = transactionDetail.transaction.transactionId
-                val amount = transactionDetail.transaction.amount
-                val fee = transactionDetail.transaction.fee
-                val timestamp = transactionDetail.transaction.timestamp
-                val sourceCard = transactionDetail.transaction.sourceCard
-                val destinationCard = transactionDetail.transaction.destinationCard
-                val type = transactionDetail.transaction.type
+                val transaction = uiState.value.checkingCurrentTransfer.transaction
+
+                val transactionId =transaction.transactionId
+                val amount = transaction.amount
+                val fee = transaction.fee
+                val timestamp = transaction.timestamp
+                val sourceCard = transaction.sourceCard
+                val destinationCard = transaction.destinationCard
+                val type = transaction.type
+
+                val startTime = transaction.startTime
+                val seats = transaction.seats
+
+                val destinationPhoneNumber = transaction.destinationPhoneNumber
+                val network = transaction.network
+
+                val customerCode = transaction.customerCode
+                val provider = transaction.provider
+
+                val flightProvider = transaction.flightProvider
+                val numberOfPassengers = transaction.numberOfPassengers
+
+                val movieName = transaction.movieName
+                val cinema = transaction.cinema
+
+                val hotelName = transaction.hotelName
+                val room = transaction.room
+
                 val content = transactionDetail.content
                 val category = transactionDetail.category
                 val totalDeduct = amount + fee
 
-                
                 transferBetweenCard(sourceCard, destinationCard, totalDeduct)
+                if (type == "Transfer") {
+                    val history = mapOf(
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "timestamp" to timestamp,
+                        "type" to type
+                    )
+                    val detail = mapOf(
+                        "transactionId" to transactionId,
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "timestamp" to timestamp,
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "type" to type,
+                        "content" to content,
+                        "category" to category
+                    )
 
-                val history = mapOf(
-                    "amount" to amount.toDouble(),
-                    "fee" to fee.toDouble(),
-                    "sourceCard" to sourceCard,
-                    "destinationCard" to destinationCard,
-                    "timestamp" to timestamp,
-                    "type" to type
-                )
-                val detail = mapOf(
-                    "transactionId" to transactionId,
-                    "amount" to amount.toDouble(),
-                    "fee" to fee.toDouble(),
-                    "timestamp" to timestamp,
-                    "sourceCard" to sourceCard,
-                    "destinationCard" to destinationCard,
-                    "type" to type,
-                    "content" to content,
-                    "category" to category
-                )
+                    addDocumentToCollection(
+                        collectionName = "transferDetails",
+                        data = detail,
+                        documentId = transactionId,
+                        onSuccess = {}
+                    )
+                    addDocumentToCollection(
+                        collectionName = "transactionHistories",
+                        data = history,
+                        documentId = transactionId,
+                        onSuccess = {
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                            navController.popBackStack()
+                        }
+                    )
+                } else if (type == "Phone") {
 
-                addDocumentToCollection(
-                    collectionName = "transferDetails",
-                    data = detail,
-                    documentId = transactionId,
-                    onSuccess = {}
-                )
-                addDocumentToCollection(
-                    collectionName = "transactionHistories",
-                    data = history,
-                    documentId = transactionId,
-                    onSuccess = {
-                        Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
-                        navController.popBackStack()
-                    }
-                )
+                } else if (type === "PayBill") {
+
+                } else if (type == "Flight") {
+
+                } else if (type == "Movie") {
+
+                } else if (type == "Hotel") {
+
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Transaction confirm failed", e)
                 Toast.makeText(context, "Confirm failed: ${e.message}", Toast.LENGTH_SHORT).show()

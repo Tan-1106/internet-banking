@@ -60,9 +60,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import com.example.internetbanking.R
+import com.example.internetbanking.ui.customer.LineConfirm
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_red
 import com.example.internetbanking.ui.theme.custom_light_green1
+import com.example.internetbanking.ui.theme.custom_mint_green
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
@@ -488,20 +490,55 @@ fun InformationLine(
     }
 }
 
-// View Profits
+//@Preview(showBackground = true)
 @Composable
-fun ViewProfitRatesAndProfit(){
-    AlertDialog(
-        onDismissRequest = {},
-       title = {Text("Profit Rates and Profit")},
-        text = {
+fun ViewProfitRatesAndProfit(
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    onConfirmClick: () -> Unit
+) {
+    if (expanded) {
 
-        },
-        confirmButton = {},
-        dismissButton = {}
+        AlertDialog(
+            shape = RoundedCornerShape(corner = CornerSize(10.dp)),
+            containerColor = custom_mint_green,
+            onDismissRequest = onDismiss,
+            title = { Text("Profit Rates and Profit") },
+            text = {
+                Column {
+                    LineConfirm(
+                        label = "Deposit term",
+                        data = "1 month(1.1%/month)"
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    LineConfirm(
+                        label = "Deposit Amount",
+                        data = "1.000.000 VND"
+                    )
+                }
+
+            },
+
+            confirmButton ={
+                Button(
+                    onClick = onConfirmClick,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = custom_light_green1,
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .height(50.dp)
+                        .width(100.dp),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Text("Confirm")
+                }
+            },
 
 
-    )
+        )
+    }
 }
 
 // LogOut Dialog

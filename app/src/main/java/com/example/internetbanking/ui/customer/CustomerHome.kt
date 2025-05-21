@@ -68,6 +68,7 @@ import com.example.internetbanking.R
 import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.LogoutDialog
 import com.example.internetbanking.ui.shared.PagerBalanceInformation
+import com.example.internetbanking.ui.shared.ViewProfitRatesAndProfit
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
@@ -102,7 +103,13 @@ fun CustomerHome(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     @Suppress("DEPRECATION") val clipboardManager = LocalClipboardManager.current
-
+    //view Profit and rate
+    var expandedProfitAndRate by remember { mutableStateOf(false) }
+    ViewProfitRatesAndProfit(
+        expanded = expandedProfitAndRate,
+        onConfirmClick = { expandedProfitAndRate = false },
+        onDismiss = { expandedProfitAndRate = false },
+    )
     // Card List
     val pages = buildList<@Composable () -> Unit> {
         add {
@@ -354,7 +361,7 @@ fun CustomerHome(
                                 functionIcon = R.drawable.mortgage_money,
                                 functionName = "Installment",
                                 onFunctionClick = {
-                                    //
+                                    expandedProfitAndRate = true
                                     navController.navigate(AppScreen.ViewMortgageMoney.name)
                                 }
                             )
@@ -366,8 +373,8 @@ fun CustomerHome(
                                 functionIcon = R.drawable.profits,
                                 functionName = "Rates & profits",
                                 onFunctionClick = {
-                                    //
-                                    navController.navigate(AppScreen.ViewProfitsAndRates.name)
+                                    expandedProfitAndRate = true
+//                                    navController.navigate(AppScreen.ViewProfitsAndRates.name)
                                 }
                             )
                         }
@@ -555,7 +562,11 @@ fun UserCardsInformation(
                             modifier = Modifier.width(220.dp)
                         ) {
                             Text(
-                                text = if (isHiddenBalance) "**********" else "${formatCurrencyVN(balance)} VND",
+                                text = if (isHiddenBalance) "**********" else "${
+                                    formatCurrencyVN(
+                                        balance
+                                    )
+                                } VND",
                                 color = Color.White,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold

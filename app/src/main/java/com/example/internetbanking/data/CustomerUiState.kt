@@ -1,6 +1,7 @@
 package com.example.internetbanking.data
 
 import java.math.BigDecimal
+import java.util.UUID
 
 data class CustomerUiState(
     val currentViewType: String = "Checking",
@@ -48,4 +49,22 @@ data class TransactionDetail(
     val transaction: TransactionRecord = TransactionRecord(),
     val content: String = "",
     val category: String = ""
+)
+data class TransactionDT(
+    val id :String  = UUID.randomUUID().toString(),
+    val cardNumber:String ="",
+    val fee:Long= 0,
+    val time: Long = System.currentTimeMillis(),
+    val amount: Long= 0,
+    val type:String =""
+)
+data class DepositDT(
+    val transactionID :String  ="",
+    val fromCardNumber:String ="",
+    val fromUserName: String= "",
+    val fromBank: String = "",
+)
+data class  CustomerUiStateDT(
+    val currentTransaction: TransactionDT? = null,
+    val currentDeposit: DepositDT? =null,
 )

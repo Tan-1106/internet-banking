@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.AppScreen
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
@@ -71,6 +72,7 @@ import java.math.BigDecimal
 @Composable
 fun DepositAndWithdrawScreen(
     customerViewModel: CustomerViewModel,
+    customerViewModelDT: CustomerViewModelDT,
     userSelect: Int = 0,
     navController: NavHostController
 ) {
@@ -128,7 +130,12 @@ fun DepositAndWithdrawScreen(
                     if (selectedTabIndex == 0) {
 
                         ElevatedButton(
-                            onClick = {},
+                            onClick = {
+                                customerViewModelDT.depositAmount= amount
+                                navController.navigate(
+                                    AppScreen.Transaction.name
+                                )
+                            },
                             modifier = Modifier
                                 .padding(vertical = 5.dp, horizontal = 10.dp)
                                 .fillMaxSize(),
@@ -356,13 +363,13 @@ fun TabScreen(
 }
 
 
-@Preview(
-    showBackground = true
-)
-@Composable
-fun DepositScreenPreview() {
-    val fakeViewModel: CustomerViewModel = viewModel()
-    val fakeNavController: NavHostController = rememberNavController()
-
-    DepositAndWithdrawScreen(fakeViewModel, 0, fakeNavController)
-}
+//@Preview(
+//    showBackground = true
+//)
+//@Composable
+//fun DepositScreenPreview() {
+//    val fakeViewModel: CustomerViewModel = viewModel()
+//    val fakeNavController: NavHostController = rememberNavController()
+//
+//    DepositAndWithdrawScreen(fakeViewModel, 0, fakeNavController)
+//}

@@ -1,7 +1,5 @@
 package com.example.internetbanking.ui.customer
 
-import android.location.Location
-import android.media.Image
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,6 +34,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,12 +47,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
+import com.example.internetbanking.ui.shared.ViewProfitRatesAndProfit
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_light_green2
@@ -205,7 +207,12 @@ fun FlightCard(
         ) {
             //logo
             image()
-            Text(nameAirport, fontWeight = FontWeight.Bold, modifier = Modifier.widthIn(max=80.dp), textAlign = TextAlign.Center)
+            Text(
+                nameAirport,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.widthIn(max = 80.dp),
+                textAlign = TextAlign.Center
+            )
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.widthIn(max = 60.dp)) {

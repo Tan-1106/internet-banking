@@ -33,7 +33,8 @@ val LightDarkMintGreen = Color(0xFF4CAF50)
 @Composable
 fun TransactionScreen(
     navController: NavHostController,
-    customerViewModel: CustomerViewModel
+    customerViewModel: CustomerViewModel,
+    customerViewModelDT: CustomerViewModelDT
 ) {
     var amount by remember { mutableStateOf(BigDecimal.valueOf(50000)) }
     var cardNumber by remember { mutableStateOf("") }
@@ -244,7 +245,11 @@ fun TransactionScreen(
 
             Button(
                 onClick = {
-                    //TODO: CONFIRM
+                   customerViewModelDT.onDepositClick(
+                       cardNumber = cardNumber,
+                       bank = bankName,
+                       ownerName = cardHolderName
+                   )
 
                 },
                 modifier = Modifier
@@ -277,10 +282,10 @@ fun TransactionScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TransactionScreenPreview() {
-    val fakeNavController: NavHostController = rememberNavController()
-    val fakeViewModel: CustomerViewModel = viewModel()
-    TransactionScreen(fakeNavController, fakeViewModel)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun TransactionScreenPreview() {
+//    val fakeNavController: NavHostController = rememberNavController()
+//    val fakeViewModel: CustomerViewModel = viewModel()
+//    TransactionScreen(fakeNavController, fakeViewModel)
+//}

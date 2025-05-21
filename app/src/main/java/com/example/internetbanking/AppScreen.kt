@@ -11,6 +11,7 @@ import com.example.internetbanking.ui.customer.BuyFlightTicketsScreen
 import com.example.internetbanking.ui.customer.BuyMovieTicketsScreen
 import com.example.internetbanking.ui.customer.ConfirmScreen
 import com.example.internetbanking.ui.customer.CustomerHome
+import com.example.internetbanking.ui.customer.CustomerViewModelDT
 import com.example.internetbanking.ui.customer.DepositAndWithdrawScreen
 import com.example.internetbanking.ui.customer.DepositPhoneMoneyScreen
 import com.example.internetbanking.ui.customer.LocateUserAndBankScreen
@@ -21,6 +22,7 @@ import com.example.internetbanking.ui.customer.TransactionHistoryScreen
 import com.example.internetbanking.ui.customer.TransactionScreen
 import com.example.internetbanking.ui.customer.TransferScreen
 import com.example.internetbanking.ui.customer.mortgage.ViewMortgageMoneyScreen
+import com.example.internetbanking.ui.customer.saving.CreateSaveAccountScreen
 import com.example.internetbanking.ui.customer.saving.ViewProfitsAndRatesScreen
 import com.example.internetbanking.ui.officer.CreateCustomerScreen
 import com.example.internetbanking.ui.officer.EditCustomerProfile
@@ -35,10 +37,10 @@ enum class AppScreen() {
     OfficerHome, CreateCustomer, EditCustomerProfile,
     CustomerHome, Profile,
     Deposit, Withdraw, TransactionHistory,
-    Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, SeatSelection,Transaction,
+    Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, SeatSelection, Transaction,
     LocateUserAndBank,
     ViewMortgageMoney,
-    ViewProfitsAndRates, Confirm
+    ViewProfitsAndRates, Confirm, CreateSavingAccount
 
 }
 
@@ -47,6 +49,7 @@ fun AppScreen(
     loginViewModel: LoginViewModel = viewModel(),
     officerViewModel: OfficerViewModel = viewModel(),
     customerViewModel: CustomerViewModel = viewModel(),
+    customerViewModelDT: CustomerViewModelDT = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
     NavHost(
@@ -108,14 +111,16 @@ fun AppScreen(
             DepositAndWithdrawScreen(
                 customerViewModel = customerViewModel,
                 userSelect = 0,
-                navController = navController
+                navController = navController,
+                customerViewModelDT = customerViewModelDT
             )
         }
         composable(route = AppScreen.Withdraw.name) {
             DepositAndWithdrawScreen(
                 customerViewModel = customerViewModel,
                 userSelect = 1,
-                navController = navController
+                navController = navController,
+                customerViewModelDT = customerViewModelDT
             )
         }
         composable(route = AppScreen.TransactionHistory.name) {
@@ -136,7 +141,8 @@ fun AppScreen(
         composable(route = AppScreen.Transaction.name) {
             TransactionScreen(
                 navController = navController,
-                customerViewModel = customerViewModel
+                customerViewModel = customerViewModel,
+                customerViewModelDT= customerViewModelDT
             )
         }
         composable(route = AppScreen.PayBills.name) {
@@ -196,6 +202,12 @@ fun AppScreen(
         // Saving Account Only
         composable(route = AppScreen.ViewProfitsAndRates.name) {
             ViewProfitsAndRatesScreen(
+                customerViewModel = customerViewModel,
+                navController = navController
+            )
+        }
+        composable(route = AppScreen.CreateSavingAccount.name) {
+            CreateSaveAccountScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )

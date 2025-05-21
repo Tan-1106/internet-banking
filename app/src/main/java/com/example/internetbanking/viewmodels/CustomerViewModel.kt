@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.internetbanking.AppScreen
+import com.example.internetbanking.Service
 import com.example.internetbanking.data.CustomerUiState
 import com.example.internetbanking.data.Deposit
 import com.example.internetbanking.data.TransactionDetail
@@ -814,6 +815,11 @@ class CustomerViewModel : ViewModel() {
                         "Created mortgage card successfully",
                         Toast.LENGTH_SHORT
                     ).show()
+                    Toast.makeText(
+                        context,
+                        "Created mortgage card successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             )
         }
@@ -823,23 +829,25 @@ class CustomerViewModel : ViewModel() {
     fun onStartDeposit(
         amount: BigDecimal, navController: NavHostController
     ) {
+        viewModelScope.launch {
 
-        _uiState.update { currentState ->
-            currentState.copy(
-                currentTransaction = TransactionRecord(
-                    transactionId = UUID.randomUUID().toString(),
-                    amount = amount,
-                    fee = BigDecimal.ZERO,
-                    timestamp = System.currentTimeMillis(),
-                    sourceCard = "",
-                    destinationCard = uiState.value.checkingCardNumber,
-                    type = "Deposit"
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    currentTransaction = TransactionRecord(
+                        transactionId = generateUniqueTransactionId(),
+                        amount = amount,
+                        fee = BigDecimal.ZERO,
+                        timestamp = System.currentTimeMillis(),
+                        sourceCard = "",
+                        destinationCard = uiState.value.checkingCardNumber,
+                        type = Service.Deposit.name
+                    )
                 )
-            )
+            }
+            navController.navigate(AppScreen.Transaction.name)
         }
-        navController.navigate(AppScreen.Transaction.name)
     }
-
     fun onConfirmDeposit(
         cardNumber: String,
         bank: String,
@@ -850,14 +858,13 @@ class CustomerViewModel : ViewModel() {
         val transaction = uiState.value.currentTransaction?.copy(
             sourceCard = cardNumber
         )
-        val depositDetail = Deposit(
-            transactionID = transaction!!.transactionId,
-            fromCardNumber = cardNumber,
-            fromUserName = ownerName,
-            fromBank = bank
-        )
+        if (transaction == null) {
+            Log.e(TAG, "Transaction is null")
+            Toast.makeText(context, "Transaction is null", Toast.LENGTH_SHORT).show()
+            return
+        }
         addDocumentToCollection(
-            documentId = UUID.randomUUID().toString(),
+            documentId = transaction.transactionId,
             collectionName = "transactionHistories",
             data = mapOf(
                 "amount" to transaction.amount.toLong(),
@@ -869,7 +876,7 @@ class CustomerViewModel : ViewModel() {
             ),
             onSuccess = {
                 addDocumentToCollection(
-                    documentId = UUID.randomUUID().toString(),
+                    documentId = transaction.transactionId,
                     collectionName = "depositDetails",
                     data = mapOf(
                         "transactionID" to transaction.transactionId,
@@ -892,6 +899,12 @@ class CustomerViewModel : ViewModel() {
                                     fieldName = "balance",
                                     newValue = newBalance
                                 )
+                                _uiState.update {
+                                        currentUiState->
+                                    currentUiState.copy(
+                                        currentTransaction = null
+                                    )
+                                }
                                 Toast.makeText(context, "Deposit successful!", Toast.LENGTH_SHORT)
                                     .show()
                                 navController.navigate(AppScreen.CustomerHome.name) {
@@ -907,6 +920,100 @@ class CustomerViewModel : ViewModel() {
             }
         )
     }
+
+    fun onStartWithdraw(
+        amount: BigDecimal, navController: NavHostController
+    ) {
+        viewModelScope.launch {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    currentTransaction = TransactionRecord(
+                        transactionId = generateUniqueTransactionId(),
+                        amount = amount,
+                        fee = BigDecimal.ZERO,
+                        timestamp = System.currentTimeMillis(),
+                        sourceCard = uiState.value.checkingCardNumber,
+                        destinationCard = "",
+                        type = Service.Withdraw.name
+                    )
+                )
+            }
+            navController.navigate(AppScreen.Transaction.name)
+        }
+    }
+    fun onConfirmWithdraw(
+        cardNumber: String,
+        bank: String,
+        ownerName: String, context: Context,
+        navController: NavHostController
+    ) {
+        val transaction = uiState.value.currentTransaction?.copy(
+            destinationCard = cardNumber
+        )
+        if (transaction == null) {
+            Log.e(TAG, "Transaction is null")
+            Toast.makeText(context, "Transaction is null", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        viewModelScope.launch {
+            val checkingCardNumber = uiState.value.checkingCardNumber
+            val checkingDocRef =
+                db.collection("checking").document(checkingCardNumber)
+            try {
+                val snapshot = checkingDocRef.get().await()
+                val currentBalance = snapshot.getLong("balance") ?: 0
+                val newBalance = currentBalance.plus(transaction.amount.toLong())
+                updateFieldInDocument(
+                    collectionName = "checking",
+                    documentId = checkingCardNumber,
+                    fieldName = "balance",
+                    value = newBalance
+                )
+                _uiState.update {
+                        currentUiState->
+                    currentUiState.copy(
+                        currentTransaction = null
+                    )
+                }
+                Toast.makeText(context, "Deposit successful!", Toast.LENGTH_SHORT)
+                    .show()
+                navController.navigate(AppScreen.CustomerHome.name) {
+                    popUpTo(AppScreen.CustomerHome.name) { inclusive = true }
+                }
+            } catch (e: Exception) {
+                Log.e("Deposit", "Failed to update balance: ${e.message}")
+            }
+        }
+
+        addDocumentToCollection(
+            documentId = transaction.transactionId,
+            collectionName = "transactionHistories",
+            data = mapOf(
+                "amount" to transaction.amount.toLong(),
+                "fee" to transaction.fee.toLong(),
+                "timestamp" to transaction.timestamp,
+                "sourceCard" to transaction.sourceCard,
+                "destinationCard" to transaction.destinationCard,
+                "type" to transaction.type
+            ),
+            onSuccess = {
+                addDocumentToCollection(
+                    documentId = transaction.transactionId,
+                    collectionName = "withdrawDetails",
+                    data = mapOf(
+                        "transactionID" to transaction.transactionId,
+                        "toCardNumber" to cardNumber,
+                        "toUserName" to ownerName,
+                        "toBank" to bank
+                    ),
+                    onSuccess = {
+                    }
+                )
+            }
+        )
+    }
+
 
     fun onSavingClick(
         cardNumber: String,

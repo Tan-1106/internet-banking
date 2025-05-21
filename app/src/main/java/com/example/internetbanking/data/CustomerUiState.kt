@@ -36,7 +36,7 @@ data class CustomerUiState(
 
     //deposit
     val currentTransaction: TransactionRecord? = null,
-
+    //withdraw
     )
 
 data class TransactionRecord(

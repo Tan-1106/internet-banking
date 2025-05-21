@@ -45,11 +45,12 @@ fun TransactionScreen(
     customerViewModel: CustomerViewModel,
 ) {
     val banks = listOf<String>("Vietcombank", "Sacombank", "Techcombank", "Agribank", "VietinBank")
-val context=LocalContext.current
+    val context = LocalContext.current
     var cardNumber by remember { mutableStateOf("") }
     var bankName by remember { mutableStateOf("") }
     var ownerName by remember { mutableStateOf("") }
     val customerUiState by customerViewModel.uiState.collectAsState()
+    var errorMessage by remember { mutableStateOf("") }
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -82,39 +83,52 @@ val context=LocalContext.current
                         brush = GradientColors.Green_DarkToLight
                     )
             )
-        },bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .background(Color.White)
-            ) {
-
-                ElevatedButton(
-                    onClick = {
-                        customerViewModel.onConfirmDeposit(
-                            cardNumber = cardNumber,
-                            bank = bankName,
-                            ownerName = ownerName,
-                            context = context,
-                            navController = navController,
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(vertical = 5.dp, horizontal = 10.dp)
-                        .fillMaxSize(),
-                    shape = RoundedCornerShape(corner = CornerSize(10.dp)),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = custom_light_green1
-                    )
-                ) {
-                    Text(
-                        text = "Continue",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
+        },
+        bottomBar = {
+            Column(horizontalAlignment = Alignment.Start) {
+                if (!errorMessage.isEmpty()) {
+                    Text(errorMessage, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 10.dp))
                 }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .background(Color.White)
+                ) {
 
+                    ElevatedButton(
+                        onClick = {
+                            errorMessage = validateCard(
+                                cardNumber = cardNumber,
+                                bankName = bankName,
+                                ownerName = ownerName
+                            )
+                            if (errorMessage.isEmpty()) {
+                                customerViewModel.onConfirmDeposit(
+                                    cardNumber = cardNumber,
+                                    bank = bankName,
+                                    ownerName = ownerName,
+                                    context = context,
+                                    navController = navController,
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .padding(vertical = 5.dp, horizontal = 10.dp)
+                            .fillMaxSize(),
+                        shape = RoundedCornerShape(corner = CornerSize(10.dp)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = custom_light_green1
+                        )
+                    ) {
+                        Text(
+                            text = "Confirm",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                }
             }
         },
         modifier = Modifier.systemBarsPadding()
@@ -142,7 +156,7 @@ val context=LocalContext.current
                 placeholder = "Enter card number",
                 value = cardNumber,
                 onValueChange = {
-                    cardNumber=it
+                    cardNumber = it
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -153,9 +167,9 @@ val context=LocalContext.current
             InformationSelect(
                 label = "Bank",
                 placeholder = "Select bank",
-                options =banks,
-                onOptionSelected ={
-                    bankName=it
+                options = banks,
+                onOptionSelected = {
+                    bankName = it
                 },
                 suffix = {
                     VerticalDivider(
@@ -164,7 +178,8 @@ val context=LocalContext.current
                     )
                     Icon(
                         Icons.Filled.ArrowDropDown,
-                        contentDescription =null)
+                        contentDescription = null
+                    )
                 },
             )
             Spacer(Modifier.height(10.dp))
@@ -173,10 +188,10 @@ val context=LocalContext.current
                 placeholder = "Enter owner's name",
                 value = ownerName,
                 onValueChange = {
-                    ownerName=it
+                    ownerName = it
                 },
 
-            )
+                )
 
             Text(
                 text = "Transaction details",
@@ -263,7 +278,7 @@ val context=LocalContext.current
             ) {
                 Text("Total amount", fontSize = 16.sp, color = Color.Black)
                 Text(
-                    text = "${formatCurrencyVN(customerUiState.currentTransaction!!.amount+customerUiState.currentTransaction!!.fee)}đ",
+                    text = "${formatCurrencyVN(customerUiState.currentTransaction!!.amount + customerUiState.currentTransaction!!.fee)}đ",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkMintGreen
@@ -272,6 +287,24 @@ val context=LocalContext.current
 
         }
     }
+}
+
+fun validateCard(
+    cardNumber: String,
+    bankName: String,
+    ownerName: String
+): String {
+    val minCardNumberLenght = 10;
+    if (cardNumber.isEmpty() || cardNumber.length < minCardNumberLenght) {
+        return "Card number must be at least $minCardNumberLenght characters"
+    }
+    if (bankName.isEmpty()) {
+        return "Bank name must be selected"
+    }
+    if (ownerName.isEmpty()) {
+        return "Owner name must be entered"
+    }
+    return ""
 }
 
 //@Preview(showBackground = true)

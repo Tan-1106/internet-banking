@@ -79,7 +79,8 @@ fun DepositAndWithdrawScreen(
     var selectedTabIndex by remember { mutableIntStateOf(userSelect) }
     val tabs = listOf("Deposit", "Withdraw")
     var amount by remember { mutableStateOf(BigDecimal.ZERO) }
-
+    var isDepositError by remember { mutableStateOf(false) }
+    var isWithdrawError by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -131,10 +132,15 @@ fun DepositAndWithdrawScreen(
 
                         ElevatedButton(
                             onClick = {
-                                customerViewModel.onStartDeposit(
-                                    amount = amount,
-                                    navController = navController
-                                )
+                                if (amount == BigDecimal.ZERO) {
+                                    isDepositError = true
+                                } else {
+
+                                    customerViewModel.onStartDeposit(
+                                        amount = amount,
+                                        navController = navController
+                                    )
+                                }
                             },
                             modifier = Modifier
                                 .padding(vertical = 5.dp, horizontal = 10.dp)
@@ -229,6 +235,7 @@ fun DepositAndWithdrawScreen(
                     0 -> TabScreen(
                         amount = amount,
                         label = "Enter the amount to deposit",
+                        isError = isDepositError,
                         onAmountChange = {
                             amount = if (it.isEmpty()) {
                                 BigDecimal.ZERO
@@ -241,6 +248,7 @@ fun DepositAndWithdrawScreen(
                     1 -> TabScreen(
                         amount = amount,
                         label = "Enter the amount to withdraw",
+                        isError = isWithdrawError,
                         onAmountChange = {
                             amount = if (it.isEmpty()) {
                                 BigDecimal.ZERO
@@ -313,6 +321,7 @@ fun TabScreen(
     amount: BigDecimal,
     onAmountChange: (String) -> Unit,
     label: String,
+    isError: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -343,21 +352,23 @@ fun TabScreen(
                 Text(label, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(5.dp))
-            OutlinedTextField(
-                value = "${formatCurrencyVN(amount)}đ",
-                onValueChange = {
-                    val raw = it.replace(".", "").replace("đ", "").trim()
-                    onAmountChange(raw)
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                shape = OutlinedTextFieldDefaults.shape,
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.Gray,
-                    focusedBorderColor = custom_mint_green,
-                    focusedLabelColor = custom_light_green1,
-                ),
-                placeholder = { Text("0đ") }, modifier = Modifier.fillMaxWidth(0.8f)
-            )
+                OutlinedTextField(
+                    isError = isError,
+
+                    value = "${formatCurrencyVN(amount)}đ",
+                    onValueChange = {
+                        val raw = it.replace(".", "").replace("đ", "").trim()
+                        onAmountChange(raw)
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    shape = OutlinedTextFieldDefaults.shape,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Gray,
+                        focusedBorderColor = custom_mint_green,
+                        focusedLabelColor = custom_light_green1,
+                    ),
+                    placeholder = { Text("0đ") }, modifier = Modifier.fillMaxWidth(0.8f)
+                )
         }
     }
 }

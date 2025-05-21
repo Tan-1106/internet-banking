@@ -29,7 +29,10 @@ import com.example.internetbanking.ui.shared.LoginScreen
 import com.example.internetbanking.viewmodels.CustomerViewModel
 import com.example.internetbanking.viewmodels.LoginViewModel
 import com.example.internetbanking.viewmodels.OfficerViewModel
-
+enum class Service(){
+    Deposit,Withdraw,Transfer,Paybill,DepositPhoneMoney,BookFlightTicket,BookMovieTicket,BookHotelRooms,
+    OpenSavingAccount,OpenMortgageAccount
+}
 enum class AppScreen() {
     Login,
     OfficerHome, CreateCustomer, EditCustomerProfile,

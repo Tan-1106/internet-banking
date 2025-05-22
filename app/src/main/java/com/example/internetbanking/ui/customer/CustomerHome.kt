@@ -388,7 +388,6 @@ fun CustomerHome(
                             functionIcon = R.drawable.bank_location,
                             functionName = "Bank offices",
                             onFunctionClick = {
-                                //
                                 navController.navigate(AppScreen.LocateUserAndBank.name)
                             }
                         )
@@ -399,7 +398,6 @@ fun CustomerHome(
                                 functionIcon = R.drawable.mortgage_money,
                                 functionName = "Installment",
                                 onFunctionClick = {
-                                    expandedProfitAndRate = true
                                     navController.navigate(AppScreen.ViewMortgageMoney.name)
                                 }
                             )

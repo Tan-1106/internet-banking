@@ -227,13 +227,7 @@ fun FindFlightScreen(
                             if (departureAirport == arrivalAirport) {
                                 Toast.makeText(context, "Invalid airport selected", Toast.LENGTH_SHORT).show()
                             } else {
-//                                customerViewModel.onContinueTransactionClick(
-//                                    type = Service.BookFlightTicket.name,
-//                                    sourceCard = customerUiState.checkingCardNumber,
 //
-//
-//                                    navController = navController
-//                                )
                                 navController.navigate(AppScreen.Flight.name)
                             }
                         }

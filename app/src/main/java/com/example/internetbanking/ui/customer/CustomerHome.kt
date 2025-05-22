@@ -72,7 +72,9 @@ import com.example.internetbanking.data.User
 import com.example.internetbanking.ui.shared.LogoutDialog
 import com.example.internetbanking.ui.shared.PagerBalanceInformation
 import com.example.internetbanking.ui.shared.ViewProfitRatesAndProfit
+import com.example.internetbanking.ui.shared.dateStringToTimestamp
 import com.example.internetbanking.ui.shared.formatCurrencyVN
+import com.example.internetbanking.ui.shared.toReadableDateTime
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_dark_green
 import com.example.internetbanking.ui.theme.custom_mint_green
@@ -219,6 +221,14 @@ fun CustomerHome(
                 }
             }
         )
+        SavingDialog(
+            isShow = customerViewModel.showSavingDialog,
+            onDismiss = { customerViewModel.showSavingDialog = false },
+            savingBalance = customerViewModel.savingBalance,
+            savingProfit = customerViewModel.savingProfit,
+            rate = customerViewModel.currentRate,
+            savingWithdrawDate = customerViewModel.savingWithdrawDate
+        )
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -349,7 +359,7 @@ fun CustomerHome(
                             functionName = "Book flight",
                             onFunctionClick = {
                                 // Book Flight
-                                navController.navigate(AppScreen.BuyFlightTickets.name)
+                                navController.navigate(AppScreen.FindFlight.name)
                             }
                         )
                     }
@@ -726,6 +736,42 @@ fun CreateCardsDialog(
                     }
                 }
             },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun SavingDialog(
+    isShow: Boolean,
+    onDismiss: () -> Unit,
+    savingBalance: BigDecimal,
+    savingProfit: BigDecimal,
+    rate: String,
+    savingWithdrawDate: Long
+) {
+    if (isShow) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Text(
+                    text = "Saving information",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column {
+                    Text("Balance: ${formatCurrencyVN(savingBalance)} VND")
+                    Text("Profit: ${formatCurrencyVN(savingProfit)} VND")
+                    Text("Rate: $rate")
+                    Text("Withdraw date: ${savingWithdrawDate.toReadableDateTime("dd/MM/YYYY")}")
+                }
+            },
+            confirmButton = {},
             dismissButton = {
                 TextButton(onClick = onDismiss) {
                     Text("Cancel")

@@ -42,7 +42,7 @@ enum class AppScreen() {
     OfficerHome, CreateCustomer, EditCustomerProfile,
     CustomerHome, Profile,
     Deposit, Withdraw, TransactionHistory,
-    Transfer, PayBills, DepositPhoneMoney, BuyFlightTickets, BuyMovieTickets, BookHotelRooms, SeatSelection,Transaction,
+    Transfer, PayBills, DepositPhoneMoney, FindFlight, BuyMovieTickets, BookHotelRooms, SeatSelection,Transaction, Flight,
     LocateUserAndBank,
     ViewMortgageMoney,
     Saving, Confirm
@@ -158,8 +158,14 @@ fun AppScreen(
                 navController = navController
             )
         }
-        composable(route = AppScreen.BuyFlightTickets.name) {
+        composable(route = AppScreen.FindFlight.name) {
             FindFlightScreen(
+                customerViewModel = customerViewModel,
+                navController = navController
+            )
+        }
+        composable(route = AppScreen.Flight.name) {
+            BuyFlightTicketsScreen(
                 customerViewModel = customerViewModel,
                 navController = navController
             )

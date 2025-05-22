@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -31,6 +32,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -1170,16 +1172,38 @@ class CustomerViewModel : ViewModel() {
 
 
     // Saving
+    var showSavingDialog by mutableStateOf(false)
+    var savingBalance by mutableStateOf(BigDecimal.ZERO)
+        private set
+    var savingProfit by mutableStateOf(BigDecimal.ZERO)
+        private set
+    var currentRate by mutableStateOf("")
+        private set
+    var savingWithdrawDate by mutableLongStateOf(0L)
+        private set
     fun onSavingClick(
         cardNumber: String,
         navController: NavHostController
     ) {
         viewModelScope.launch {
-            val isSavingActive =
-                getFieldValueFromDocument("saving", cardNumber, "status") == "Active"
-
+            val isSavingActive = getFieldValueFromDocument("saving", cardNumber, "status") == "Active"
             if (isSavingActive) {
-                // TODO: SHOW DIALOG
+                savingBalance = getFieldValueFromDocument("saving", cardNumber, "balance").toString().toBigDecimalOrNull()
+                savingProfit = getFieldValueFromDocument("saving", cardNumber, "profit").toString().toBigDecimalOrNull()
+                savingWithdrawDate = getFieldValueFromDocument("saving", cardNumber, "withdrawDate").toString().toLong()
+                val snapshot = db.collection("profitRates")
+                    .orderBy("ratesChangeTimestamp", Query.Direction.DESCENDING)
+                    .limit(1)
+                    .get()
+                    .await()
+
+                if (!snapshot.isEmpty) {
+                    val doc = snapshot.documents[0]
+                    val profitableRatesStr = doc.getString("profitableRates") ?: "0"
+                currentRate = profitableRatesStr
+                }
+
+                showSavingDialog = true
             } else {
                 navController.navigate(AppScreen.Saving.name)
             }
@@ -1267,5 +1291,4 @@ class CustomerViewModel : ViewModel() {
             }
         }
     }
-
 }

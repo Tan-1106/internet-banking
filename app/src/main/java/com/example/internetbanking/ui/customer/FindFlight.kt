@@ -34,6 +34,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.AppScreen
 import com.example.internetbanking.Service
 import com.example.internetbanking.ui.shared.DatePicker
 import com.example.internetbanking.ui.shared.InformationLine
@@ -78,6 +80,8 @@ fun FindFlightScreen(
     navController: NavHostController
 ) {
     val context: Context = LocalContext.current
+    val customerUiState by customerViewModel.uiState.collectAsState()
+
 
     val airports = listOf(
         Airport("SGN", "Tan Son Nhat, Ho Chi Minh City"),
@@ -223,12 +227,14 @@ fun FindFlightScreen(
                             if (departureAirport == arrivalAirport) {
                                 Toast.makeText(context, "Invalid airport selected", Toast.LENGTH_SHORT).show()
                             } else {
-                                customerViewModel.onContinueTransactionClick(
-                                    type = Service.BookFlightTicket.name,
-                                    // TODO: FLIGHT
-
-                                    navController = navController
-                                )
+//                                customerViewModel.onContinueTransactionClick(
+//                                    type = Service.BookFlightTicket.name,
+//                                    sourceCard = customerUiState.checkingCardNumber,
+//
+//
+//                                    navController = navController
+//                                )
+                                navController.navigate(AppScreen.Flight.name)
                             }
                         }
                     },

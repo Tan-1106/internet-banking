@@ -273,7 +273,7 @@ fun MovieCard(
                 onClick = { onClick() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(30.dp),
+                    .height(40.dp),
                 shape = RoundedCornerShape(4.dp)
             ) {
                 Text("Mua Ngay", fontSize = 12.sp)

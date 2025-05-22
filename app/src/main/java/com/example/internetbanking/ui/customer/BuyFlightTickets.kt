@@ -95,7 +95,7 @@ fun BuyFlightTicketsScreen(
                             modifier = Modifier
                                 .size(30.dp)
                                 .clickable {
-//                                    navController.navigateUp()
+                                    navController.navigateUp()
                                 }
                         )
                     },
@@ -154,7 +154,7 @@ fun BuyFlightTicketsScreen(
                                     .padding(5.dp)
                             )
                         },
-                        nameAirport = "Airport Nameasasasas",
+                        nameAirport = "Airport Name",
                         departureLocation = "Departure location",
                         departureTime = "20:10",
                         arrivalLocation = "ANC",

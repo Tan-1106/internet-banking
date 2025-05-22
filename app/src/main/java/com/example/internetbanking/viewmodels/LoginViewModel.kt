@@ -82,8 +82,20 @@ class LoginViewModel : ViewModel() {
                 }
 
                 when (role) {
-                    "Officer" -> navController.navigate(AppScreen.OfficerHome.name)
-                    else -> navController.navigate(AppScreen.CustomerHome.name)
+                    "Officer" -> navController.navigate(AppScreen.OfficerHome.name){
+                        popUpTo(AppScreen.Login.name){
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+
+                    }
+                    else -> navController.navigate(AppScreen.CustomerHome.name){
+                        popUpTo(AppScreen.Login.name){
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+
+                    }
                 }
 
             } catch (e: Exception) {

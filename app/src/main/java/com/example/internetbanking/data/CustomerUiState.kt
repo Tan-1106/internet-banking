@@ -35,7 +35,11 @@ data class CustomerUiState(
     //deposit
     val currentTransaction: TransactionRecord? = null,
     //paybill
-    val currentPayBill: Bill? = null
+    val currentPayBill: Bill? = null,
+    //fligthAvailable
+    val flightMatching: List<Flight> = emptyList(),
+    val currentFlightTicket: FlightTicket? = null
+
 )
 
 data class TransactionRecord(
@@ -96,4 +100,29 @@ data class Deposit(
     val fromCardNumber: String = "",
     val fromUserName: String = "",
     val fromBank: String = "",
+)
+
+data class Flight(
+    val flightId: String = "",
+    val from: String = "",
+    val to: String = "",
+    val startTime: String = "",
+    val endTime: String = "",
+    val flightProvider: String = "",
+    val availablePassenger: Int = 0,
+    val cardNumber: String = "",
+    val price: BigDecimal = BigDecimal.ZERO,
+    val date: String = "",
+)
+
+data class FlightTicket(
+    val transactionID: String = "",
+    val flightProvider: String = "",
+    val from: String = "",
+    val to: String = "",
+    val startTime: String = "",
+    val endTime: String = "",
+    val date: String = "",
+    val price: BigDecimal = BigDecimal.ZERO,
+    val cardNumber: String = "",
 )

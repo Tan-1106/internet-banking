@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.customer
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,8 +20,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ButtonDefaults
@@ -34,6 +39,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +59,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.R
 import com.example.internetbanking.ui.shared.ViewProfitRatesAndProfit
+import com.example.internetbanking.ui.shared.formatCurrencyVN
 import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_light_green1
 import com.example.internetbanking.ui.theme.custom_light_green2
@@ -66,6 +73,8 @@ fun BuyFlightTicketsScreen(
     customerViewModel: CustomerViewModel,
     navController: NavHostController
 ) {
+    val uiState = customerViewModel.uiState.collectAsState()
+    val flightMatching = uiState.value.flightMatching
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -135,7 +144,7 @@ fun BuyFlightTicketsScreen(
 
             modifier = Modifier.systemBarsPadding()
         ) { innerPadding ->
-            Column(
+            LazyColumn(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -143,29 +152,42 @@ fun BuyFlightTicketsScreen(
                     .padding(innerPadding)
                     .padding(10.dp)
             ) {
-                repeat(5) {
-                    FlightCard(
-                        image = {
-                            Image(
-                                painter = painterResource(R.drawable.logo),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .padding(5.dp)
-                            )
-                        },
-                        nameAirport = "Airport Name",
-                        departureLocation = "Departure location",
-                        departureTime = "20:10",
-                        arrivalLocation = "ANC",
-                        arrivalTime = "20:10",
-                        price = "10.000.000đ",
-                        onClick = {
-                            //direct to confirm screen
-                        }
+                if (flightMatching.isEmpty()) {
+                    item {
+                        Text(
+                            text = "No flight found",
+                            fontSize = 20.sp,
+                            color = custom_light_green1,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                } else {
 
-                    )
-                    Spacer(Modifier.height(10.dp))
+
+                    items(items = flightMatching) {
+                        FlightCard(
+                            image = {
+                                Image(
+                                    painter = painterResource(R.drawable.logo),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .padding(5.dp)
+                                )
+                            },
+                            nameAirport = it.flightProvider,
+                            departureLocation = it.from,
+                            departureTime = it.startTime,
+                            arrivalLocation = it.to,
+                            arrivalTime = it.endTime,
+                            price = "${formatCurrencyVN(it.price)}đ",
+                            onClick = {
+                                Log.i("Flight", "Flight ID: ${it.flightId}")
+                            }
+
+                        )
+                        Spacer(Modifier.height(10.dp))
+                    }
                 }
 
             }
@@ -217,7 +239,7 @@ fun FlightCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.widthIn(max = 60.dp)) {
                 Text(departureTime, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text(departureLocation)
+//                Text(departureLocation)
             }
             HorizontalDivider(
                 modifier = Modifier
@@ -226,7 +248,7 @@ fun FlightCard(
             )
             Column(modifier = Modifier.widthIn(max = 60.dp)) {
                 Text(arrivalTime, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text(arrivalLocation)
+//                Text(arrivalLocation)
             }
         }
         Row(modifier = Modifier.height(IntrinsicSize.Min)) {

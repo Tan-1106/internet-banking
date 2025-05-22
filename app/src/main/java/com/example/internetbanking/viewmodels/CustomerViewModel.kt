@@ -14,6 +14,7 @@ import com.example.internetbanking.AppScreen
 import com.example.internetbanking.Service
 import com.example.internetbanking.data.Bill
 import com.example.internetbanking.data.CustomerUiState
+import com.example.internetbanking.data.Flight
 import com.example.internetbanking.data.TransactionDetail
 import com.example.internetbanking.data.TransactionRecord
 import com.example.internetbanking.data.User
@@ -33,6 +34,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.type.DateTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,6 +42,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.math.BigDecimal
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class CustomerViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CustomerUiState())
@@ -575,7 +579,7 @@ class CustomerViewModel : ViewModel() {
 
             var newTransferRecord = TransactionRecord(
                 transactionId = newTransactionId,
-                amount =  amount,
+                amount = amount,
                 fee = fee,
                 timestamp = timestamp,
                 sourceCard = sourceCard,
@@ -729,14 +733,14 @@ class CustomerViewModel : ViewModel() {
 
                 if (type == Service.Transfer.name) {
                     transferBetweenCard(sourceCard, destinationCard, totalDeduct)
-                        val history = mapOf(
-                            "amount" to amount.toDouble(),
-                            "fee" to fee.toDouble(),
-                            "sourceCard" to sourceCard,
-                            "destinationCard" to destinationCard,
-                            "timestamp" to timestamp,
-                            "type" to type
-                        )
+                    val history = mapOf(
+                        "amount" to amount.toDouble(),
+                        "fee" to fee.toDouble(),
+                        "sourceCard" to sourceCard,
+                        "destinationCard" to destinationCard,
+                        "timestamp" to timestamp,
+                        "type" to type
+                    )
                     val detail = mapOf(
                         "transactionId" to transactionId,
                         "amount" to amount.toDouble(),
@@ -760,7 +764,8 @@ class CustomerViewModel : ViewModel() {
                         data = history,
                         documentId = transactionId,
                         onSuccess = {
-                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT)
+                                .show()
                             navController.navigate(AppScreen.CustomerHome.name) {
                                 popUpTo(AppScreen.CustomerHome.name) {
                                     inclusive = true
@@ -813,8 +818,8 @@ class CustomerViewModel : ViewModel() {
                     )
 
 
-                } 
-                 // PHONE TOP UP
+                }
+                // PHONE TOP UP
                 else if (type == Service.DepositPhoneMoney.name) {
                     transferBetweenCard(sourceCard, destinationCard, totalDeduct)
                     val history = mapOf(
@@ -848,7 +853,8 @@ class CustomerViewModel : ViewModel() {
                         data = history,
                         documentId = transactionId,
                         onSuccess = {
-                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Transaction successful", Toast.LENGTH_SHORT)
+                                .show()
                             navController.navigate(AppScreen.CustomerHome.name) {
                                 popUpTo(AppScreen.CustomerHome.name) {
                                     inclusive = true
@@ -856,8 +862,7 @@ class CustomerViewModel : ViewModel() {
                             }
                         }
                     )
-                }
-                else if (type == "Flight") {
+                } else if (type == "Flight") {
 
                 }
                 // HOTEL ROOM BOOKING
@@ -900,30 +905,60 @@ class CustomerViewModel : ViewModel() {
             }
         }
         return true
-//                .addOnSuccessListener { documents ->
-//                    if (documents.isEmpty) {
-//                        Log.d(TAG, "No matching documents")
-//                    } else {
-//                        for (document in documents) {
-//                            val cardNumber = document.getString("cardNumber")
-//                            val amount = document.getLong("amount") ?: 0L
-//                            if (cardNumber != null) {
-//                                _uiState.update { currentState ->
-//                                    currentState.copy(
-//                                        currentTransaction = TransactionRecord(
-//                                            amount = BigDecimal.valueOf(amount),
-//                                            destinationCard = cardNumber,
-//                                        )
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//                .addOnFailureListener { exception ->
-//                    Log.d(TAG, "Error getting documents: ", exception)
-//                }
-//        }
+    }
+
+    fun findFlightAvailable(
+        departureAirport: String,
+        arrivalAirport: String,
+        departureDate: String,
+        numberOfPassengers: Int,
+        navController: NavHostController
+    ) {
+        viewModelScope.launch {
+
+            val flights =
+                db.collection("flights").whereEqualTo("from", departureAirport)
+                    .whereEqualTo("to", arrivalAirport)
+                    .whereEqualTo("date", departureDate)
+                    .whereGreaterThan("availablePassenger", numberOfPassengers)
+                    .get().await()
+            if (flights.isEmpty) {
+                navController.navigate(AppScreen.Flight.name)
+            }
+            else {
+
+
+                _uiState.update { currentUiState ->
+                    currentUiState.copy(
+                        flightMatching = flights.documents.map {
+                            val availablePassenger = it.getLong("availablePassenger")?.toInt() ?: 0
+                            val cardNumber = it.getString("cardNumber") ?: ""
+                            val date = it.getString("date") ?: ""
+                            val arrivalTime = it.getLong("startTime")?.let { SimpleDateFormat("HH:mm").format(Date(it)) }?: ""
+                            val flightId = it.getString("flightId") ?: ""
+                            val flightProvider = it.getString("flightProvider") ?: ""
+                            val from = it.getString("from") ?: ""
+                            val price = it.getLong("price")?.toBigDecimal() ?: BigDecimal.ZERO
+                            val departureTime = it.getLong("endTime")?.let { SimpleDateFormat("HH:mm").format(Date(it)) }?: ""
+                            val to = it.getString("to") ?: ""
+                            Flight(
+                                flightId = flightId,
+                                from = from,
+                                to = to,
+                                startTime = departureTime,
+                                endTime = arrivalTime,
+                                flightProvider = flightProvider,
+                                availablePassenger = availablePassenger,
+                                cardNumber = cardNumber,
+                                price = price,
+                                date = date
+                            )
+                        }.toList()
+                    )
+                }
+                navController.navigate(AppScreen.Flight.name)
+            }
+        }
     }
 
     fun createSavingAccount(context: Context) {
@@ -1181,16 +1216,23 @@ class CustomerViewModel : ViewModel() {
         private set
     var savingWithdrawDate by mutableLongStateOf(0L)
         private set
+
     fun onSavingClick(
         cardNumber: String,
         navController: NavHostController
     ) {
         viewModelScope.launch {
-            val isSavingActive = getFieldValueFromDocument("saving", cardNumber, "status") == "Active"
+            val isSavingActive =
+                getFieldValueFromDocument("saving", cardNumber, "status") == "Active"
             if (isSavingActive) {
-                savingBalance = getFieldValueFromDocument("saving", cardNumber, "balance").toString().toBigDecimalOrNull()
-                savingProfit = getFieldValueFromDocument("saving", cardNumber, "profit").toString().toBigDecimalOrNull()
-                savingWithdrawDate = getFieldValueFromDocument("saving", cardNumber, "withdrawDate").toString().toLong()
+                savingBalance =
+                    getFieldValueFromDocument("saving", cardNumber, "balance").toString()
+                        .toBigDecimalOrNull()
+                savingProfit = getFieldValueFromDocument("saving", cardNumber, "profit").toString()
+                    .toBigDecimalOrNull()
+                savingWithdrawDate =
+                    getFieldValueFromDocument("saving", cardNumber, "withdrawDate").toString()
+                        .toLong()
                 val snapshot = db.collection("profitRates")
                     .orderBy("ratesChangeTimestamp", Query.Direction.DESCENDING)
                     .limit(1)
@@ -1200,7 +1242,7 @@ class CustomerViewModel : ViewModel() {
                 if (!snapshot.isEmpty) {
                     val doc = snapshot.documents[0]
                     val profitableRatesStr = doc.getString("profitableRates") ?: "0"
-                currentRate = profitableRatesStr
+                    currentRate = profitableRatesStr
                 }
 
                 showSavingDialog = true

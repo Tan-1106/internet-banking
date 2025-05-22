@@ -358,7 +358,17 @@ fun CustomerHome(
                             functionIcon = R.drawable.plane_ticket,
                             functionName = "Book flight",
                             onFunctionClick = {
-                                // Book Flight
+//                                 Book Flight
+//                                customerViewModel.findFlightAvailable(
+//                                    departureAirport = "Tan Son Nhat, Ho Chi Minh City"
+//                                    ,
+//                                    arrivalAirport = "Noi Bai, Hanoi"
+//                                    ,
+//                                    departureDate = "23/05/2025"
+//                                    ,
+//                                    numberOfPassengers = 1,
+//                                    navController =navController
+//                                )
                                 navController.navigate(AppScreen.FindFlight.name)
                             }
                         )

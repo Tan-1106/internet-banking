@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.customer
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -72,13 +74,13 @@ fun DepositAndWithdrawScreen(
     userSelect: Int = 0,
     navController: NavHostController
 ) {
+    val context= LocalContext.current
     val uiState by customerViewModel.uiState.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(userSelect) }
     val tabs = listOf("Deposit", "Withdraw")
     var amount by remember { mutableStateOf(BigDecimal.ZERO) }
     var isDepositError by remember { mutableStateOf(false) }
     var isWithdrawError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -132,7 +134,7 @@ fun DepositAndWithdrawScreen(
                             onClick = {
                                 if (amount == BigDecimal.ZERO) {
                                     isDepositError = true
-                                    errorMessage = "Please enter an amount"
+                                    Toast.makeText(context,"Please enter an amount",Toast.LENGTH_SHORT).show()
                                 } else {
 
                                     customerViewModel.onStartDeposit(
@@ -159,7 +161,7 @@ fun DepositAndWithdrawScreen(
                         ElevatedButton(
                             onClick = {
                                 if (amount > uiState.checkingBalance) {
-                                    errorMessage = "Not enough balance"
+                                    Toast.makeText(context,"Please enter an amount",Toast.LENGTH_SHORT).show()
                                     isWithdrawError = true
                                 } else {
                                     customerViewModel.onStartWithdraw(
@@ -245,7 +247,7 @@ fun DepositAndWithdrawScreen(
                         amount = amount,
                         label = "Enter the amount to deposit",
                         isError = isDepositError,
-                        errorMessage = errorMessage,
+                        errorMessage = "",
                         onAmountChange = {
                             amount = if (it.isEmpty()) {
                                 BigDecimal.ZERO
@@ -259,7 +261,7 @@ fun DepositAndWithdrawScreen(
                         amount = amount,
                         label = "Enter the amount to withdraw",
                         isError = isWithdrawError,
-                        errorMessage = errorMessage,
+                        errorMessage = "",
                         onAmountChange = {
                             amount = if (it.isEmpty()) {
                                 BigDecimal.ZERO

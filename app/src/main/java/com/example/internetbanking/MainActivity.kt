@@ -9,6 +9,7 @@ import com.example.internetbanking.ui.theme.InternetBankingTheme
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
             InternetBankingTheme {

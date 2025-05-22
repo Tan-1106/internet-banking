@@ -1,6 +1,7 @@
 package com.example.internetbanking.ui.customer
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,7 +58,6 @@ fun TransactionScreen(
     var bankName by remember { mutableStateOf("") }
     var ownerName by remember { mutableStateOf("") }
     val customerUiState by customerViewModel.uiState.collectAsState()
-    var errorMessage by remember { mutableStateOf("") }
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -92,84 +92,78 @@ fun TransactionScreen(
             )
         },
         bottomBar = {
-            Column(horizontalAlignment = Alignment.Start) {
-                if (!errorMessage.isEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color.White)
+            ) {
+
+                ElevatedButton(
+                    onClick = {
+                       val  errorMessage = validateCard(
+                            cardNumber = cardNumber,
+                            bankName = bankName,
+                            ownerName = ownerName
+                        )
+
+                        if (!errorMessage.isEmpty()) {
+                            Toast.makeText(context,errorMessage,Toast.LENGTH_SHORT).show()
+                            return@ElevatedButton
+                        }
+                        val biometricAuthenticator = BiometricAuthenticator(context)
+                        biometricAuthenticator.promptBiometricAuth(
+                            title = "Biometric Authentication",
+                            subtitle = "Authenticate to access your account",
+                            negativeButtonText = "Cancel",
+                            fragmentActivity = activity,
+                            onSucess = { result ->
+                                if (customerUiState.currentTransaction?.type == Service.Deposit.name) {
+                                    customerViewModel.onConfirmDeposit(
+                                        cardNumber = cardNumber,
+                                        bank = bankName,
+                                        ownerName = ownerName,
+                                        context = context,
+                                        navController = navController,
+                                    )
+                                } else {
+                                    customerViewModel.onConfirmWithdraw(
+                                        cardNumber = cardNumber,
+                                        bank = bankName,
+                                        ownerName = ownerName,
+                                        context = context,
+                                        navController = navController,
+                                    )
+
+                                }
+                            },
+                            onFailed = {
+                                Toast.makeText(context,"Wrong biometric",Toast.LENGTH_SHORT).show()
+
+                            },
+                            onError = { errorCode, errorString ->
+                                Toast.makeText(context, errorString,Toast.LENGTH_SHORT).show()
+
+
+                            }
+                        )
+
+                    },
+                    modifier = Modifier
+                        .padding(vertical = 5.dp, horizontal = 10.dp)
+                        .fillMaxSize(),
+                    shape = RoundedCornerShape(corner = CornerSize(10.dp)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = custom_light_green1
+                    )
+                ) {
                     Text(
-                        errorMessage,
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = 10.dp)
+                        text = "Confirm",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .background(Color.White)
-                ) {
 
-                    ElevatedButton(
-                        onClick = {
-                            errorMessage = validateCard(
-                                cardNumber = cardNumber,
-                                bankName = bankName,
-                                ownerName = ownerName
-                            )
-
-                            if (!errorMessage.isEmpty()) {
-                                return@ElevatedButton
-                            }
-                            val biometricAuthenticator = BiometricAuthenticator(context)
-                            biometricAuthenticator.promptBiometricAuth(
-                                title = "Biometric Authentication",
-                                subtitle = "Authenticate to access your account",
-                                negativeButtonText = "Cancel",
-                                fragmentActivity = activity,
-                                onSucess = { result ->
-                                    if (customerUiState.currentTransaction?.type == Service.Deposit.name) {
-                                        customerViewModel.onConfirmDeposit(
-                                            cardNumber = cardNumber,
-                                            bank = bankName,
-                                            ownerName = ownerName,
-                                            context = context,
-                                            navController = navController,
-                                        )
-                                    } else {
-                                        customerViewModel.onConfirmWithdraw(
-                                            cardNumber = cardNumber,
-                                            bank = bankName,
-                                            ownerName = ownerName,
-                                            context = context,
-                                            navController = navController,
-                                        )
-
-                                    }
-                                },
-                                onFailed = {
-                                    errorMessage = "Wrong biometric"
-                                },
-                                onError = { errorCode, errorString ->
-                                    errorMessage = errorString
-                                }
-                            )
-
-                        },
-                        modifier = Modifier
-                            .padding(vertical = 5.dp, horizontal = 10.dp)
-                            .fillMaxSize(),
-                        shape = RoundedCornerShape(corner = CornerSize(10.dp)),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = custom_light_green1
-                        )
-                    ) {
-                        Text(
-                            text = "Confirm",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                }
             }
         },
         modifier = Modifier.systemBarsPadding()

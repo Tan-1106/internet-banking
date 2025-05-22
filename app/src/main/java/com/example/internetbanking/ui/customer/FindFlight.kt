@@ -36,7 +36,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,7 +51,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.internetbanking.AppScreen
-import com.example.internetbanking.Service
 import com.example.internetbanking.ui.shared.DatePicker
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
@@ -60,14 +58,14 @@ import com.example.internetbanking.ui.theme.GradientColors
 import com.example.internetbanking.ui.theme.custom_mint_green
 import com.example.internetbanking.viewmodels.CustomerViewModel
 
-data class Flight(
-    val airline: String,
-    val departureTime: String,
-    val arrivalTime: String,
-    val price: Double,
-    val duration: String
-)
-
+//data class Flight(
+//    val airline: String,
+//    val departureTime: String,
+//    val arrivalTime: String,
+//    val price: Double,
+//    val duration: String
+//)
+//
 data class Airport(
     val code: String,
     val name: String
@@ -89,18 +87,11 @@ fun FindFlightScreen(
         Airport("DAD", "Da Nang International, Da Nang")
     )
 
-    val flights = listOf(
-        Flight("Vietnam Airlines", "08:00", "10:00", 120.0, "2h"),
-        Flight("VietJet Air", "09:30", "11:30", 90.0, "2h"),
-        Flight("Bamboo Airways", "12:00", "14:00", 110.0, "2h")
-    )
 
     var departureAirport by remember { mutableStateOf<Airport?>(null) }
     var arrivalAirport by remember { mutableStateOf<Airport?>(null) }
     var departureDate by remember { mutableStateOf("") }
     var numberOfPassengers by remember { mutableStateOf("") }
-    var ticketClass by remember { mutableStateOf("Economy") }
-    var selectedFlight by remember { mutableStateOf<Flight?>(null) }
 
     Scaffold(
         topBar = {
@@ -177,7 +168,7 @@ fun FindFlightScreen(
                     canSelectFuture = true,
                     suffix = {
                         VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                        Icon(Icons.Filled.DateRange, contentDescription = "Select birthday")
+                        Icon(Icons.Filled.DateRange, contentDescription = null)
                     }
                 )
             }
@@ -193,18 +184,6 @@ fun FindFlightScreen(
                 )
             }
             item {
-                InformationSelect(
-                    label = "Ticket Class",
-                    placeholder = ticketClass,
-                    options = listOf("Economy", "Business", "First Class"),
-                    onOptionSelected = { ticketClass = it },
-                    suffix = {
-                        VerticalDivider(modifier = Modifier.fillMaxHeight(0.8f), color = Color.Gray)
-                        Icon(Icons.Filled.ArrowDropDown, contentDescription = "")
-                    }
-                )
-            }
-            item {
                 Text(
                     text = "Available Flights",
                     fontSize = 18.sp,
@@ -212,30 +191,24 @@ fun FindFlightScreen(
                 )
             }
             item {
-                FlightList(
-                    flights = flights,
-                    selectedFlight = selectedFlight,
-                    onFlightSelected = { flight -> selectedFlight = flight }
-                )
-            }
-            item {
                 Button(
                     onClick = {
-                        if (departureAirport != null && arrivalAirport != null &&
-                            departureDate.isNotEmpty() && selectedFlight != null
+                        if (departureAirport == null || arrivalAirport == null ||
+                            departureDate.isEmpty() || numberOfPassengers.isEmpty()
                         ) {
-                            if (departureAirport == arrivalAirport) {
-                                Toast.makeText(context, "Invalid airport selected", Toast.LENGTH_SHORT).show()
-                            } else {
-//                                customerViewModel.onContinueTransactionClick(
-//                                    type = Service.BookFlightTicket.name,
-//                                    sourceCard = customerUiState.checkingCardNumber,
-//
-//
-//                                    navController = navController
-//                                )
-                                navController.navigate(AppScreen.Flight.name)
-                            }
+                            Toast.makeText(
+                                context,
+                                "Please fill all fields",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            customerViewModel.findFlightAvailable(
+                                departureAirport!!.name,
+                                arrivalAirport!!.name,
+                                departureDate,
+                                numberOfPassengers.toInt(),
+                                navController
+                            )
                         }
                     },
                     modifier = Modifier
@@ -243,7 +216,7 @@ fun FindFlightScreen(
                         .height(50.dp),
                     shape = RoundedCornerShape(8.dp),
                     enabled = departureAirport != null && arrivalAirport != null &&
-                            departureDate.isNotEmpty() && selectedFlight != null
+                            departureDate.isNotEmpty()
                 ) {
                     Text("Book Now", fontSize = 16.sp)
                 }
@@ -252,71 +225,71 @@ fun FindFlightScreen(
     }
 }
 
-
-@Composable
-fun FlightList(
-    flights: List<Flight>,
-    selectedFlight: Flight?,
-    onFlightSelected: (Flight) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier.height(200.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(flights) { flight ->
-            FlightItem(
-                flight = flight,
-                isSelected = flight == selectedFlight,
-                onClick = { onFlightSelected(flight) }
-            )
-        }
-    }
-}
-
-@Composable
-fun FlightItem(
-    flight: Flight,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-            else MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = flight.airline,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "${flight.departureTime} - ${flight.arrivalTime}",
-                    fontSize = 14.sp
-                )
-                Text(
-                    text = flight.duration,
-                    fontSize = 14.sp
-                )
-            }
-            Text(
-                text = "$${flight.price}",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        }
-    }
-}
+//
+//@Composable
+//fun FlightList(
+//    flights: List<Flight>,
+//    selectedFlight: Flight?,
+//    onFlightSelected: (Flight) -> Unit
+//) {
+//    LazyColumn(
+//        modifier = Modifier.height(200.dp),
+//        verticalArrangement = Arrangement.spacedBy(8.dp)
+//    ) {
+//        items(flights) { flight ->
+//            FlightItem(
+//                flight = flight,
+//                isSelected = flight == selectedFlight,
+//                onClick = { onFlightSelected(flight) }
+//            )
+//        }
+//    }
+//}
+//
+//@Composable
+//fun FlightItem(
+//    flight: Flight,
+//    isSelected: Boolean,
+//    onClick: () -> Unit
+//) {
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .clickable { onClick() },
+//        colors = CardDefaults.cardColors(
+//            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+//            else MaterialTheme.colorScheme.surface
+//        )
+//    ) {
+//        Column(
+//            modifier = Modifier.padding(16.dp)
+//        ) {
+//            Text(
+//                text = flight.airline,
+//                fontSize = 16.sp,
+//                fontWeight = FontWeight.Bold
+//            )
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                Text(
+//                    text = "${flight.departureTime} - ${flight.arrivalTime}",
+//                    fontSize = 14.sp
+//                )
+//                Text(
+//                    text = flight.duration,
+//                    fontSize = 14.sp
+//                )
+//            }
+//            Text(
+//                text = "$${flight.price}",
+//                fontSize = 14.sp,
+//                color = MaterialTheme.colorScheme.secondary
+//            )
+//        }
+//    }
+//}
 
 @Preview(showBackground = true)
 @Composable

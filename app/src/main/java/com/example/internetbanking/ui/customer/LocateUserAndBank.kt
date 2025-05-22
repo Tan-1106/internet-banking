@@ -189,15 +189,18 @@ fun LocateUserAndBankScreen(
 
                     ElevatedButton(
                         onClick = {
-                            isFinding = true
-                            drawRoute(
-                                mapViewState.value,
-                                start = deviceLocation!!,
-                                end = nearestBranch!!,
-                                onFinish = {
-                                    isFinding = false
-                                }
-                            )
+                            if (deviceLocation != null && nearestBranch != null) {
+
+                                isFinding = true
+                                drawRoute(
+                                    mapViewState.value,
+                                    start = deviceLocation!!,
+                                    end = nearestBranch!!,
+                                    onFinish = {
+                                        isFinding = false
+                                    }
+                                )
+                            }
                         },
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 10.dp)

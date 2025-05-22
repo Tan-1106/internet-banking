@@ -1,5 +1,6 @@
 package com.example.internetbanking.ui.customer
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,10 +24,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.internetbanking.MainActivity
 import com.example.internetbanking.Service
+import com.example.internetbanking.security.BiometricAuthenticator
 import com.example.internetbanking.ui.shared.InformationLine
 import com.example.internetbanking.ui.shared.InformationSelect
 import com.example.internetbanking.ui.shared.formatCurrencyVN
@@ -39,14 +43,16 @@ import java.math.BigDecimal
 val DarkMintGreen = Color(0xFF2E7D32)
 val LightDarkMintGreen = Color(0xFF4CAF50)
 
+@SuppressLint("ContextCastToActivity")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(
     navController: NavHostController,
     customerViewModel: CustomerViewModel,
 ) {
-    val banks = listOf<String>("Vietcombank", "Sacombank", "Techcombank", "Agribank", "VietinBank")
     val context = LocalContext.current
+    val activity = context as FragmentActivity
+    val banks = listOf<String>("Vietcombank", "Sacombank", "Techcombank", "Agribank", "VietinBank")
     var cardNumber by remember { mutableStateOf("") }
     var bankName by remember { mutableStateOf("") }
     var ownerName by remember { mutableStateOf("") }
@@ -109,27 +115,43 @@ fun TransactionScreen(
                                 bankName = bankName,
                                 ownerName = ownerName
                             )
+
                             if (!errorMessage.isEmpty()) {
                                 return@ElevatedButton
                             }
-                            if (customerUiState.currentTransaction?.type == Service.Deposit.name) {
-                                customerViewModel.onConfirmDeposit(
-                                    cardNumber = cardNumber,
-                                    bank = bankName,
-                                    ownerName = ownerName,
-                                    context = context,
-                                    navController = navController,
-                                )
-                            } else {
-                                customerViewModel.onConfirmWithdraw(
-                                    cardNumber = cardNumber,
-                                    bank = bankName,
-                                    ownerName = ownerName,
-                                    context = context,
-                                    navController = navController,
-                                )
+                            val biometricAuthenticator = BiometricAuthenticator(context)
+                            biometricAuthenticator.promptBiometricAuth(
+                                title = "Biometric Authentication",
+                                subtitle = "Authenticate to access your account",
+                                negativeButtonText = "Cancel",
+                                fragmentActivity = activity,
+                                onSucess = { result ->
+                                    if (customerUiState.currentTransaction?.type == Service.Deposit.name) {
+                                        customerViewModel.onConfirmDeposit(
+                                            cardNumber = cardNumber,
+                                            bank = bankName,
+                                            ownerName = ownerName,
+                                            context = context,
+                                            navController = navController,
+                                        )
+                                    } else {
+                                        customerViewModel.onConfirmWithdraw(
+                                            cardNumber = cardNumber,
+                                            bank = bankName,
+                                            ownerName = ownerName,
+                                            context = context,
+                                            navController = navController,
+                                        )
 
-                            }
+                                    }
+                                },
+                                onFailed = {
+                                    errorMessage = "Wrong biometric"
+                                },
+                                onError = { errorCode, errorString ->
+                                    errorMessage = errorString
+                                }
+                            )
 
                         },
                         modifier = Modifier
@@ -298,10 +320,10 @@ fun TransactionScreen(
                 Text("Total amount", fontSize = 16.sp, color = Color.Black)
                 Text(
                     text = "${
-                    formatCurrencyVN(
-                        customerUiState.currentTransaction?.let { it.amount + it.fee } ?: BigDecimal.ZERO
-                    )
-                }đ",
+                        formatCurrencyVN(
+                            customerUiState.currentTransaction?.let { it.amount + it.fee } ?: BigDecimal.ZERO
+                        )
+                    }đ",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkMintGreen

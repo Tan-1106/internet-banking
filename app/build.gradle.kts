@@ -75,4 +75,6 @@ dependencies {
     implementation("at.favre.lib:bcrypt:0.9.0")
     implementation("org.osmdroid:osmdroid-android:6.1.16")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    //sinh trắc học
+    implementation("androidx.biometric:biometric:1.1.0")
 }

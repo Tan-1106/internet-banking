@@ -452,6 +452,7 @@ class CustomerViewModel : ViewModel() {
             try {
                 val sourceSnapshot = db.collection("transactionHistories")
                     .whereEqualTo("sourceCard", cardNumber)
+
                     .get().await()
 
                 val destSnapshot = db.collection("transactionHistories")
@@ -462,6 +463,8 @@ class CustomerViewModel : ViewModel() {
                 val destTransactions = parseTransactions(destSnapshot.documents)
 
                 val allTransactions = (sourceTransactions + destTransactions)
+                    .sortedByDescending { it.timestamp }
+
                     .distinctBy { it.transactionId }
 
                 fullTransactionHistory = allTransactions

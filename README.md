@@ -212,35 +212,18 @@ implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
 - ✅ Chọn mệnh giá linh hoạt
 - ✅ Nạp tiền nhanh cho số thường dùng
 
-#### 3. Đặt Vé Máy Bay (Flight Booking)
-- ✅ Tìm kiếm chuyến bay theo ngày, điểm đi/đến
-- ✅ Lọc theo giá, hãng hàng không
-- ✅ Chọn hạng ghế (Economy, Business, First Class)
-- ✅ Thanh toán trực tiếp từ tài khoản
-- ✅ Xác nhận đặt vé qua email
-
-#### 4. Đặt Vé Xem Phim (Movie Tickets)
-- ✅ Xem danh sách phim đang chiếu
-- ✅ Chọn rạp, suất chiếu
-- ✅ Sơ đồ chọn ghế trực quan
-- ✅ Thanh toán vé online
-- ✅ Lưu vé điện tử
-
-#### 5. Đặt Phòng Khách Sạn (Hotel Booking)
-- ✅ Tìm kiếm khách sạn theo vị trí
-- ✅ Xem chi tiết phòng, tiện nghi
-- ✅ Chọn ngày nhận/trả phòng
-- ✅ So sánh giá phòng
-- ✅ Thanh toán và xác nhận đặt phòng
-
-### 📍 Dịch Vụ Định Vị
-
-#### Location Services
+#### 3. Location Services
 - ✅ Xác định vị trí hiện tại của người dùng
 - ✅ Tìm chi nhánh ngân hàng gần nhất
 - ✅ Hiển thị bản đồ OSM
 - ✅ Chỉ đường đến chi nhánh
 - ✅ Thông tin chi tiết chi nhánh (địa chỉ, số điện thoại, giờ làm việc)
+
+#### Các tính năng khác đang triển khai
+- Đặt phòng khách sạn
+- Đặt vé xem phim
+- ...
+- VNPay Sandbox
 
 ### 👨‍💼 Tính Năng Dành Cho Officer
 
@@ -248,9 +231,7 @@ implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
 - ✅ Tạo tài khoản khách hàng mới
 - ✅ Chỉnh sửa thông tin khách hàng
 - ✅ Kích hoạt/Vô hiệu hóa tài khoản
-- ✅ Xem danh sách khách hàng
-- ✅ Tìm kiếm khách hàng
-- ✅ Báo cáo giao dịch
+
 
 ## 📁 Cấu Trúc Dự Án
 
@@ -487,5 +468,3 @@ This project is developed for educational purposes.
 - Year: 2025
 
 ---
-
-⭐ **Note**: Đây là dự án học tập, demo các kỹ năng Android development với Kotlin và Jetpack Compose. Không sử dụng cho mục đích thương mại.
